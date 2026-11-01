@@ -24,17 +24,17 @@ export function StatCard({
   const barPercentage = showBar ? Math.min(100, (barValue / barMax) * 100) : 0;
   
   return (
-    <div className="card-modern p-3 hover-lift">
-      <div className="flex items-center justify-between mb-2">
+    <div className="card-modern p-2 hover-lift">
+      <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs text-gray-400 font-semibold">{label}</span>
-        <span className={`text-sm font-bold ${valueClassName}`}>
+        <span className={`text-xs font-bold ${valueClassName}`}>
           {value}
         </span>
       </div>
       {showBar && (
-        <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden shadow-inner">
+        <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden shadow-inner">
           <div 
-            className={`h-2 rounded-full ${barColor} transition-all duration-500 shadow-lg`}
+            className={`h-1.5 rounded-full ${barColor} transition-all duration-500 shadow-lg`}
             style={{ width: `${barPercentage}%` }}
           ></div>
         </div>
