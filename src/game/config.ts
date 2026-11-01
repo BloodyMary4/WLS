@@ -47,8 +47,8 @@ export const GAME_CONFIG = {
     MAX_PER_YEAR: 2,
     /** Кулдаун (в годах) после срабатывания микро-события */
     COOLDOWN_YEARS: 1,
-    /** Масштаб шанса срабатывания: шанс = вес события × TRIGGER_SCALE */
-    TRIGGER_SCALE: 0.5,
+    /** Делитель шанса срабатывания: шанс = вес события / TRIGGER_DIVISOR */
+    TRIGGER_DIVISOR: 2,
   },
 };
 

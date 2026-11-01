@@ -281,7 +281,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     name: 'Путешественник',
     description: 'Увидеть 3+ глобальных события',
     icon: '🌍',
-    condition: (c) => c.worldEvent !== undefined && c.age >= 15
+    condition: (c) => (c.worldEventsSeen?.length ?? 0) >= 3
   },
   {
     id: 'survivor_200',

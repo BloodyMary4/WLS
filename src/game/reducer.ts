@@ -332,6 +332,13 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
   let newChar = game.character;
   const newHistory = [...game.history];
 
+  // Переход года: старение, регенерация, мировые события (раз в 5 лет)
+  const aged = updateAgeStatus(newChar);
+  newChar = aged.character;
+  if (aged.newWorldEvent) {
+    newHistory.push(`[МИР] ${aged.newWorldEvent}`);
+  }
+
   // Микро-события
   const microEventResult = triggerMicroEvent(newChar);
   if (microEventResult.triggered) {
@@ -396,8 +403,22 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
     newHistory.push(questMessages[Math.floor(rng().next() * questMessages.length)]);
   }
 
+  // Достижения проверяются и на переходе года: старение, мировые события,
+  // выживание в ветке «Император защищает» могут открыть их без выбора.
+  let unlockedList = state.unlockedAchievements;
+  let newAchievement = state.newAchievement;
+  const newlyUnlocked = checkAchievements(finalChar, unlockedList);
+  if (newlyUnlocked.length > 0) {
+    unlockedList = [...unlockedList, ...newlyUnlocked];
+    newAchievement = newlyUnlocked[0];
+    effects.push({ kind: 'playSound', sound: 'achievement' });
+    effects.push({ kind: 'achievementToast', durationMs: GAME_CONFIG.ACHIEVEMENTS.DISPLAY_DURATION });
+  }
+
   const intermediate: GameUiState = {
     ...state,
+    unlockedAchievements: unlockedList,
+    newAchievement,
     game: {
       ...game,
       character: finalChar,

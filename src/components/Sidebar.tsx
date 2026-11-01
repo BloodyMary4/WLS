@@ -176,6 +176,19 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
         </div>
       )}
 
+      {character.worldEvent && (
+        <div className="wh-panel p-6 border-l-4 border-l-blue-500/70">
+          <h3 className="wh-panel-title font-bold text-lg mb-3 pb-3 flex items-center gap-3">
+            <span className="text-2xl">🌍</span>
+            Состояние Галактики
+          </h3>
+          <p className="text-sm text-blue-200/90 italic leading-relaxed">{character.worldEvent}</p>
+          {(character.worldEventsSeen?.length ?? 0) > 1 && (
+            <p className="text-xs text-gray-500 mt-2">Запомнено великих событий: {character.worldEventsSeen!.length}</p>
+          )}
+        </div>
+      )}
+
       <div className="wh-panel p-6">
         <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
           <span className="text-2xl">📜</span>

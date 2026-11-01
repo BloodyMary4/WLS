@@ -163,7 +163,8 @@ export interface AgeUpdateResult {
 export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
   const newChar = { ...character };
   newChar.age += 1;
-  newChar.microEventCooldown = Math.max(0, (newChar.microEventCooldown ?? 0) - 1);
+  // Кулдаун микро-событий уменьшает triggerMicroEvent (microEvents.ts) —
+  // здесь двойной декремент ломал тайминг.
 
   // Естественное восстановление: раны затягиваются, если есть чем питаться.
   // Без этого даже лёгкие урон-эффекты накапливаются и персонаж умирает к ~30 годам.

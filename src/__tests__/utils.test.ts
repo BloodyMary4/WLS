@@ -70,24 +70,24 @@ describe('applyChoiceEffects', () => {
 describe('updateAgeStatus', () => {
   it('увеличивает возраст на 1', () => {
     const char = makeCharacter({ age: 20 });
-    expect(updateAgeStatus(char).age).toBe(21);
+    expect(updateAgeStatus(char).character.age).toBe(21);
   });
 
   it('переход статуса Ребёнок -> Подросток в 13 лет', () => {
     const char = makeCharacter({ age: 12, status: 'Ребёнок' });
-    const r = updateAgeStatus(char);
+    const { character: r } = updateAgeStatus(char);
     expect(r.age).toBe(13);
     expect(r.status).toBe('Подросток');
   });
 
   it('переход статуса Подросток -> Взрослый в 18 лет', () => {
     const char = makeCharacter({ age: 17, status: 'Подросток' });
-    expect(updateAgeStatus(char).status).toBe('Взрослый');
+    expect(updateAgeStatus(char).character.status).toBe('Взрослый');
   });
 
   it('взрослый статус не меняется с возрастом', () => {
     const char = makeCharacter({ age: 40, status: 'Ветеран' });
-    expect(updateAgeStatus(char).status).toBe('Ветеран');
+    expect(updateAgeStatus(char).character.status).toBe('Ветеран');
   });
 
   it('высокая мутация наносит урон здоровью каждый год', () => {
@@ -97,15 +97,15 @@ describe('updateAgeStatus', () => {
       food: 0, // исключаем регенерацию — проверяем именно урон от мутаций
       hiddenParams: { ...base.hiddenParams, mutation: GAME_CONFIG.STAT_THRESHOLDS.MUTATION_DAMAGE },
     });
-    const r = updateAgeStatus(char);
+    const { character: r } = updateAgeStatus(char);
     expect(r.health).toBe(80 - GAME_CONFIG.HEALTH.MUTATION_DAMAGE_PER_YEAR - 5);
   });
 
   it('голод (food=0) вредит здоровью, иначе еда убывает и раны затягиваются', () => {
     const starving = makeCharacter({ food: 0, health: 50 });
-    expect(updateAgeStatus(starving).health).toBe(45);
+    expect(updateAgeStatus(starving).character.health).toBe(45);
     const fed = makeCharacter({ food: 5, health: 50 });
-    const r = updateAgeStatus(fed);
+    const { character: r } = updateAgeStatus(fed);
     // Естественная регенерация: здоровое тело восстанавливается, если есть пища
     expect(r.health).toBeGreaterThan(50);
     expect(r.health).toBeLessThanOrEqual(r.maxHealth);
@@ -114,18 +114,33 @@ describe('updateAgeStatus', () => {
 
   it('сильная порча варпа снижает рассудок', () => {
     const char = makeCharacter({ warpCorruption: 60, sanity: 50, warpAttention: 0 });
-    const r = updateAgeStatus(char);
+    const { character: r } = updateAgeStatus(char);
     expect(r.sanity).toBeLessThan(50);
   });
 
   it('низкий рассудок повышает внимание варпа', () => {
     const char = makeCharacter({ sanity: 10, warpAttention: 1 });
-    expect(updateAgeStatus(char).warpAttention).toBe(2);
+    expect(updateAgeStatus(char).character.warpAttention).toBe(2);
+  });
+
+  it('не уменьшает кулдаун микро-событий (это делает triggerMicroEvent)', () => {
+    const char = makeCharacter({ microEventCooldown: 2 });
+    expect(updateAgeStatus(char).character.microEventCooldown).toBe(2);
   });
 
   it('генерирует мировое событие каждые 5 лет', () => {
     const char = makeCharacter({ age: 24 }); // станет 25
-    expect(updateAgeStatus(char).worldEvent).toBeTruthy();
+    const res = updateAgeStatus(char);
+    expect(res.newWorldEvent).toBeTruthy();
+    expect(res.character.worldEvent).toBe(res.newWorldEvent);
+    expect(res.character.worldEventsSeen).toContain(res.newWorldEvent!);
+  });
+
+  it('старение зависит от расы: эльдар живёт дольше человека, гретчин — меньше', () => {
+    const humanOld = makeCharacter({ race: 'human', age: 95, health: 100, food: 10 });
+    const eldarOld = makeCharacter({ race: 'eldar', age: 95, health: 100, food: 10 });
+    expect(updateAgeStatus(humanOld).character.health).toBeLessThan(100);
+    expect(updateAgeStatus(eldarOld).character.health).toBe(100);
   });
 });
 
