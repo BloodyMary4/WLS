@@ -56,16 +56,20 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
   Object.entries(paramConfigs).forEach(([key, config]) => {
     const value = effects[key as keyof ChoiceEffects];
     if (value !== undefined && value !== 0) {
-      const currentValue = config.target.startsWith('hiddenParams.')
-        ? (hp as any)[config.target.split('.')[1]] || 0
-        : (newChar as any)[config.target] || 0;
+      const targetParts = config.target.split('.');
+      const isHiddenParam = targetParts[0] === 'hiddenParams';
+      const propName = isHiddenParam ? targetParts[1] : config.target;
       
-      const newValue = Math.max(config.min, Math.min(config.max, currentValue + value));
+      const currentValue = isHiddenParam
+        ? (hp[propName as keyof typeof hp] as number) || 0
+        : (newChar[propName as keyof CharacterStats] as number) || 0;
       
-      if (config.target.startsWith('hiddenParams.')) {
-        (hp as any)[config.target.split('.')[1]] = newValue;
+      const newValue = Math.max(config.min, Math.min(config.max, currentValue + (value as number)));
+      
+      if (isHiddenParam) {
+        (hp as unknown as Record<string, number>)[propName] = newValue;
       } else {
-        (newChar as any)[config.target] = newValue;
+        (newChar as unknown as Record<string, number | string | string[]>)[propName] = newValue;
       }
     }
   });
@@ -199,18 +203,6 @@ export function getWarpCorruptionColor(corruption: number): string {
 
 export function getWarpCorruptionBarColor(corruption: number): string {
   return getColorByThresholds(corruption, WARP_CORRUPTION_THRESHOLDS, 'bg');
-}
-
-export function checkSanityDeath(sanity: number): boolean {
-  return sanity <= 0;
-}
-
-export function checkWarpDeath(warpCorruption: number): boolean {
-  return warpCorruption >= 100;
-}
-
-export function checkWarpAttention(warpAttention: number): boolean {
-  return warpAttention >= 10;
 }
 
 export function applyMicroEventEffects(

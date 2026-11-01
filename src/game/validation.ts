@@ -68,19 +68,21 @@ export function validateGameState(gameState: GameState): boolean {
   return true;
 }
 
-export function validateLegacyData(data: any): data is LegacyData {
+export function validateLegacyData(data: unknown): data is LegacyData {
   if (!data || typeof data !== 'object') return false;
   
-  if (typeof data.totalGamesPlayed !== 'number') return false;
-  if (typeof data.totalYearsLived !== 'number') return false;
-  if (typeof data.bestAge !== 'number') return false;
-  if (!Array.isArray(data.achievementsEverUnlocked)) return false;
-  if (!Array.isArray(data.racesPlayed)) return false;
-  if (typeof data.deathsByCause !== 'object') return false;
+  const legacyData = data as Record<string, unknown>;
   
-  if (data.totalGamesPlayed < 0) return false;
-  if (data.totalYearsLived < 0) return false;
-  if (data.bestAge < 0) return false;
+  if (typeof legacyData.totalGamesPlayed !== 'number') return false;
+  if (typeof legacyData.totalYearsLived !== 'number') return false;
+  if (typeof legacyData.bestAge !== 'number') return false;
+  if (!Array.isArray(legacyData.achievementsEverUnlocked)) return false;
+  if (!Array.isArray(legacyData.racesPlayed)) return false;
+  if (typeof legacyData.deathsByCause !== 'object' || legacyData.deathsByCause === null) return false;
+  
+  if (legacyData.totalGamesPlayed < 0) return false;
+  if (legacyData.totalYearsLived < 0) return false;
+  if (legacyData.bestAge < 0) return false;
   
   return true;
 }

@@ -57,38 +57,6 @@ export function loadGame(): { gameState: GameState; unlockedAchievements: string
   }
 }
 
-export function deleteSave(): boolean {
-  try {
-    localStorage.removeItem(SAVE_KEY);
-    return true;
-  } catch (error) {
-    console.error('Failed to delete save:', error);
-    return false;
-  }
-}
-
 export function hasSave(): boolean {
   return localStorage.getItem(SAVE_KEY) !== null;
-}
-
-export function getSaveInfo(): { timestamp: number; age: number; race: string } | null {
-  try {
-    const stored = localStorage.getItem(SAVE_KEY);
-    if (!stored) return null;
-    
-    const saveData: SaveData = JSON.parse(stored);
-    
-    return {
-      timestamp: saveData.timestamp,
-      age: saveData.gameState.character.age,
-      race: saveData.gameState.character.raceName,
-    };
-  } catch (error) {
-    console.error('Failed to get save info:', error);
-    return null;
-  }
-}
-
-export function autoSave(gameState: GameState, unlockedAchievements: string[]): void {
-  saveGame(gameState, unlockedAchievements);
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { RACE_INFO } from './game/data';
 import { AudioController } from './components/AudioController';
+import { StatCard } from './components/StatCard';
 import { getAmbience } from './game/audio';
 import { ACHIEVEMENTS } from './game/achievements';
 import { getHealthColor, getHealthBarColor, getSanityColor, getSanityBarColor, getWarpCorruptionColor, getWarpCorruptionBarColor } from './game/utils';
@@ -217,50 +218,35 @@ function App() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            <div className="bg-gray-900 rounded px-3 py-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">Здоровье</span>
-                <span className={`text-sm font-bold ${getHealthColor(character.health, character.maxHealth)}`}>
-                  {character.health}/{character.maxHealth}
-                </span>
-              </div>
-              <div className="w-full bg-gray-800 rounded-full h-1.5">
-                <div 
-                  className={`h-1.5 rounded-full ${getHealthBarColor(character.health, character.maxHealth)}`}
-                  style={{ width: `${healthPercent}%` }}
-                ></div>
-              </div>
-            </div>
+            <StatCard 
+              label="Здоровье"
+              value={`${character.health}/${character.maxHealth}`}
+              valueClassName={getHealthColor(character.health, character.maxHealth)}
+              showBar
+              barValue={character.health}
+              barMax={character.maxHealth}
+              barColor={getHealthBarColor(character.health, character.maxHealth)}
+            />
             
-            <div className="bg-gray-900 rounded px-3 py-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">Рассудок</span>
-                <span className={`text-sm font-bold ${getSanityColor(character.sanity)}`}>
-                  {character.sanity}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-800 rounded-full h-1.5">
-                <div 
-                  className={`h-1.5 rounded-full ${getSanityBarColor(character.sanity)}`}
-                  style={{ width: `${character.sanity}%` }}
-                ></div>
-              </div>
-            </div>
+            <StatCard 
+              label="Рассудок"
+              value={`${character.sanity}%`}
+              valueClassName={getSanityColor(character.sanity)}
+              showBar
+              barValue={character.sanity}
+              barMax={100}
+              barColor={getSanityBarColor(character.sanity)}
+            />
             
-            <div className="bg-gray-900 rounded px-3 py-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">Порча</span>
-                <span className={`text-sm font-bold ${getWarpCorruptionColor(character.warpCorruption)}`}>
-                  {character.warpCorruption}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-800 rounded-full h-1.5">
-                <div 
-                  className={`h-1.5 rounded-full ${getWarpCorruptionBarColor(character.warpCorruption)}`}
-                  style={{ width: `${character.warpCorruption}%` }}
-                ></div>
-              </div>
-            </div>
+            <StatCard 
+              label="Порча"
+              value={`${character.warpCorruption}%`}
+              valueClassName={getWarpCorruptionColor(character.warpCorruption)}
+              showBar
+              barValue={character.warpCorruption}
+              barMax={100}
+              barColor={getWarpCorruptionBarColor(character.warpCorruption)}
+            />
             
             <div className="bg-gray-900 rounded px-3 py-2">
               <div className="flex items-center justify-between text-xs">

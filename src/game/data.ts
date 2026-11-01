@@ -183,7 +183,7 @@ export function generateCharacter(): CharacterStats {
   return generateCharacterByRace(race);
 }
 
-export function generateCharacterByRace(race: Race): CharacterStats {
+function generateCharacterByRace(race: Race): CharacterStats {
   const raceInfo = RACE_INFO[race];
   let planet: PlanetData;
   let caste: CasteData;

@@ -18,7 +18,7 @@ export function getLegacy(): LegacyData {
   return getDefaultLegacy();
 }
 
-export function getDefaultLegacy(): LegacyData {
+function getDefaultLegacy(): LegacyData {
   return {
     totalGamesPlayed: 0,
     totalYearsLived: 0,
@@ -29,7 +29,7 @@ export function getDefaultLegacy(): LegacyData {
   };
 }
 
-export function saveLegacy(legacy: LegacyData): void {
+function saveLegacy(legacy: LegacyData): void {
   localStorage.setItem(LEGACY_KEY, JSON.stringify(legacy));
 }
 
