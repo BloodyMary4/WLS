@@ -14,7 +14,7 @@
 ## Стек
 - React + TypeScript + Vite
 - Electron-обёртка для ПК-версии (portable/setup .exe, сборка через CI)
-- Vitest — 82 теста (src/__tests__/), включая 14 юнит-тестов чистых переходов reducer
+- Vitest — 96 тестов (src/__tests__/), включая юнит-тесты reducer и системы квестов
 - GitHub Actions: ci.yml (typecheck+check+test+build), deploy.yml (GitHub Pages), desktop-build.yml (Windows .exe → Release по тегу v*)
 
 ## Как делать изменения (рабочий процесс)
@@ -33,8 +33,8 @@
 1. **Дизайн/визуал** (запрошен пользователем,в работе): усилить warhammer-стилистику — портреты/иконки рас, рамки событий в стиле кодексов, анимации появления текста, звуковое сопровождение фоновой атмосферы, тёмная тема по умолчанию, шрифт заголовков (например, «BattleforDorn»/gotические web-fonts).
 2. ~~Декомпозиция App.tsx~~ — **выполнено** (bc53c8fa/8b292c78): экраны в src/components/, App.tsx ~90 строк.
 3. ~~Единый reducer~~ — **выполнено**: src/game/reducer.ts (чистые compute* + список GameEffect), useGameStore исполняет эффекты; StrictMode-safe (переходы с RNG считаются один раз вне useReducer); 14 юнит-тестов в reducer.test.ts.
-4. Устранить противоречие диапазонов фракций: validateCharacter требует [-10,10], applyQuestRewards клампит [-100,100].
-5. getAvailableQuests: убрать хардкод id quest_survivor → поле requirements в шаблоне квеста.
+4. ~~Устранить противоречие диапазонов фракций~~ — **выполнено**: единый диапазон [-100,100] в config/validation/utils; решатель целей квестов (`resolveNumericTarget`) видит все фракции, скрытые параметры и imperialCreed; исправлен баг разбора префикса `max` (`maxImperium` давал `imperiumM` → цель «Путь Ереси» была недостижима).
+5. ~~getAvailableQuests: убрать хардкод~~ — **выполнено**: поле `requirements { races?, maxAge? }` в шаблонах квестов, фильтр без id-хардкода; тесты на расовые ограничения и скрытие quest_survivor после 10 лет.
 6. Опционально: PWA-режим (offline), автообновление README при релизах.
 
 ## Известные подводные камни

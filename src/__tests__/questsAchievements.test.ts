@@ -163,7 +163,8 @@ describe('единый решатель целей (без хардкода фр
     for (const quest of AVAILABLE_QUESTS) {
       for (const obj of quest.objectives) {
         if (obj.type !== 'stat') continue;
-        const t = obj.target.startsWith('max') ? obj.target.slice(3).toLowerCase() + obj.target.slice(4) : obj.target;
+        const rest = obj.target.startsWith('max') ? obj.target.slice(3) : '';
+        const t = obj.target.startsWith('max') ? rest[0].toLowerCase() + rest.slice(1) : obj.target;
         expect(resolveNumericTarget(char, t), `${quest.id}/${obj.id}:${obj.target}`).toBeTypeOf('number');
       }
     }

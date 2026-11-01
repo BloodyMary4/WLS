@@ -340,7 +340,9 @@ export const AVAILABLE_QUESTS: (Omit<Quest, 'completed' | 'failed' | 'startedAt'
  */
 export function isObjectiveSatisfied(character: CharacterStats, target: string, targetValue: number): boolean {
   if (target.startsWith('max') && target.length > 3) {
-    const value = resolveNumericTarget(character, target[3].toLowerCase() + target.slice(4));
+    // 'maxImperium' -> 'imperium': только первая буква в lowerCamelCase, остальное как есть
+    const rest = target.slice(3);
+    const value = resolveNumericTarget(character, rest[0].toLowerCase() + rest.slice(1));
     return value !== undefined && value <= targetValue;
   }
   const value = resolveNumericTarget(character, target);
