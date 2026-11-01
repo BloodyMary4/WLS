@@ -75,7 +75,10 @@ export function useGameState() {
     if (!gameState) return;
     
     const ambience = getAmbience();
-    if (ambience.getIsPlaying()) ambience.playDeathSound();
+    // Смерть тоже наступает в момент пользовательского действия (выбор/пробел) —
+    // разблокируем звук, чтобы звук смерти был слышен даже после заблокированного автозапуска.
+    ambience.unlockOnUserGesture();
+    ambience.playDeathSound();
     
     const legacy = getLegacy();
     updateLegacyOnDeath(legacy, character.age, character.race, cause, unlockedAchievements);
@@ -118,9 +121,11 @@ export function useGameState() {
     if (!gameState || gameState.gameOver) return;
 
     const ambience = getAmbience();
-    if (ambience.getIsPlaying()) {
-      ambience.playEventSound();
-    }
+    // Мы внутри реального пользовательского жеста (клик по кнопке выбора) —
+    // это гарантированно «разрешённое» момент для Web Audio. Разблокируем звук,
+    // если браузер заблокировал автозапуск при загрузке страницы.
+    ambience.unlockOnUserGesture();
+    ambience.playEventSound();
 
     setLastChoice(choice);
     setResultText(choice.effects.description);
@@ -134,9 +139,8 @@ export function useGameState() {
       setUnlockedAchievements([...unlockedAchievements, ...newAchievementsList]);
       setNewAchievement(newAchievementsList[0]);
       
-      if (ambience.getIsPlaying()) {
-        ambience.playAchievementSound();
-      }
+      // Контекст уже разблокирован выше (unlockOnUserGesture в начале handleChoice)
+      ambience.playAchievementSound();
       
       setTimeout(() => setNewAchievement(null), GAME_CONFIG.ACHIEVEMENTS.DISPLAY_DURATION);
     }
@@ -166,6 +170,9 @@ export function useGameState() {
 
   const proceedToNextYear = useCallback(() => {
     if (!gameState) return;
+    
+    // Тоже жест пользователя (пробел/Enter/клик «Следующий год») — страховка разблокировки звука
+    getAmbience().unlockOnUserGesture();
     
     let newChar = gameState.character;
     const newHistory = [...gameState.history];
@@ -262,6 +269,11 @@ export function useGameState() {
 
   const startNewGame = useCallback((seedStr?: string) => {
     try {
+      // Кнопка «Начать жизнь» — почти всегда первый реальный жест пользователя
+      // на странице. Разблокируем Web Audio здесь, не полагаясь на ненадёжный
+      // глобальный слушатель (autoplay policy).
+      getAmbience().unlockOnUserGesture();
+
       // Seed партии: детерминированность для тестов и баг-репортов.
       const seed = seedStr && seedStr.trim()
         ? hashSeed(seedStr.trim())

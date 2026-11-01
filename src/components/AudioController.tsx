@@ -8,20 +8,24 @@ export function AudioController() {
 
   const ambience = getAmbience();
 
-  // Синхронизация индикатора с реальным состоянием амбиенса
+  // Синхронизация индикатора с реальным состоянием амбиенса.
+  // resume() промис, поэтому сверяемся асинхронно (макрозадача), а не сразу.
   useEffect(() => {
     setVolume(ambience.getVolume());
     setIsPlaying(ambience.getIsPlaying());
+  }, [ambience]);
+
+  const syncStatus = useCallback(() => {
+    // дожидаемся завершения resume().then(...) внутри start()
+    setTimeout(() => setIsPlaying(ambience.getIsPlaying()), 0);
   }, [ambience]);
 
   // Звуки событий/достижений тоже требуют «разблокированного» контекста —
   // при первом жесте пользователя стартуем фоновую музыку, если она не играет.
   useEffect(() => {
     const unlock = () => {
-      if (!ambience.getIsPlaying()) {
-        ambience.start();
-        setIsPlaying(ambience.getIsPlaying());
-      }
+      ambience.unlockOnUserGesture();
+      syncStatus();
     };
     window.addEventListener('pointerdown', unlock);
     window.addEventListener('keydown', unlock);
@@ -29,23 +33,24 @@ export function AudioController() {
       window.removeEventListener('pointerdown', unlock);
       window.removeEventListener('keydown', unlock);
     };
-  }, [ambience]);
+  }, [ambience, syncStatus]);
 
   const handleToggle = useCallback(() => {
     const playing = ambience.toggle();
-    // Состояние может измениться асинхронно (resume() промисом),
-    // поэтому сверяемся с фактическим статусом через микро-задержку.
     setIsPlaying(playing);
     if (playing) {
-      setTimeout(() => setIsPlaying(ambience.getIsPlaying()), 0);
+      syncStatus();
     }
-  }, [ambience]);
+  }, [ambience, syncStatus]);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
     ambience.setVolume(newVolume);
   };
+
+  // Если браузер так и не разрешил автозапуск — подсказываем игроку, что делать
+  const showHint = !isPlaying && volume > 0;
 
   return (
     <div className="fixed top-6 right-6 z-50 flex flex-col items-end gap-3">
@@ -135,6 +140,17 @@ export function AudioController() {
       }`}>
         {isPlaying ? '🎵 Играет' : '🔇 Выкл'}
       </div>
+
+      {/* Подсказка: браузеры блокируют автозапуск звука до первого действия пользователя */}
+      {showHint && (
+        <button
+          onClick={handleToggle}
+          className="max-w-[240px] px-3 py-1 rounded-lg bg-yellow-900/70 border border-yellow-600/50 text-yellow-300 text-sm font-event animate-pulse hover:bg-yellow-800/70 transition-colors"
+          title="Нажмите, чтобы включить музыку"
+        >
+          🔈 Нажмите любую клавишу или кликните — включим музыку
+        </button>
+      )}
     </div>
   );
 }

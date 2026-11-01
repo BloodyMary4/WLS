@@ -11,7 +11,42 @@ export class GrimdarkAmbience {
   private volume = 0.55;
   private intervalId: ReturnType<typeof setTimeout> | null = null;
 
-  constructor() {}
+  // Сохранённая настройка громкости (localStorage) — переживает перезагрузку страницы
+  private static readonly VOLUME_KEY = 'wls-ambience-volume';
+  private static loadSavedVolume(): number {
+    try {
+      if (typeof localStorage === 'undefined') return 0.55;
+      const raw = localStorage.getItem(GrimdarkAmbience.VOLUME_KEY);
+      if (raw === null) return 0.55;
+      const v = parseFloat(raw);
+      if (!Number.isFinite(v)) return 0.55;
+      return Math.max(0, Math.min(1, v));
+    } catch {
+      return 0.55;
+    }
+  }
+
+  constructor() {
+    // Восстанавливаем громкость из прошлой сессии; если игрок выкрутил её в 0 —
+    // поднимаем до слышимого минимума (иначе «музыка не играет» навсегда).
+    const saved = GrimdarkAmbience.loadSavedVolume();
+    this.volume = saved <= 0 ? 0.55 : Math.max(0.1, saved);
+  }
+
+  // Универсальная разблокировка звука: вызывать из обработчиков реальных
+  // пользовательских жестов (клик/нажатие клавиши). Идемпотентно.
+  unlockOnUserGesture(): void {
+    if (!this.init()) return;
+    const ctx = this.audioContext;
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        if (!this.isPlaying) this.start();
+      }).catch(() => { /* попробуем при следующем жесте */ });
+    } else if (!this.isPlaying) {
+      this.start();
+    }
+  }
 
   // Если автозапуск был заблокирован политикой браузера (autoplay policy),
   // стартуем при первом пользовательском действии (клик/клавиша).
@@ -1398,6 +1433,11 @@ export class GrimdarkAmbience {
     if (this.masterGain) {
       this.masterGain.gain.value = this.volume;
     }
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(GrimdarkAmbience.VOLUME_KEY, String(this.volume));
+      }
+    } catch { /* приватный режим — не страшно */ }
   }
 
   getVolume(): number {
