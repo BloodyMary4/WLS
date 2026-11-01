@@ -96,6 +96,16 @@ export function useGameState() {
     
     for (const condition of deathConditions) {
       if (condition.check(character)) {
+        // «Император защищает»: высокосная Верность людей может отвратить смерть от ран.
+        if (condition.cause === DEATH_CAUSES.HEALTH && rollImperialIntercession(character)) {
+          const savedChar: CharacterStats = { ...character, health: 1 };
+          const newHistory = [
+            ...history,
+            `[Год ${savedChar.age}] Смерть смотрела ${savedChar.name} в глаза — но Верность его была велика. Император защищает.`
+          ];
+          setGameState(prev => prev ? { ...prev, character: savedChar, history: newHistory } : prev);
+          return false;
+        }
         handleDeath(character, condition.getMessage(character), condition.cause, history);
         return true;
       }

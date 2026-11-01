@@ -30,6 +30,7 @@ export function makeCharacter(overrides: Partial<CharacterStats> = {}): Characte
       chaos: 0,
       xenos: 0,
       criminals: 0,
+      faith: 0,
       nobility: 0,
       commoners: 0,
     },
