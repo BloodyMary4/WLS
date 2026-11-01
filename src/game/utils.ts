@@ -154,7 +154,13 @@ export function rollImperialIntercession(character: CharacterStats): boolean {
   return rng().next() < (creed - 4) * 0.05;
 }
 
-export function updateAgeStatus(character: CharacterStats): CharacterStats {
+export interface AgeUpdateResult {
+  character: CharacterStats;
+  /** Новое глобальное событие мира (если сменилось в этом году) — для хроники */
+  newWorldEvent?: string;
+}
+
+export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
   const newChar = { ...character };
   newChar.age += 1;
   newChar.microEventCooldown = Math.max(0, (newChar.microEventCooldown ?? 0) - 1);
@@ -210,19 +216,27 @@ export function updateAgeStatus(character: CharacterStats): CharacterStats {
     newChar.food = Math.max(0, newChar.food - 1);
   }
 
+  let newWorldEvent: string | undefined;
   if (newChar.age % 5 === 0) {
-    newChar.worldEvent = generateWorldEvent();
+    newWorldEvent = generateWorldEvent();
+    newChar.worldEvent = newWorldEvent;
+    // Счётчик уникальных мировых событий — достижение «Путешественник»
+    const seen = newChar.worldEventsSeen ?? [];
+    if (!seen.includes(newWorldEvent)) {
+      newChar.worldEventsSeen = [...seen, newWorldEvent];
+    }
   }
 
   // Старение: после среднего ожидаемого срока жизни тело сдаётся.
-  // В мрачной галактике дожить до ста лет — уже чудо, и оно не вечно.
-  const MAX_AGE = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
+  // Предел зависит от расы (лор): эльдар живут столетиями, гретчины — мало.
+  const MAX_AGE = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED_BY_RACE[newChar.race]
+    ?? GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
   if (newChar.age > MAX_AGE) {
     const frailty = Math.min(12, Math.floor((newChar.age - MAX_AGE) / 5) + 2);
     newChar.health = Math.max(0, newChar.health - frailty);
   }
 
-  return newChar;
+  return { character: newChar, newWorldEvent };
 }
 
 type ColorThreshold = { threshold: number; color: string };

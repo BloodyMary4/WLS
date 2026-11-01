@@ -76,6 +76,8 @@ export interface CharacterStats {
   microEventCooldown: number;
   keyChoices: string[];
   worldEvent?: string;
+  /** Уникальные глобальные события мира, увиденные за жизнь (для достижения «Путешественник») */
+  worldEventsSeen?: string[];
   /** Сколько раз смерть была отвращена чудесным заступничеством («Император защищает») */
   intercessionCount?: number;
 }

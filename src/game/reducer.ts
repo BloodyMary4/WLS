@@ -267,7 +267,8 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
   const effects: GameEffect[] = [{ kind: 'unlockAudio' }, { kind: 'playSound', sound: 'event' }];
 
   let newChar = applyChoiceEffects(game.character, choice.effects);
-  newChar = updateAgeStatus(newChar);
+  const aged = updateAgeStatus(newChar);
+  newChar = aged.character;
 
   const newlyUnlocked = checkAchievements(newChar, state.unlockedAchievements);
   let unlockedList = state.unlockedAchievements;
@@ -338,6 +339,7 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
     newChar = applyMicroEventEffects(newChar, microEvent.effects);
     newHistory.push(`[Микро] ${microEvent.text} → ${microEvent.effects.description}`);
   }
+  newChar.microEventCooldown = microEventResult.nextCooldown;
 
   // Встреча с NPC (20% шанс)
   if (rng().next() < 0.2) {

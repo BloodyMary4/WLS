@@ -256,6 +256,16 @@ export function pickMicroEvent(character: CharacterStats): MicroEvent | null {
   return rng().weighted(availableEvents, e => e.probability);
 }
 
+/**
+ * Шанс того, что выбранное событие реально произойдёт в этом году.
+ * probability — это «вес» события среди других; итоговый шанс срабатывания
+ * = вес × MICRO_EVENTS.TRIGGER_SCALE. Раньше здесь стоял магический множитель
+ * *2 прямо в условии — вероятность искажалась и не поддавалась настройке.
+ */
+export function microEventTriggerChance(event: MicroEvent): number {
+  return Math.min(1, event.probability * GAME_CONFIG.MICRO_EVENTS.TRIGGER_SCALE);
+}
+
 export function triggerMicroEvent(character: CharacterStats): MicroEventResult {
   const prevCooldown = Math.max(0, (character.microEventCooldown ?? 0) - 1);
 
@@ -264,7 +274,7 @@ export function triggerMicroEvent(character: CharacterStats): MicroEventResult {
   }
 
   const picked = pickMicroEvent(character);
-  if (picked && rng().next() < picked.probability * 2) {
+  if (picked && rng().chance(microEventTriggerChance(picked))) {
     return { event: picked, triggered: true, nextCooldown: GAME_CONFIG.MICRO_EVENTS.COOLDOWN_YEARS };
   }
 

@@ -6,6 +6,19 @@ export const GAME_CONFIG = {
     TEEN: 13,
     ADULT: 18,
     MAX_EXPECTED: 80,
+    /**
+     * Средний ожидаемый предел жизни по расам (лор 40K):
+     * эльдар живут столетиями, орки — десятилетия в вечной войне,
+     * тау короткоживущи. До этого возраста старческая хрупкость не наступает.
+     */
+    MAX_EXPECTED_BY_RACE: {
+      human: 80,
+      gretchin: 50,
+      ork: 70,
+      tau: 60,
+      eldar: 500,
+      dark_eldar: 500,
+    } as Record<string, number>,
   },
   STAT_THRESHOLDS: {
     MAX_VALUE: 10,
@@ -34,6 +47,8 @@ export const GAME_CONFIG = {
     MAX_PER_YEAR: 2,
     /** Кулдаун (в годах) после срабатывания микро-события */
     COOLDOWN_YEARS: 1,
+    /** Масштаб шанса срабатывания: шанс = вес события × TRIGGER_SCALE */
+    TRIGGER_SCALE: 0.5,
   },
 };
 
