@@ -369,7 +369,7 @@ export class GrimdarkAmbience {
     const scheduleNext = () => {
       if (!this.isPlaying) return;
       const delay = 2500 + Math.random() * 4500;
-      this.intervalId = window.setTimeout(() => {
+      this.intervalId = setTimeout(() => {
         if (!this.isPlaying || !this.audioContext || !this.masterGain) return;
         
         const eventType = Math.random();
