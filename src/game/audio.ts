@@ -13,38 +13,80 @@ export class GrimdarkAmbience {
 
   constructor() {}
 
-  init() {
-    if (this.audioContext) return;
-    
+  // Если автозапуск был заблокирован политикой браузера (autoplay policy),
+  // стартуем при первом пользовательском действии (клик/клавиша).
+  private pendingGestureStart = false;
+  private gestureListener: (() => void) | null = null;
+
+  init(): boolean {
+    // Переиспользуем существующий контекст, даже если он suspended:
+    // браузеры создают AudioContext до жеста пользователя именно в suspended.
+    if (this.audioContext) {
+      if (this.audioContext.state === 'closed') {
+        this.audioContext = null;
+        this.masterGain = null;
+      } else {
+        return true;
+      }
+    }
+
     try {
-      this.audioContext = new AudioContext();
+      const Ctx = window.AudioContext ??
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return false;
+      this.audioContext = new Ctx();
       this.masterGain = this.audioContext.createGain();
       this.masterGain.gain.value = this.volume;
       this.masterGain.connect(this.audioContext.destination);
+      return true;
     } catch (error) {
       console.error('Failed to initialize audio context:', error);
       this.audioContext = null;
       this.masterGain = null;
+      return false;
+    }
+  }
+
+  private armGestureAutostart() {
+    if (typeof window === 'undefined' || this.pendingGestureStart) return;
+    this.pendingGestureStart = true;
+    this.gestureListener = () => {
+      this.disarmGestureAutostart();
+      if (!this.isPlaying) {
+        this.start();
+      }
+    };
+    window.addEventListener('pointerdown', this.gestureListener);
+    window.addEventListener('keydown', this.gestureListener);
+  }
+
+  private disarmGestureAutostart() {
+    this.pendingGestureStart = false;
+    if (this.gestureListener) {
+      window.removeEventListener('pointerdown', this.gestureListener);
+      window.removeEventListener('keydown', this.gestureListener);
+      this.gestureListener = null;
     }
   }
 
   start() {
     if (this.isPlaying) return;
-    
-    if (!this.audioContext || !this.masterGain) {
-      this.init();
-    }
-    
+
+    this.init();
+
     if (!this.audioContext || !this.masterGain) return;
-    
+
     if (this.audioContext.state === 'suspended') {
+      // resume() сработает только из пользовательского жеста; если браузер
+      // отказал — вооружаем автозапуск на первый клик/нажатие клавиши.
       this.audioContext.resume()
         .then(() => {
           this.doStart();
         })
         .catch((error) => {
-          console.error('Failed to resume audio context:', error);
+          console.warn('Audio resume blocked by autoplay policy; waiting for user gesture.', error);
           this.isPlaying = false;
+          this.armGestureAutostart();
         });
     } else {
       this.doStart();
@@ -1364,6 +1406,7 @@ export class GrimdarkAmbience {
 
   stop() {
     this.isPlaying = false;
+    this.disarmGestureAutostart();
     
     if (this.intervalId) {
       clearTimeout(this.intervalId);

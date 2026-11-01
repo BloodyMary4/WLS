@@ -8,22 +8,37 @@ export function AudioController() {
 
   const ambience = getAmbience();
 
-  // Автоматическое воспроизведение при загрузке
+  // Синхронизация индикатора с реальным состоянием амбиенса
   useEffect(() => {
     setVolume(ambience.getVolume());
-    // Попытка автозапуска (может быть заблокирована браузером)
-    const timer = setTimeout(() => {
+    setIsPlaying(ambience.getIsPlaying());
+  }, [ambience]);
+
+  // Звуки событий/достижений тоже требуют «разблокированного» контекста —
+  // при первом жесте пользователя стартуем фоновую музыку, если она не играет.
+  useEffect(() => {
+    const unlock = () => {
       if (!ambience.getIsPlaying()) {
         ambience.start();
-        setIsPlaying(true);
+        setIsPlaying(ambience.getIsPlaying());
       }
-    }, 1000);
-    return () => clearTimeout(timer);
+    };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
   }, [ambience]);
 
   const handleToggle = useCallback(() => {
     const playing = ambience.toggle();
+    // Состояние может измениться асинхронно (resume() промисом),
+    // поэтому сверяемся с фактическим статусом через микро-задержку.
     setIsPlaying(playing);
+    if (playing) {
+      setTimeout(() => setIsPlaying(ambience.getIsPlaying()), 0);
+    }
   }, [ambience]);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
