@@ -1,4 +1,5 @@
 import { CharacterStats, ChoiceEffects } from './types';
+import { rng } from './rng';
 
 export interface MicroEvent {
   text: string;
@@ -165,7 +166,7 @@ export function triggerMicroEvent(character: CharacterStats): { event: MicroEven
   });
   
   for (const event of availableEvents) {
-    if (Math.random() < event.probability) {
+    if (rng().next() < event.probability) {
       return { event, triggered: true };
     }
   }

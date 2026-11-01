@@ -38,9 +38,19 @@ describe('validateCharacter', () => {
     expect(validateCharacter(char)).toBe(false);
   });
 
-  it('фракционные отношения вне [-10,10] — невалидно', () => {
+  it('фракционные отношения в [-100,100] — валидно (единый диапазон с квестами)', () => {
     const char = makeCharacter();
     char.factionRelations.imperium = 15;
+    expect(validateCharacter(char)).toBe(true);
+    char.factionRelations.chaos = -100;
+    expect(validateCharacter(char)).toBe(true);
+  });
+
+  it('фракционные отношения вне [-100,100] — невалидно', () => {
+    const char = makeCharacter();
+    char.factionRelations.imperium = 101;
+    expect(validateCharacter(char)).toBe(false);
+    char.factionRelations.imperium = -101;
     expect(validateCharacter(char)).toBe(false);
   });
 

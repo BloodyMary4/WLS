@@ -1,4 +1,5 @@
 import { CharacterStats, ChoiceEffects } from './types';
+import { rng } from './rng';
 import { GAME_CONFIG } from './config';
 
 const { MAX_VALUE, MIN_VALUE } = GAME_CONFIG.STAT_THRESHOLDS;
@@ -21,7 +22,7 @@ export function generateWorldEvent(): string {
     'Восстание рабочих на промышленном мире',
     'Пираты атакали торговый путь',
   ];
-  return events[Math.floor(Math.random() * events.length)];
+  return events[Math.floor(rng().next() * events.length)];
 }
 
 export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEffects): CharacterStats {

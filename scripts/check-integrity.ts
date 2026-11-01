@@ -43,6 +43,7 @@ const REQUIRED_FILES = [
   // Тесты
   'vitest.config.ts',
   'src/game/testHelpers.ts',
+  'src/game/rng.ts',
   'src/__tests__/utils.test.ts',
   'src/__tests__/validation.test.ts',
   'src/__tests__/saveSystem.test.ts',

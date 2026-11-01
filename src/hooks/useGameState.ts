@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { rng, setGlobalSeed, hashSeed } from '../game/rng';
 import { GameState, Choice, CharacterStats } from '../game/types';
 import { generateCharacter, getEventForAge, getDeathMessage } from '../game/data';
 import { getAmbience } from '../game/audio';
@@ -168,7 +169,7 @@ export function useGameState() {
     }
     
     // Встреча с NPC (20% шанс)
-    if (Math.random() < 0.2) {
+    if (rng().next() < 0.2) {
       const encounter = randomNPCEncounter(newChar);
       if (encounter.npc) {
         if (encounter.type === 'new') {
@@ -178,7 +179,7 @@ export function useGameState() {
           newHistory.push(`[NPC] ${eventText}`);
           
           // Случайное изменение отношений
-          const relationshipChange = Math.floor(Math.random() * 20) - 10;
+          const relationshipChange = Math.floor(rng().next() * 20) - 10;
           newChar = updateNPCRelationship(newChar, encounter.npc.id, relationshipChange);
         } else {
           // Встреча с известным NPC
@@ -186,7 +187,7 @@ export function useGameState() {
           newHistory.push(`[NPC] ${eventText}`);
           
           // Случайное изменение отношений
-          const relationshipChange = Math.floor(Math.random() * 10) - 5;
+          const relationshipChange = Math.floor(rng().next() * 10) - 5;
           newChar = updateNPCRelationship(newChar, encounter.npc.id, relationshipChange);
         }
       }
@@ -210,7 +211,7 @@ export function useGameState() {
         `[РОК] ${quest.name} - ты прошёл через тьму и вышел... изменённым.`,
         `[ЛЕГЕНДА] ${quest.name} - твои деяния будут помнить, даже когда звёзды погаснут.`
       ];
-      const message = completionMessages[Math.floor(Math.random() * completionMessages.length)];
+      const message = completionMessages[Math.floor(rng().next() * completionMessages.length)];
       newHistory.push(message);
     }
     
@@ -229,7 +230,7 @@ export function useGameState() {
         `[РОК] ${newQuest.name} - путь, который ты должен пройти.`,
         `[ИСПЫТАНИЕ] ${newQuest.name} - тьма ждёт тебя.`
       ];
-      const message = questMessages[Math.floor(Math.random() * questMessages.length)];
+      const message = questMessages[Math.floor(rng().next() * questMessages.length)];
       newHistory.push(message);
     }
     
@@ -249,8 +250,14 @@ export function useGameState() {
     setLastChoice(null);
   }, [gameState, activeQuests, completedQuests]);
 
-  const startNewGame = useCallback(() => {
+  const startNewGame = useCallback((seedStr?: string) => {
     try {
+      // Seed партии: детерминированность для тестов и баг-репортов.
+      const seed = seedStr && seedStr.trim()
+        ? hashSeed(seedStr.trim())
+        : (rng().next() * 2 ** 32) >>> 0;
+      setGlobalSeed(seed);
+
       const character = generateCharacter();
       
       if (!character) {
@@ -284,6 +291,7 @@ export function useGameState() {
         deathMessage: '',
         activeQuests: [],
         completedQuests: [],
+        seed,
       };
       
       if (!validateGameState(newGameState)) {
@@ -306,6 +314,9 @@ export function useGameState() {
     try {
       const savedData = loadGame();
       if (savedData && validateGameState(savedData.gameState)) {
+        if (typeof savedData.gameState.seed === 'number') {
+          setGlobalSeed(savedData.gameState.seed);
+        }
         setGameState(savedData.gameState);
         setUnlockedAchievements(savedData.unlockedAchievements);
         setResultText('');

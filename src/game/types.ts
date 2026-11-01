@@ -133,4 +133,6 @@ export interface GameState {
   deathMessage: string;
   activeQuests: Quest[];
   completedQuests: Quest[];
+  /** Seed партии для воспроизводимости (опционально — старые сейвы без него валидны) */
+  seed?: number;
 }

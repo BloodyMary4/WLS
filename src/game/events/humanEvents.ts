@@ -1,4 +1,5 @@
 import { CharacterStats, GameEvent } from '../types';
+import { rng } from '../rng';
 
 export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
   const pt = c.planetType;
@@ -60,7 +61,7 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
         ]
       },
     ];
-    return events[Math.floor(Math.random() * events.length)];
+    return events[Math.floor(rng().next() * events.length)];
   }
   
   if (age === 1) {
@@ -132,7 +133,7 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
         ]
       },
     ];
-    return events[Math.floor(Math.random() * events.length)];
+    return events[Math.floor(rng().next() * events.length)];
   }
   
   if (age >= 6 && age <= 12) {

@@ -1,4 +1,5 @@
 import { CharacterStats, GameEvent, Race } from './types';
+import { rng } from './rng';
 import { 
   getHumanEvent, 
   getOrkEvent, 
@@ -171,7 +172,7 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
 // ============ ГЕНЕРАЦИЯ ПЕРСОНАЖА ============
 
 export function generateCharacter(): CharacterStats {
-  const raceRoll = Math.random();
+  const raceRoll = rng().next();
   let race: Race;
   if (raceRoll < 0.50) race = 'human';
   else if (raceRoll < 0.65) race = 'ork';
@@ -195,61 +196,61 @@ function generateCharacterByRace(race: Race): CharacterStats {
   switch (race) {
     case 'human': {
       const planets = HUMAN_PLANETS;
-      planet = planets[Math.floor(Math.random() * planets.length)];
+      planet = planets[Math.floor(rng().next() * planets.length)];
       const castes = HUMAN_CASTES;
-      caste = castes[Math.floor(Math.random() * castes.length)];
-      gender = Math.random() > 0.5 ? 'М' : 'Ж';
+      caste = castes[Math.floor(rng().next() * castes.length)];
+      gender = rng().next() > 0.5 ? 'М' : 'Ж';
       name = gender === 'М'
-        ? HUMAN_MALE_NAMES[Math.floor(Math.random() * HUMAN_MALE_NAMES.length)]
-        : HUMAN_FEMALE_NAMES[Math.floor(Math.random() * HUMAN_FEMALE_NAMES.length)];
+        ? HUMAN_MALE_NAMES[Math.floor(rng().next() * HUMAN_MALE_NAMES.length)]
+        : HUMAN_FEMALE_NAMES[Math.floor(rng().next() * HUMAN_FEMALE_NAMES.length)];
       body = gender === 'М' ? 'Человек, хрупкое' : 'Человек, хрупкое';
       break;
     }
     case 'ork': {
-      planet = ORK_PLANETS[Math.floor(Math.random() * ORK_PLANETS.length)];
-      caste = ORK_CASTES[Math.floor(Math.random() * ORK_CASTES.length)];
-      name = ORK_NAMES[Math.floor(Math.random() * ORK_NAMES.length)];
+      planet = ORK_PLANETS[Math.floor(rng().next() * ORK_PLANETS.length)];
+      caste = ORK_CASTES[Math.floor(rng().next() * ORK_CASTES.length)];
+      name = ORK_NAMES[Math.floor(rng().next() * ORK_NAMES.length)];
       gender = 'М';
       body = 'Зелёный, мускулистый';
       maxHealth = 130;
       break;
     }
     case 'eldar': {
-      planet = ELDAR_PLANETS[Math.floor(Math.random() * ELDAR_PLANETS.length)];
-      caste = ELDAR_CASTES[Math.floor(Math.random() * ELDAR_CASTES.length)];
-      gender = Math.random() > 0.5 ? 'М' : 'Ж';
+      planet = ELDAR_PLANETS[Math.floor(rng().next() * ELDAR_PLANETS.length)];
+      caste = ELDAR_CASTES[Math.floor(rng().next() * ELDAR_CASTES.length)];
+      gender = rng().next() > 0.5 ? 'М' : 'Ж';
       name = gender === 'М'
-        ? ELDAR_MALE_NAMES[Math.floor(Math.random() * ELDAR_MALE_NAMES.length)]
-        : ELDAR_FEMALE_NAMES[Math.floor(Math.random() * ELDAR_FEMALE_NAMES.length)];
+        ? ELDAR_MALE_NAMES[Math.floor(rng().next() * ELDAR_MALE_NAMES.length)]
+        : ELDAR_FEMALE_NAMES[Math.floor(rng().next() * ELDAR_FEMALE_NAMES.length)];
       body = gender === 'М' ? 'Эльдар, грациозное' : 'Эльдар, грациозное';
       maxHealth = 80;
       break;
     }
     case 'dark_eldar': {
-      planet = DARK_ELDAR_PLANETS[Math.floor(Math.random() * DARK_ELDAR_PLANETS.length)];
-      caste = DARK_ELDAR_CASTES[Math.floor(Math.random() * DARK_ELDAR_CASTES.length)];
-      gender = Math.random() > 0.5 ? 'М' : 'Ж';
+      planet = DARK_ELDAR_PLANETS[Math.floor(rng().next() * DARK_ELDAR_PLANETS.length)];
+      caste = DARK_ELDAR_CASTES[Math.floor(rng().next() * DARK_ELDAR_CASTES.length)];
+      gender = rng().next() > 0.5 ? 'М' : 'Ж';
       name = gender === 'М'
-        ? DARK_ELDAR_MALE_NAMES[Math.floor(Math.random() * DARK_ELDAR_MALE_NAMES.length)]
-        : DARK_ELDAR_FEMALE_NAMES[Math.floor(Math.random() * DARK_ELDAR_FEMALE_NAMES.length)];
+        ? DARK_ELDAR_MALE_NAMES[Math.floor(rng().next() * DARK_ELDAR_MALE_NAMES.length)]
+        : DARK_ELDAR_FEMALE_NAMES[Math.floor(rng().next() * DARK_ELDAR_FEMALE_NAMES.length)];
       body = gender === 'М' ? 'Друкхаари, изящное' : 'Друкхаари, изящное';
       maxHealth = 90;
       break;
     }
     case 'tau': {
-      planet = TAU_PLANETS[Math.floor(Math.random() * TAU_PLANETS.length)];
-      caste = TAU_CASTES[Math.floor(Math.random() * TAU_CASTES.length)];
+      planet = TAU_PLANETS[Math.floor(rng().next() * TAU_PLANETS.length)];
+      caste = TAU_CASTES[Math.floor(rng().next() * TAU_CASTES.length)];
       const allTauNames = [...TAU_NAMES_EARTH, ...TAU_NAMES_FIRE, ...TAU_NAMES_AIR, ...TAU_NAMES_WATER, ...TAU_NAMES_ETHEREAL];
-      name = allTauNames[Math.floor(Math.random() * allTauNames.length)];
+      name = allTauNames[Math.floor(rng().next() * allTauNames.length)];
       gender = 'Бесполый';
       body = 'Тау, стройное';
       maxHealth = 85;
       break;
     }
     case 'gretchin': {
-      planet = GRETCHIN_PLANETS[Math.floor(Math.random() * GRETCHIN_PLANETS.length)];
-      caste = GRETCHIN_CASTES[Math.floor(Math.random() * GRETCHIN_CASTES.length)];
-      name = GRETCHIN_NAMES[Math.floor(Math.random() * GRETCHIN_NAMES.length)];
+      planet = GRETCHIN_PLANETS[Math.floor(rng().next() * GRETCHIN_PLANETS.length)];
+      caste = GRETCHIN_CASTES[Math.floor(rng().next() * GRETCHIN_CASTES.length)];
+      name = GRETCHIN_NAMES[Math.floor(rng().next() * GRETCHIN_NAMES.length)];
       gender = 'М';
       body = 'Маленькое, зелёное, хилое';
       maxHealth = 50;
@@ -265,35 +266,35 @@ function generateCharacterByRace(race: Race): CharacterStats {
   }
 
   const hiddenParams: CharacterStats['hiddenParams'] = {
-    faith: Math.floor(Math.random() * 3),
-    cunning: Math.floor(Math.random() * 3),
-    strength: Math.floor(Math.random() * 3),
-    willpower: Math.floor(Math.random() * 3),
-    mutation: Math.floor(Math.random() * 2),
+    faith: Math.floor(rng().next() * 3),
+    cunning: Math.floor(rng().next() * 3),
+    strength: Math.floor(rng().next() * 3),
+    willpower: Math.floor(rng().next() * 3),
+    mutation: Math.floor(rng().next() * 2),
     suspicion: 0,
   };
 
   switch (race) {
     case 'ork':
-      hiddenParams.waaagh = Math.floor(Math.random() * 3) + 1;
+      hiddenParams.waaagh = Math.floor(rng().next() * 3) + 1;
       hiddenParams.strength += 2;
       break;
     case 'eldar':
-      hiddenParams.psi = Math.floor(Math.random() * 3) + 1;
-      hiddenParams.nobility = Math.floor(Math.random() * 3);
+      hiddenParams.psi = Math.floor(rng().next() * 3) + 1;
+      hiddenParams.nobility = Math.floor(rng().next() * 3);
       break;
     case 'dark_eldar':
-      hiddenParams.cruelty = Math.floor(Math.random() * 3) + 1;
-      hiddenParams.psi = Math.floor(Math.random() * 2);
+      hiddenParams.cruelty = Math.floor(rng().next() * 3) + 1;
+      hiddenParams.psi = Math.floor(rng().next() * 2);
       hiddenParams.cunning += 1;
       break;
     case 'tau':
-      hiddenParams.unity = Math.floor(Math.random() * 3) + 2;
-      hiddenParams.techSkill = Math.floor(Math.random() * 3) + 1;
+      hiddenParams.unity = Math.floor(rng().next() * 3) + 2;
+      hiddenParams.techSkill = Math.floor(rng().next() * 3) + 1;
       break;
     case 'gretchin':
-      hiddenParams.sneakiness = Math.floor(Math.random() * 3) + 2;
-      hiddenParams.techSkill = Math.floor(Math.random() * 2);
+      hiddenParams.sneakiness = Math.floor(rng().next() * 3) + 2;
+      hiddenParams.techSkill = Math.floor(rng().next() * 2);
       hiddenParams.cunning += 1;
       break;
   }
@@ -308,7 +309,7 @@ function generateCharacterByRace(race: Race): CharacterStats {
     sanity: 100,
     warpCorruption: 0,
     warpAttention: 0,
-    luck: Math.floor(Math.random() * 5) + 3,
+    luck: Math.floor(rng().next() * 5) + 3,
     credits: caste.startCredits,
     food: 10,
     ammo: 0,

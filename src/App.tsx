@@ -169,7 +169,7 @@ function App() {
               )}
               
               <button 
-                onClick={startNewGame} 
+                onClick={() => startNewGame()} 
                 className="btn-modern bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-5 px-16 rounded-xl text-2xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
               >
                 ⚔️ Начать новую игру
@@ -623,7 +623,7 @@ function App() {
                       </div>
                     </div>
                     <button
-                      onClick={startNewGame}
+                      onClick={() => startNewGame()}
                       className="btn-modern bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-4 px-14 rounded-xl text-xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
                     >
                       ⚔️ Начать новую жизнь

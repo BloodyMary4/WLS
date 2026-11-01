@@ -38,7 +38,10 @@ export function validateCharacter(character: CharacterStats): boolean {
   const factions = ['imperium', 'chaos', 'xenos', 'criminals', 'nobility', 'commoners'];
   for (const faction of factions) {
     const value = character.factionRelations[faction as keyof typeof character.factionRelations];
-    if (value < -10 || value > 10) return false;
+    // Единый диапазон отношений с фракциями: [-100, 100]
+    // (совпадает с клампингом в applyQuestRewards и npcSystem)
+    if (typeof value !== 'number' || Number.isNaN(value)) return false;
+    if (value < -100 || value > 100) return false;
   }
   
   return true;
