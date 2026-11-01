@@ -196,7 +196,7 @@ describe('«Император защищает» — расширяемые п�
     let saved = false;
     for (let seed = 1; seed <= 40 && !saved; seed++) {
       const state = makeStateWith({
-        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 10, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 } }),
+        race: 'human', age: 25, imperialCreed: 10, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 },
       });
       setGlobalSeed(seed);
       const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
@@ -208,7 +208,7 @@ describe('«Император защищает» — расширяемые п�
   it('нулевая Верность никогда не спасает от Инквизиции', () => {
     for (let seed = 1; seed <= 30; seed++) {
       const state = makeStateWith({
-        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 0, influence: 0, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 } }),
+        race: 'human', age: 25, imperialCreed: 0, influence: 0, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 },
       });
       setGlobalSeed(seed);
       const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
@@ -223,7 +223,7 @@ describe('«Император защищает» — расширяемые п�
       // warpAttention 10 — гарантированное безумие: исцеление рассудка требует attention<=2,
       // а регенерация здоровья при этом остаётся активной (health>0, food>0).
       const state = makeStateWith({
-        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 10, sanity: 0, influence: 0, warpAttention: 10 }),
+        race: 'human', age: 25, imperialCreed: 10, sanity: 0, influence: 0, warpAttention: 10,
       });
       setGlobalSeed(seed);
       const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });

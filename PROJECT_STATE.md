@@ -14,7 +14,7 @@
 ## Стек
 - React + TypeScript + Vite
 - Electron-обёртка для ПК-версии (portable/setup .exe, сборка через CI)
-- Vitest — 96 тестов (src/__tests__/), включая юнит-тесты reducer и системы квестов
+- Vitest — 108 тестов (src/__tests__/), включая юнит-тесты reducer, системы квестов и микро-событий
 - GitHub Actions: ci.yml (typecheck+check+test+build), deploy.yml (GitHub Pages), desktop-build.yml (Windows .exe → Release по тегу v*)
 
 ## Как делать изменения (рабочий процесс)
@@ -28,6 +28,7 @@
 - Структура: src/game/ (events по расам, npcSystem, questSystem, saveSystem, achievements, audio, validation, rng.ts — детерминированный RNG с seed, **reducer.ts — единый чистый reducer игры**), src/components/ (MainMenu, GameScreen, Sidebar, GameHeader, EventCard, DeathScreen, AchievementToast, StatCard, HiddenStat, AudioController), src/hooks/ (useGameStore.ts — обёртка над reducer + исполнение эффектов; useKeyboardControls.ts), App.tsx (~90 строк, только роутинг фаз), electron/.
 - Стилистика: выполнен grimdark-редизайн (палитра, готическая типографика, пергамент) — коммит d81c1087.
 - UI исправлен под 1920x1080 (шапка, уведомления, масштаб) — коммит e24f02ce.
+- Лор-механики: «Император защищает» (imperialCreed + чудо заступничества) расширено — чудом отвратимы смерть от ран, голод, порча Варпа (≤95), внимание Варпа (≤9) и приговор Инквизиции; безумие и экстремальные мутации не отводятся. Микро-события выбираются детерминированно по весам (rng().weighted), имперские сплетни фильтруются по расе/типу мира, добавлены позорные события (поражение в поединке, кража у гретчинов, голод Ковчега тёмных эльдар). Тесты: microEvents.test.ts (5), reducer.test.ts (17).
 
 ## Открытые задачи (план по приоритету)
 1. **Дизайн/визуал** (запрошен пользователем,в работе): усилить warhammer-стилистику — портреты/иконки рас, рамки событий в стиле кодексов, анимации появления текста, звуковое сопровождение фоновой атмосферы, тёмная тема по умолчанию, шрифт заголовков (например, «BattleforDorn»/gotические web-fonts).
