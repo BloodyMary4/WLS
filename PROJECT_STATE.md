@@ -21,7 +21,7 @@
 1. Правки в /workspace (клон репозитория).
 2. Проверить: `npm run typecheck && npm test && npm run build`.
 3. Коммит (`feat:`/`fix:`/`docs:`/`style:`), затем push в main.
-4. Push требует токен GitHub от пользователя (fine-grained, Contents: Read and write на BloodyMary4/WLS). Токены не хранятся в репо; если пуш не проходит — попросить новый токен или отдать пользователю патч/bundle.
+4. Push настроен (2026-11-01): origin = https://github.com/BloodyMary4/WLS.git, токен пользователя лежит в git credential store (файл `.git/credentials`, вне рабочего дерева и истории). Пуш из новой сессии в этом контейнере работает без вопросов; если файл будет потерян — попросить у пользователя новый fine-grained токен (Contents: Read and write на BloodyMary4/WLS).
 5. Веб обновляется автоматически после push в main (Pages, ~1–2 мин). Для новой .exe — создать тег `git tag vX.Y.Z && git push origin vX.Y.Z`, дождаться Desktop Build, артефакты появятся в Releases.
 
 ## Текущее состояние кода
