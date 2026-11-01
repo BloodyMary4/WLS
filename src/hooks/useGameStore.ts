@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from 'react';
+import { useReducer, useRef } from 'react';
 import {
   GameUiState,
   GameEffect,
@@ -37,36 +37,34 @@ function runEffects(effects: GameEffect[], stateRef: React.MutableRefObject<Game
   }
 }
 
-function reducerWithEffects(state: GameUiState, action: GameAction): GameUiState {
-  return dispatchGameAction(state, action).state;
+/**
+ * useReducer-редьюсер обязан быть чистым (в dev React вызывает его дважды —
+ * StrictMode). Поэтому переходы с RNG (seed!) исполняются ОДИН РАЗ в
+ * dispatchTracked, а сюда приходит уже готовое состояние через action.state.
+ */
+type PreparedAction = GameAction & { state?: GameUiState };
+
+function pureReducer(state: GameUiState, action: PreparedAction): GameUiState {
+  return action.state ?? state;
 }
 
 export function useGameStore() {
-  const [uiState, dispatch] = useReducer(reducerWithEffects, initialUiState);
+  const [uiState, dispatch] = useReducer(pureReducer, initialUiState);
   const stateRef = useRef(uiState);
   stateRef.current = uiState;
 
-  // Эффекты считаются один раз в обработчике и исполняются после коммита.
-  const pendingEffects = useRef<GameEffect[]>([]);
-
   const dispatchTracked = (action: GameAction) => {
     const outcome = dispatchGameAction(stateRef.current, action);
-    pendingEffects.current = outcome.effects;
-    dispatch(action);
-  };
-
-  useEffect(() => {
-    if (pendingEffects.current.length > 0) {
-      const effects = pendingEffects.current;
-      pendingEffects.current = [];
-      runEffects(effects, stateRef);
-      const toast = effects.find(e => e.kind === 'achievementToast');
-      if (toast) {
-        const timer = setTimeout(() => dispatch({ type: 'CLEAR_ACHIEVEMENT_TOAST' }), toast.durationMs);
-        return () => clearTimeout(timer);
-      }
+    if (outcome.state === stateRef.current && outcome.effects.length === 0) return;
+    // Синхронный ref — чтобы runEffects (save) видел новое состояние до ре-рендера.
+    stateRef.current = outcome.state;
+    dispatch({ ...action, state: outcome.state });
+    runEffects(outcome.effects, stateRef);
+    const toast = outcome.effects.find((e) => e.kind === 'achievementToast');
+    if (toast) {
+      setTimeout(() => dispatchTracked({ type: 'CLEAR_ACHIEVEMENT_TOAST' }), toast.durationMs);
     }
-  }, [uiState]);
+  };
 
   const handleChoice = (choice: GameUiState['lastChoice'] & {}) => dispatchTracked({ type: 'CHOOSE', choice });
   const proceedToNextYear = () => dispatchTracked({ type: 'PROCEED_TO_NEXT_YEAR' });
