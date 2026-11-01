@@ -106,10 +106,10 @@ function App() {
         </div>
         
         <div className="relative z-10 container mx-auto px-6 py-12">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-[1600px] mx-auto">
             {/* Заголовок */}
             <div className="text-center mb-16 animate-fade-in">
-              <h1 className="text-6xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent animate-glow">
+              <h1 className="text-5xl xl:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent animate-glow">
                 WARHAMMER LIFE
               </h1>
               <p className="text-xl text-gray-300 mb-3 font-light">
@@ -209,10 +209,10 @@ function App() {
       <AudioController />
       
       {newAchievement && (
-        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-scale-in">
-          <div className="bg-gradient-to-br from-yellow-900/90 to-orange-900/90 border-2 border-yellow-500 rounded-2xl px-8 py-6 shadow-2xl backdrop-blur-sm animate-glow">
-            <div className="flex items-center gap-5">
-              <div className="text-6xl animate-pulse">
+        <div className="fixed bottom-6 right-6 z-50 animate-scale-in max-w-md">
+          <div className="bg-gradient-to-br from-yellow-900/90 to-orange-900/90 border-2 border-yellow-500 rounded-2xl px-6 py-4 shadow-2xl backdrop-blur-sm animate-glow">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl animate-pulse shrink-0">
                 {ACHIEVEMENTS.find(a => a.id === newAchievement)?.icon}
               </div>
               <div>
@@ -231,16 +231,16 @@ function App() {
         </div>
       )}
       
-      <header className="fixed top-0 left-0 right-0 z-40 glass-effect border-b border-yellow-600/20 shadow-lg">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4 animate-slide-in-left">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl transform hover:scale-110 transition-transform duration-300">{raceInfo.emoji}</div>
-              <div>
-                <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+      <header className="sticky top-0 z-40 glass-effect border-b border-yellow-600/20 shadow-lg">
+        <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
+          <div className="flex items-center justify-between mb-3 animate-slide-in-left">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="text-3xl shrink-0">{raceInfo.emoji}</div>
+              <div className="min-w-0">
+                <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent truncate">
                   {character.name}
                 </div>
-                <div className="text-base text-gray-400">
+                <div className="text-sm text-gray-400 truncate">
                   {character.raceName} • {character.age} лет • {character.planet}
                 </div>
               </div>
@@ -251,13 +251,13 @@ function App() {
                   startNewGame();
                 }
               }}
-              className="btn-modern bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-base py-2 px-6 rounded-lg border border-gray-600 hover:border-yellow-500 transition-all shadow-lg hover:shadow-yellow-500/30"
+              className="btn-modern bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-sm py-1.5 px-4 rounded-lg border border-gray-600 hover:border-yellow-500 transition-all shadow-lg hover:shadow-yellow-500/30 shrink-0"
             >
               🔄 Новая игра
             </button>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 xl:gap-3">
             <StatCard 
               label="Здоровье"
               value={`${character.health}/${character.maxHealth}`}
@@ -315,8 +315,8 @@ function App() {
         </div>
       </header>
 
-      <main className="pt-48 pb-8">
-        <div className="container mx-auto px-4">
+      <main className="py-6">
+        <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden mb-4 w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded transition-colors"
@@ -324,8 +324,8 @@ function App() {
             {sidebarOpen ? 'Скрыть характеристики' : 'Показать характеристики'}
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            <aside className={`lg:col-span-4 space-y-4 animate-slide-in-left ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            <aside className={`lg:col-span-3 space-y-4 animate-slide-in-left ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
               <div className="card-modern p-6 hover-lift">
                 <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
                   <span className="text-2xl">📊</span>
@@ -491,12 +491,12 @@ function App() {
                   <span className="text-2xl">📜</span>
                   Хроника
                 </h3>
-                <div ref={logRef} className="max-h-64 overflow-y-auto space-y-2">
+                <div ref={logRef} className="max-h-[30vh] lg:max-h-64 overflow-y-auto space-y-2">
                   {history.length === 0 ? (
-                    <p className="text-gray-500 italic text-base text-center py-4">Жизнь только начинается...</p>
+                    <p className="text-gray-500 italic text-sm text-center py-4">Жизнь только начинается...</p>
                   ) : (
                     history.map((entry, i) => (
-                      <p key={i} className="text-base text-gray-400 border-l-2 border-yellow-600/50 pl-3 py-1 hover:border-yellow-500 transition-colors">
+                      <p key={i} className="text-sm text-gray-400 border-l-2 border-yellow-600/50 pl-3 py-1 hover:border-yellow-500 transition-colors">
                         {entry}
                       </p>
                     ))
@@ -505,7 +505,7 @@ function App() {
               </div>
             </aside>
 
-            <div className="lg:col-span-8 animate-slide-in-right">
+            <div className="lg:col-span-9 animate-slide-in-right">
               {/* Прогресс жизни */}
               <div className="card-modern p-6 mb-4 hover-lift">
                 <div className="flex items-center justify-between mb-3">
@@ -566,7 +566,7 @@ function App() {
                           <button
                             key={choice.letter}
                             onClick={() => handleChoice(choice)}
-                            className="btn-modern w-full text-left p-5 bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 border-2 border-gray-700 hover:border-yellow-500 rounded-xl transition-all shadow-lg hover:shadow-yellow-500/30 hover:scale-102 animate-slide-in-left"
+                            className="btn-modern w-full text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 border-2 border-gray-700 hover:border-yellow-500 rounded-xl transition-all shadow-lg hover:shadow-yellow-500/30 hover:scale-[1.02] animate-slide-in-left"
                             style={{animationDelay: `${index * 0.1}s`}}
                           >
                             <div className="flex items-start gap-4">
@@ -636,24 +636,24 @@ function App() {
         </div>
       </main>
 
-      <footer className="glass-effect border-t border-yellow-600/20 py-6 mt-12">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex justify-center gap-3 mb-4">
-            <span className="text-2xl animate-pulse">⚔️</span>
-            <span className="text-2xl animate-pulse" style={{animationDelay: '0.2s'}}>☠️</span>
-            <span className="text-2xl animate-pulse" style={{animationDelay: '0.4s'}}>⚜️</span>
+      <footer className="glass-effect border-t border-yellow-600/20 py-4 mt-8">
+        <div className="mx-auto w-full max-w-[1700px] px-6 text-center">
+          <div className="flex justify-center gap-3 mb-3">
+            <span className="text-xl animate-pulse">⚔️</span>
+            <span className="text-xl animate-pulse" style={{animationDelay: '0.2s'}}>☠️</span>
+            <span className="text-xl animate-pulse" style={{animationDelay: '0.4s'}}>⚜️</span>
           </div>
-          <p className="text-base text-gray-400 mb-3">
+          <p className="text-sm text-gray-400 mb-2">
             Warhammer Life Simulator • Warhammer 40,000 • 6 рас
           </p>
-          <div className="flex justify-center gap-4 text-base text-gray-500">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-gray-500">
             <span className="flex items-center gap-2">
-              <kbd className="px-3 py-1.5 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">A-D</kbd>
+              <kbd className="px-2.5 py-1 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">A-D</kbd>
               выбор
             </span>
             <span>•</span>
             <span className="flex items-center gap-2">
-              <kbd className="px-3 py-1.5 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">Space</kbd>
+              <kbd className="px-2.5 py-1 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">Space</kbd>
               продолжение
             </span>
             <span>•</span>
