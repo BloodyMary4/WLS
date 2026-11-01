@@ -136,6 +136,146 @@ export const MICRO_EVENTS: MicroEvent[] = [
     effects: { sneakiness: 1, health: 2, description: 'Тихо. Быстро. Никто не заметил.' },
     race: 'gretchin'
   },
+  // Дополнительные общие события
+  {
+    text: 'Ты находишь старый дневник.',
+    probability: 0.15,
+    effects: { cunning: 1, willpower: 1, description: 'Чужие мысли... но полезные.' }
+  },
+  {
+    text: 'Ты помогаешь раненому.',
+    probability: 0.2,
+    effects: { faith: 1, health: 1, description: 'Доброе дело. Ты чувствуешь себя лучше.' }
+  },
+  {
+    text: 'Ты споришь с торговцем.',
+    probability: 0.25,
+    effects: { cunning: 1, credits: 2, description: 'Ты торгуешься. Получаешь лучшую цену.' }
+  },
+  {
+    text: 'Ты видишь странный знак на стене.',
+    probability: 0.1,
+    effects: { suspicion: 1, faith: -1, description: 'Символ Хаоса? Или просто graffiti?' }
+  },
+  {
+    text: 'Ты находишь заброшенное оружие.',
+    probability: 0.15,
+    effects: { strength: 1, addItem: 'Старый лазерган', description: 'Оно ещё работает. Повезло!' }
+  },
+  // Дополнительные события для людей
+  {
+    text: 'Ты посещаешь храм Императора.',
+    probability: 0.25,
+    effects: { faith: 2, willpower: 1, imperium: 1, description: 'Молитва укрепляет дух.' },
+    race: 'human'
+  },
+  {
+    text: 'Ты встречаешь Инквизитора.',
+    probability: 0.1,
+    effects: { suspicion: 2, willpower: 1, description: 'Он смотрит на тебя... долго. Ты нервничаешь.' },
+    race: 'human'
+  },
+  {
+    text: 'Ты участвуешь в празднике в честь Императора.',
+    probability: 0.2,
+    effects: { faith: 1, unity: 1, description: 'Все поют гимны. Ты чувствуешь единство.' },
+    race: 'human'
+  },
+  // Дополнительные события для орков
+  {
+    text: 'Ты находишь большую пушку.',
+    probability: 0.2,
+    effects: { strength: 2, waaagh: 2, addItem: 'Большая пушка', description: 'Она стреляет громко! WAAAGH!' },
+    race: 'ork'
+  },
+  {
+    text: 'Ты участвуешь в великой битве.',
+    probability: 0.15,
+    effects: { strength: 2, waaagh: 3, health: -5, description: 'Битва была жестокой. Но ты выжил! WAAAGH!' },
+    race: 'ork'
+  },
+  {
+    text: 'Ты ешь странное мясо.',
+    probability: 0.3,
+    effects: { health: 3, strength: 1, description: 'Вкусно! Ты чувствуешь себя сильнее.' },
+    race: 'ork'
+  },
+  // Дополнительные события для эльдар
+  {
+    text: 'Ты общаешься с древним эльдар.',
+    probability: 0.2,
+    effects: { nobility: 2, psi: 1, description: 'Его мудрость... бесценна.' },
+    race: 'eldar'
+  },
+  {
+    text: 'Ты создаёшь произведение искусства.',
+    probability: 0.25,
+    effects: { psi: 1, nobility: 1, description: 'Красота... в хаосе этого мира.' },
+    race: 'eldar'
+  },
+  {
+    text: 'Ты медитируешь на звёзды.',
+    probability: 0.3,
+    effects: { willpower: 2, psi: 1, description: 'Космос говорит с тобой.' },
+    race: 'eldar'
+  },
+  // Дополнительные события для тёмных эльдар
+  {
+    text: 'Ты организуешь великое представление боли.',
+    probability: 0.2,
+    effects: { cruelty: 3, health: 3, description: 'Крики... музыка для ушей Друкхаари.' },
+    race: 'dark_eldar'
+  },
+  {
+    text: 'Ты плетёшь сложную интригу.',
+    probability: 0.25,
+    effects: { cunning: 2, description: 'Паутина лжи... идеально.' },
+    race: 'dark_eldar'
+  },
+  {
+    text: 'Ты находишь редкий яд.',
+    probability: 0.15,
+    effects: { techSkill: 1, cruelty: 1, addItem: 'Редкий яд', description: 'Он убивает медленно... и болезненно.' },
+    race: 'dark_eldar'
+  },
+  // Дополнительные события для тау
+  {
+    text: 'Ты участвуешь в великом собрании.',
+    probability: 0.2,
+    effects: { unity: 2, faith: 1, description: 'Все касты вместе. Высшее Благо растёт.' },
+    race: 'tau'
+  },
+  {
+    text: 'Ты тестируешь новое оружие.',
+    probability: 0.25,
+    effects: { techSkill: 2, strength: 1, description: 'Оно работает... идеально.' },
+    race: 'tau'
+  },
+  {
+    text: 'Ты обучаешь молодых Тау.',
+    probability: 0.3,
+    effects: { unity: 1, cunning: 1, description: 'Знание — сила. Ты делишься им.' },
+    race: 'tau'
+  },
+  // Дополнительные события для гретчинов
+  {
+    text: 'Ты находишь спрятанное оружие.',
+    probability: 0.15,
+    effects: { sneakiness: 1, addItem: 'Скрытый нож', description: 'Оно маленькое... но острое.' },
+    race: 'gretchin'
+  },
+  {
+    text: 'Ты помогаешь другому гретчину.',
+    probability: 0.3,
+    effects: { unity: 1, willpower: 1, description: 'Вместе... легче.' },
+    race: 'gretchin'
+  },
+  {
+    text: 'Ты изучаешь орков.',
+    probability: 0.25,
+    effects: { cunning: 2, description: 'Их слабости... очевидны, если знать, куда смотреть.' },
+    race: 'gretchin'
+  },
 ];
 
 export function triggerMicroEvent(character: CharacterStats): { event: MicroEvent; triggered: boolean } {

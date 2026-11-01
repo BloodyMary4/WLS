@@ -176,6 +176,140 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Собрать 5+ предметов',
     icon: '🎒',
     condition: (c) => c.inventory.length >= 5
+  },
+  // Новые достижения
+  {
+    id: 'influential',
+    name: 'Влиятельный',
+    description: 'Достичь 50+ влияния',
+    icon: '⭐',
+    condition: (c) => c.influence >= 50
+  },
+  {
+    id: 'lucky',
+    name: 'Везунчик',
+    description: 'Достичь 8+ удачи',
+    icon: '🍀',
+    condition: (c) => c.luck >= 8
+  },
+  {
+    id: 'sane',
+    name: 'Здравомыслящий',
+    description: 'Сохранить рассудок выше 80%',
+    icon: '🧠',
+    condition: (c) => c.sanity >= 80 && c.age >= 30
+  },
+  {
+    id: 'corrupted',
+    name: 'Развращённый',
+    description: 'Достичь 50+ порчи Варпа',
+    icon: '🌀',
+    condition: (c) => c.warpCorruption >= 50
+  },
+  {
+    id: 'warp_touched',
+    name: 'Отмеченный Варпом',
+    description: 'Достичь 5+ внимания Варпа',
+    icon: '👁️',
+    condition: (c) => c.warpAttention >= 5
+  },
+  {
+    id: 'well_fed',
+    name: 'Сытый',
+    description: 'Иметь 20+ еды',
+    icon: '🍖',
+    condition: (c) => c.food >= 20
+  },
+  {
+    id: 'armed',
+    name: 'Вооружён',
+    description: 'Иметь 20+ патронов',
+    icon: '🔫',
+    condition: (c) => c.ammo >= 20
+  },
+  {
+    id: 'augmented',
+    name: 'Аугментированный',
+    description: 'Иметь 3+ импланта',
+    icon: '🔧',
+    condition: (c) => c.augmentics.length >= 3
+  },
+  {
+    id: 'diplomat',
+    name: 'Дипломат',
+    description: 'Достичь 5+ отношений с Империумом',
+    icon: '🤝',
+    condition: (c) => c.factionRelations.imperium >= 5
+  },
+  {
+    id: 'heretic',
+    name: 'Еретик',
+    description: 'Достичь -5+ отношений с Империумом',
+    icon: '😈',
+    condition: (c) => c.factionRelations.imperium <= -5
+  },
+  {
+    id: 'chaos_touched',
+    name: 'Отмеченный Хаосом',
+    description: 'Достичь 5+ отношений с Хаосом',
+    icon: '🔥',
+    condition: (c) => c.factionRelations.chaos >= 5
+  },
+  {
+    id: 'xenos_friend',
+    name: 'Друг ксеносов',
+    description: 'Достичь 5+ отношений с ксеносами',
+    icon: '👽',
+    condition: (c) => c.factionRelations.xenos >= 5
+  },
+  {
+    id: 'criminal_mastermind',
+    name: 'Криминальный гений',
+    description: 'Достичь 5+ отношений с преступниками',
+    icon: '🗡️',
+    condition: (c) => c.factionRelations.criminals >= 5
+  },
+  {
+    id: 'key_choice_maker',
+    name: 'Вершитель судеб',
+    description: 'Сделать 5+ ключевых выборов',
+    icon: '🔑',
+    condition: (c) => c.keyChoices.length >= 5
+  },
+  {
+    id: 'world_traveler',
+    name: 'Путешественник',
+    description: 'Увидеть 3+ глобальных события',
+    icon: '🌍',
+    condition: (c) => c.worldEvent !== undefined && c.age >= 15
+  },
+  {
+    id: 'survivor_200',
+    name: 'Бессмертный',
+    description: 'Дожить до 200 лет',
+    icon: '💀',
+    condition: (c) => c.age >= 200
+  },
+  {
+    id: 'max_health',
+    name: 'Крепкий',
+    description: 'Достичь максимального здоровья',
+    icon: '❤️',
+    condition: (c) => c.health >= c.maxHealth && c.age >= 10
+  },
+  {
+    id: 'poor',
+    name: 'Бедняк',
+    description: 'Иметь 0 кредитов в возрасте 20+',
+    icon: '💸',
+    condition: (c) => c.credits === 0 && c.age >= 20
+  },
+  {
+    id: 'trait_master',
+    name: 'Мастер черт',
+    description: 'Собрать 10+ черт характера',
+    icon: '🌟',
+    condition: (c) => c.traits.length >= 10
   }
 ];
 
