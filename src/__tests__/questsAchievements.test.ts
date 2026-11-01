@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { checkQuests, applyQuestRewards, getAvailableQuests, createQuest, AVAILABLE_QUESTS, Quest } from '../game/questSystem';
+import { checkQuests, applyQuestRewards, getAvailableQuests, createQuest, pickNextQuest, resolveNumericTarget, isObjectiveSatisfied, AVAILABLE_QUESTS, Quest } from '../game/questSystem';
 import { checkAchievements, ACHIEVEMENTS } from '../game/achievements';
 import { makeCharacter } from '../game/testHelpers';
 
@@ -132,5 +132,115 @@ describe('checkAchievements', () => {
   it('условия ачивок не падают на базовом персонаже', () => {
     const char = makeCharacter();
     expect(() => ACHIEVEMENTS.forEach(a => a.condition(char))).not.toThrow();
+  });
+});
+
+describe('единый решатель целей (без хардкода фракций)', () => {
+  it('цель по chaos выполняется при достаточных отношениях с Хаосом', () => {
+    const char = makeCharacter();
+    char.factionRelations.chaos = 12;
+    const quest = makeQuest({ objectives: [{ id: 'o', description: 'd', completed: false, type: 'stat', target: 'chaos', targetValue: 10 }] });
+    expect(checkQuests(char, [quest]).completedQuests).toHaveLength(1);
+  });
+
+  it('цель maxImperium достигается при значениях НИЖЕ порога (путь еретика)', () => {
+    const char = makeCharacter();
+    char.factionRelations.imperium = -15;
+    expect(isObjectiveSatisfied(char, 'maxImperium', -10)).toBe(true);
+    char.factionRelations.imperium = 0;
+    expect(isObjectiveSatisfied(char, 'maxImperium', -10)).toBe(false);
+  });
+
+  it('resolveNumericTarget видит скрытые параметры и Верность Императору', () => {
+    const char = makeCharacter({ imperialCreed: 7 });
+    expect(resolveNumericTarget(char, 'imperialCreed')).toBe(7);
+    expect(resolveNumericTarget(char, 'psi')).toBe(0); // hiddenParams.psi из фабрики = 0
+    expect(resolveNumericTarget(char, 'nonexistent_stat')).toBeUndefined();
+  });
+
+  it('все цели шаблонов разрешаются в числа (защита от опечаток в данных)', () => {
+    const char = makeCharacter();
+    for (const quest of AVAILABLE_QUESTS) {
+      for (const obj of quest.objectives) {
+        if (obj.type !== 'stat') continue;
+        const t = obj.target.startsWith('max') ? obj.target.slice(3).toLowerCase() + obj.target.slice(4) : obj.target;
+        expect(resolveNumericTarget(char, t), `${quest.id}/${obj.id}:${obj.target}`).toBeTypeOf('number');
+      }
+    }
+  });
+});
+
+describe('требования квестов в шаблонах (без хардкода id)', () => {
+  it('quest_survivor скрыт через requirements.maxAge после 10 лет', () => {
+    const tpl = AVAILABLE_QUESTS.find(q => q.id === 'quest_survivor');
+    expect(tpl?.requirements?.maxAge).toBe(10);
+  });
+
+  it('квесты Инквизиции и веры не предлагают не-людям', () => {
+    const orc = makeCharacter({ race: 'ork' });
+    const ids = getAvailableQuests(orc, []).map(q => q.id);
+    expect(ids).not.toContain('quest_inquisitor');
+    expect(ids).not.toContain('quest_believer');
+    expect(ids).not.toContain('quest_warrior');
+    // но общие доступны
+    expect(ids).toContain('quest_rich');
+  });
+
+  it('человек видит расово-подходящие квесты', () => {
+    const human = makeCharacter({ race: 'human', age: 5 });
+    const ids = getAvailableQuests(human, []).map(q => q.id);
+    expect(ids).toContain('quest_inquisitor');
+    expect(ids).toContain('quest_survivor');
+  });
+
+  it('орк получает квест WAAAGH! вместо имперских', () => {
+    const orc = makeCharacter({ race: 'ork', age: 5 });
+    const ids = getAvailableQuests(orc, []).map(q => q.id);
+    expect(ids).toContain('quest_waaagh');
+  });
+});
+
+describe('pickNextQuest — детерминированный выбор', () => {
+  it('детерминирован при одинаковых входе', () => {
+    const avail = getAvailableQuests(makeCharacter({ age: 5 }), []);
+    const a = pickNextQuest(avail, 42, 5);
+    const b = pickNextQuest(avail, 42, 5);
+    expect(a?.id).toBe(b?.id);
+  });
+
+  it('разные seedOffset дают разные квесты', () => {
+    const avail = getAvailableQuests(makeCharacter({ age: 5 }), []);
+    const picks = new Set([0, 1, 2, 3].map(off => pickNextQuest(avail, off, 5)?.id));
+    expect(picks.size).toBeGreaterThan(1);
+  });
+
+  it('пустой список возвращает undefined', () => {
+    expect(pickNextQuest([], 0, 5)).toBeUndefined();
+  });
+});
+
+describe('расширенные награды квестов', () => {
+  it('вера в награде повышает imperialCreed у людей и faith-связь у всех', () => {
+    const human = makeCharacter({ race: 'human', imperialCreed: 3 });
+    const r = applyQuestRewards(human, makeQuest({ rewards: { faith: 2 } }));
+    expect(r.imperialCreed).toBe(5);
+    expect(r.factionRelations.faith).toBe(20);
+
+    const eldar = makeCharacter({ race: 'eldar' });
+    const r2 = applyQuestRewards(eldar, makeQuest({ rewards: { faith: 2 } }));
+    expect(r2.imperialCreed ?? 0).toBe(0);
+    expect(r2.factionRelations.faith).toBe(20);
+  });
+
+  it('hiddenParams в наградах клампится в [0..10]', () => {
+    const char = makeCharacter();
+    const r = applyQuestRewards(char, makeQuest({ rewards: { hiddenParams: { psi: 99 } } }));
+    expect(r.hiddenParams.psi).toBe(10);
+  });
+
+  it('imperialCreed не превышает 10', () => {
+    const char = makeCharacter({ race: 'human', imperialCreed: 9 });
+    const r = applyQuestRewards(char, makeQuest({ rewards: { faith: 5 } }));
+    expect(r.imperialCreed).toBe(10);
   });
 });

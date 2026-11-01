@@ -26,7 +26,7 @@ import {
 import { GAME_CONFIG, DEATH_CAUSES } from './config';
 import { validateEvent, validateGameState, createDefaultEvent } from './validation';
 import { randomNPCEncounter, addNPC, generateNPCEvent, updateNPCRelationship } from './npcSystem';
-import { checkQuests, applyQuestRewards, getAvailableQuests, createQuest, Quest } from './questSystem';
+import { checkQuests, applyQuestRewards, getAvailableQuests, createQuest, pickNextQuest, Quest } from './questSystem';
 
 // ---------- Состояние ----------
 
@@ -365,7 +365,9 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
   const newActiveQuests: Quest[] = updatedQuests.filter((q) => !q.completed);
 
   if (newActiveQuests.length === 0 && availableQuests.length > 0) {
-    const newQuest = createQuest(availableQuests[0], finalChar.age);
+    // Детерминированный выбор квеста из доступных (расовые/возрастные требования уже отфильтрованы)
+    const chosen = pickNextQuest(availableQuests, Math.floor(rng().next() * 1000), finalChar.age) ?? availableQuests[0];
+    const newQuest = createQuest(chosen, finalChar.age);
     newActiveQuests.push(newQuest);
 
     const questMessages = [
