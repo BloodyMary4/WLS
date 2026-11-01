@@ -7,6 +7,8 @@ export interface FactionRelations {
   criminals: number;
   nobility: number;
   commoners: number;
+  /** Вера в Господство Империума и божественность Императора (0..100). Конвертируется в Верность (imperialCreed) у людей */
+  faith: number;
 }
 
 export interface LegacyData {

@@ -325,6 +325,8 @@ function generateCharacterByRace(race: Race): CharacterStats {
       chaos: 0,
       xenos: 0,
       criminals: 0,
+      // Вера в Господство Империума зависит от происхождения: праведные сословия начинают с ней выше
+      faith: Math.floor(rng().next() * 10) + ['Дитя культа', 'Ребёнок солдат', 'Сын паломников'].includes(caste.name) ? 20 : 0,
       nobility: 0,
       commoners: 0,
     },

@@ -6,7 +6,7 @@ import { getAmbience } from '../game/audio';
 import { checkAchievements } from '../game/achievements';
 import { triggerMicroEvent } from '../game/microEvents';
 import { getLegacy, updateLegacyOnDeath, getLegacyBonuses } from '../game/legacy';
-import { applyChoiceEffects, updateAgeStatus, applyMicroEventEffects } from '../game/utils';
+import { applyChoiceEffects, updateAgeStatus, applyMicroEventEffects, rollImperialIntercession } from '../game/utils';
 import { GAME_CONFIG, DEATH_CAUSES } from '../game/config';
 import { validateEvent, validateGameState, createDefaultEvent } from '../game/validation';
 import { saveGame, loadGame, hasSave } from '../game/saveSystem';

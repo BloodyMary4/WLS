@@ -1,5 +1,6 @@
 import { CharacterStats, ChoiceEffects } from './types';
 import { rng } from './rng';
+import { GAME_CONFIG } from './config';
 
 export interface MicroEvent {
   text: string;
@@ -156,20 +157,62 @@ export const MICRO_EVENTS: MicroEvent[] = [
     probability: 0.15,
     effects: { unity: 2, willpower: 1, description: 'Вместе... есть шанс. Или безумие? Но лучше безумие, чем рабство.' }
   },
+  // Глобальные события в духе Вечной Ереси — отношения с сословиями и фракциями
+  {
+    text: 'Слухи о вторжении флота Хаоса сеют панику в улье.',
+    probability: 0.08,
+    effects: { sanity: -3, suspicion: 1, commoners: -2, nobilityRel: -1, description: 'Толпа кричит, лорды запирают двери. Каждый ждёт, что следующим пойдёт на заклание он.' }
+  },
+  {
+    text: 'Гильдия торговцев повышает цены на питание для бедных секторов.',
+    probability: 0.1,
+    effects: { food: -2, commoners: -3, nobilityRel: 1, description: 'Простолины голодают, аристократия удовлетворённо кивает. Порядок сохранён ценой тысяч жизней.' }
+  },
+  {
+    text: 'Планетарный губернатор объявляет день благодарения Императору.',
+    probability: 0.08,
+    effects: { faith: 1, commoners: 2, nobilityRel: 1, imperium: 1, description: 'Милости сверху, ликование снизу. Хотя бы один год все делают вид, что живут нормально.' }
+  },
+  {
+    text: 'Ксено-артефакт всплывает на чёрном рынке.',
+    probability: 0.06,
+    effects: { credits: 3, xenos: 1, criminals: 1, suspicion: 1, description: 'Кто-то платит золотом за ересь. Имя покупателя не называется. Цена ошибки — экстерминатус.' }
+  },
 ];
 
-export function triggerMicroEvent(character: CharacterStats): { event: MicroEvent; triggered: boolean } {
+/**
+ * Кулдаун микро-событий: событие может сработать не чаще,
+ * чем раз в COOLDOWN_YEARS лет (см. GAME_CONFIG.MICRO_EVENTS).
+ */
+export function canTriggerMicroEvent(character: CharacterStats): boolean {
+  return (character.microEventCooldown ?? 0) <= 0;
+}
+
+export interface MicroEventResult {
+  event: MicroEvent;
+  triggered: boolean;
+  /** Значение microEventCooldown на следующий год */
+  nextCooldown: number;
+}
+
+export function triggerMicroEvent(character: CharacterStats): MicroEventResult {
+  const prevCooldown = Math.max(0, (character.microEventCooldown ?? 0) - 1);
+
+  if (prevCooldown > 0) {
+    return { event: MICRO_EVENTS[0], triggered: false, nextCooldown: prevCooldown };
+  }
+
   const availableEvents = MICRO_EVENTS.filter(event => {
     if (!event.race) return true;
     if (Array.isArray(event.race)) return event.race.includes(character.race);
     return event.race === character.race;
   });
-  
+
   for (const event of availableEvents) {
     if (rng().next() < event.probability) {
-      return { event, triggered: true };
+      return { event, triggered: true, nextCooldown: GAME_CONFIG.MICRO_EVENTS.COOLDOWN_YEARS };
     }
   }
-  
-  return { event: availableEvents[0], triggered: false };
+
+  return { event: availableEvents[0] ?? MICRO_EVENTS[0], triggered: false, nextCooldown: 0 };
 }

@@ -124,11 +124,18 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
     newChar.factionRelations.commoners = Math.max(FACTION_MIN_VALUE, Math.min(FACTION_MAX_VALUE, newChar.factionRelations.commoners + effects.commoners));
   }
 
-  // Вера в Императора: человеческие расы накапливают Верность с праведностью.
-  // Это скрытый ресурс «заступничества» — см. rollImperialIntercession().
-  if ((newChar.race === 'human' || newChar.race === 'gretchin') && effects.faith) {
-    const creedDelta = effects.faith > 0 ? Math.ceil(effects.faith / 2) : effects.faith;
-    newChar.imperialCreed = Math.max(0, Math.min(10, (newChar.imperialCreed ?? 0) + creedDelta));
+  // Вера: эффекты `faith` двигают отношение к Господству Империума (0..100).
+  // У людей праведность также конвертируется в Верность (imperialCreed 0..10) —
+  // скрытый ресурс заступничества «Император защищает», см. rollImperialIntercession().
+  // Скрытый параметр hiddenParams.faith остаётся расовой характеристикой (0..10).
+  if (effects.faith !== undefined && effects.faith !== 0) {
+    const fr = { ...newChar.factionRelations };
+    fr.faith = Math.max(0, Math.min(100, fr.faith + effects.faith * 5));
+    newChar.factionRelations = fr;
+    if (newChar.race === 'human') {
+      const creedDelta = effects.faith > 0 ? Math.ceil(effects.faith / 2) : effects.faith;
+      newChar.imperialCreed = Math.max(0, Math.min(10, (newChar.imperialCreed ?? 0) + creedDelta));
+    }
   }
 
   return newChar;
@@ -150,6 +157,7 @@ export function rollImperialIntercession(character: CharacterStats): boolean {
 export function updateAgeStatus(character: CharacterStats): CharacterStats {
   const newChar = { ...character };
   newChar.age += 1;
+  newChar.microEventCooldown = Math.max(0, (newChar.microEventCooldown ?? 0) - 1);
 
   // Естественное восстановление: раны затягиваются, если есть чем питаться.
   // Без этого даже лёгкие урон-эффекты накапливаются и персонаж умирает к ~30 годам.

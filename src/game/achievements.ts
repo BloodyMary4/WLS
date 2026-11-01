@@ -237,37 +237,37 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'diplomat',
     name: 'Дипломат',
-    description: 'Достичь 5+ отношений с Империумом',
+    description: 'Достичь 50+ отношений с Империумом',
     icon: '🤝',
-    condition: (c) => c.factionRelations.imperium >= 5
+    condition: (c) => c.factionRelations.imperium >= 50
   },
   {
     id: 'heretic',
     name: 'Еретик',
-    description: 'Достичь -5+ отношений с Империумом',
+    description: 'Достичь -50 и ниже отношений с Империумом',
     icon: '😈',
-    condition: (c) => c.factionRelations.imperium <= -5
+    condition: (c) => c.factionRelations.imperium <= -50
   },
   {
     id: 'chaos_touched',
     name: 'Отмеченный Хаосом',
-    description: 'Достичь 5+ отношений с Хаосом',
+    description: 'Достичь 50+ отношений с Хаосом',
     icon: '🔥',
-    condition: (c) => c.factionRelations.chaos >= 5
+    condition: (c) => c.factionRelations.chaos >= 50
   },
   {
     id: 'xenos_friend',
     name: 'Друг ксеносов',
-    description: 'Достичь 5+ отношений с ксеносами',
+    description: 'Достичь 50+ отношений с ксеносами',
     icon: '👽',
-    condition: (c) => c.factionRelations.xenos >= 5
+    condition: (c) => c.factionRelations.xenos >= 50
   },
   {
     id: 'criminal_mastermind',
     name: 'Криминальный гений',
-    description: 'Достичь 5+ отношений с преступниками',
+    description: 'Достичь 50+ отношений с преступниками',
     icon: '🗡️',
-    condition: (c) => c.factionRelations.criminals >= 5
+    condition: (c) => c.factionRelations.criminals >= 50
   },
   {
     id: 'key_choice_maker',
@@ -353,6 +353,35 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Достичь -100 отношений с NPC',
     icon: '⚔️',
     condition: (c) => c.npcs.some(npc => npc.relationship <= -100)
+  },
+  // Лорные достижения: Вера, Заступничество, сословия
+  {
+    id: 'creed_ten',
+    name: 'Император защищает',
+    description: 'Достичь 10 Верности (праведная жизнь человека)',
+    icon: '☦',
+    condition: (c) => (c.imperialCreed ?? 0) >= 10
+  },
+  {
+    id: 'tithe_lamb',
+    name: 'Десятина',
+    description: 'Вера в Господство Империума 80+',
+    icon: '🕯',
+    condition: (c) => c.factionRelations.faith >= 80
+  },
+  {
+    id: 'people_champion',
+    name: 'Голос низов',
+    description: 'Простолины уважают тебя (80+)',
+    icon: '🍞',
+    condition: (c) => c.factionRelations.commoners >= 80
+  },
+  {
+    id: 'high_born',
+    name: 'Свой среди высоких лордов',
+    description: 'Аристократия благоволит тебе (80+)',
+    icon: '🏰',
+    condition: (c) => c.factionRelations.nobility >= 80
   }
 ];
 
