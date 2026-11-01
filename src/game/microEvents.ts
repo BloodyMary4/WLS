@@ -8,299 +8,152 @@ export interface MicroEvent {
 }
 
 export const MICRO_EVENTS: MicroEvent[] = [
+  // Мрачные события в духе Warhammer 40,000
   {
-    text: 'Ты находишь монету на дороге.',
+    text: 'Ты находишь окровавленный труп с кошельком.',
     probability: 0.3,
-    effects: { credits: 1, description: 'Мелочь, но приятно.' }
+    effects: { credits: 2, suspicion: 1, description: 'Ты берёшь деньги. Кровь ещё тёплая. В этом мире выживают те, кто не брезгует мертвыми.' }
   },
   {
-    text: 'Тебя останавливает патруль для проверки.',
+    text: 'Патруль Арбитрес останавливает тебя для проверки.',
     probability: 0.2,
-    effects: { suspicion: 1, description: 'Проверка документов. Всё в порядке.' }
+    effects: { suspicion: 2, description: 'Их взгляды тяжелы, как приговор. Ты чувствуешь, как они оценивают, стоит ли ты жизни.' }
   },
   {
-    text: 'Ты помогаешь старому человеку перейти дорогу.',
+    text: 'Ты видишь публичную казнь еретика.',
     probability: 0.15,
-    effects: { faith: 1, description: 'Доброе дело. Старик благодарит.' }
+    effects: { faith: 1, willpower: 1, description: 'Пламя пожирает его плоть, но не душу. Толпа ликует. Ты чувствуешь... страх? Или восхищение?' }
   },
   {
-    text: 'Ты спотыкаешься и падаешь.',
+    text: 'Крыса пробегает по твоей ноге в тёмном переулке.',
     probability: 0.1,
-    effects: { health: -2, description: 'Небольшие ушибы. Ничего серьёзного.' }
+    effects: { health: -1, description: 'Её зубы оставляют след. Инфекция... в этом мире это приговор.' }
   },
   {
-    text: 'Ты встречаешь старого знакомого.',
-    probability: 0.2,
-    effects: { description: 'Приятная беседа. Время летит.' }
-  },
-  {
-    text: 'Ты находишь забытый предмет.',
-    probability: 0.15,
-    effects: { credits: 3, description: 'Кто-то потерял, ты нашёл.' }
-  },
-  {
-    text: 'Ночью тебе снится странный сон.',
+    text: 'Ты слышишь шёпот в стенах.',
     probability: 0.25,
-    effects: { willpower: 1, description: 'Сон был... пророческим? Ты чувствуешь себя странно.' }
+    effects: { warpAttention: 1, description: 'Голоса... они зовут тебя. Или это просто ветер? В Варпе нет случайностей.' }
   },
   {
-    text: 'Ты слышишь странные слухи о ереси.',
+    text: 'Ты находишь запрещённый гримуар.',
     probability: 0.1,
-    effects: { suspicion: 1, faith: -1, description: 'Слухи тревожат. Может, это правда?' }
+    effects: { cunning: 2, warpCorruption: 3, addItem: 'Запретный гримуар', description: 'Страницы шепчут на мёртвых языках. Знание... и проклятие.' }
   },
   {
-    text: 'Ты тренируешься в тайне.',
-    probability: 0.2,
-    effects: { strength: 1, description: 'Каждая тренировка делает тебя сильнее.' }
-  },
-  {
-    text: 'Ты изучаешь древние тексты.',
+    text: 'Инквизитор задаёт тебе вопросы о соседях.',
     probability: 0.15,
-    effects: { cunning: 1, faith: 1, description: 'Знание — сила. Даже запретное знание.' }
+    effects: { suspicion: 2, faith: 1, description: 'Его глаза - как бездны. Ты отвечаешь... но знаешь, что один неверный ответ - и ты следующий.' }
   },
   {
-    text: 'Ты молишься Императору.',
-    probability: 0.3,
-    effects: { faith: 2, imperium: 1, description: 'Молитва укрепляет веру.' },
-    race: 'human'
-  },
-  {
-    text: 'Инквизиция проводит проверку в районе.',
-    probability: 0.15,
-    effects: { suspicion: 2, description: 'Все нервничают. Ты стараешься не привлекать внимания.' },
-    race: 'human'
-  },
-  {
-    text: 'Ты находишь хороший камень для жевания.',
-    probability: 0.3,
-    effects: { strength: 1, waaagh: 1, description: 'Камни вкусные! Зубы крепнут.' },
-    race: 'ork'
-  },
-  {
-    text: 'Ты дерёшься с другим орком за еду.',
-    probability: 0.25,
-    effects: { strength: 1, health: -3, waaagh: 1, description: 'Драка! Ты побеждаешь. Еда твоя!' },
-    race: 'ork'
-  },
-  {
-    text: 'Ты кричишь WAAAGH! просто так.',
-    probability: 0.4,
-    effects: { waaagh: 2, description: 'WAAAGH! Другие орки присоединяются.' },
-    race: 'ork'
-  },
-  {
-    text: 'Ты медитируешь у Кристаллического Лабиринта.',
-    probability: 0.3,
-    effects: { psi: 1, nobility: 1, description: 'Медитация проясняет разум.' },
-    race: 'eldar'
-  },
-  {
-    text: 'Ты чувствуешь отголоски прошлого через Варп.',
-    probability: 0.2,
-    effects: { psi: 1, willpower: -1, description: 'Воспоминания тысячелетий. Боль и мудрость.' },
-    race: 'eldar'
-  },
-  {
-    text: 'Ты причиняешь боль пленнику.',
-    probability: 0.25,
-    effects: { cruelty: 1, health: 2, description: 'Крики питают тебя. ГОЛОД утихает.' },
-    race: 'dark_eldar'
-  },
-  {
-    text: 'Ты планируешь интригу против rival.',
-    probability: 0.2,
-    effects: { cunning: 1, description: 'Шах и мат. Они даже не подозревают.' },
-    race: 'dark_eldar'
-  },
-  {
-    text: 'Ты участвуешь в групповой медитации Высшего Блага.',
-    probability: 0.3,
-    effects: { unity: 2, description: 'Единство с братьями. Высшее Благо растёт.' },
-    race: 'tau'
-  },
-  {
-    text: 'Ты изучаешь новую технологию.',
-    probability: 0.25,
-    effects: { techSkill: 1, cunning: 1, description: 'Прогресс — это путь.' },
-    race: 'tau'
-  },
-  {
-    text: 'Ты прячешься от орка.',
-    probability: 0.35,
-    effects: { sneakiness: 1, description: 'Ты становишься невидимым. Орк проходит мимо.' },
-    race: 'gretchin'
-  },
-  {
-    text: 'Ты крадёшь еду у орка.',
-    probability: 0.2,
-    effects: { sneakiness: 1, health: 2, description: 'Тихо. Быстро. Никто не заметил.' },
-    race: 'gretchin'
-  },
-  // Дополнительные общие события
-  {
-    text: 'Ты находишь старый дневник.',
-    probability: 0.15,
-    effects: { cunning: 1, willpower: 1, description: 'Чужие мысли... но полезные.' }
-  },
-  {
-    text: 'Ты помогаешь раненому.',
-    probability: 0.2,
-    effects: { faith: 1, health: 1, description: 'Доброе дело. Ты чувствуешь себя лучше.' }
-  },
-  {
-    text: 'Ты споришь с торговцем.',
-    probability: 0.25,
-    effects: { cunning: 1, credits: 2, description: 'Ты торгуешься. Получаешь лучшую цену.' }
-  },
-  {
-    text: 'Ты видишь странный знак на стене.',
+    text: 'Ты видишь мутанта, прячущегося в тени.',
     probability: 0.1,
-    effects: { suspicion: 1, faith: -1, description: 'Символ Хаоса? Или просто graffiti?' }
+    effects: { faith: 1, suspicion: 1, description: 'Его тело - искажённое, чужое. Долг велит донести. Но его глаза... полны такой человеческой боли.' }
   },
   {
-    text: 'Ты находишь заброшенное оружие.',
+    text: 'Культист предлагает тебе "истинное знание".',
+    probability: 0.08,
+    effects: { warpCorruption: 5, suspicion: 3, description: 'Его слова сладки, как яд. Ты отказываешься... или нет? Варп ждёт.' }
+  },
+  {
+    text: 'Ты находишь раненого солдата Имперской Гвардии.',
+    probability: 0.2,
+    effects: { faith: 2, health: -2, description: 'Он шепчет молитвы. Ты помогаешь... или добиваешь? В этом мире милосердие - роскошь.' }
+  },
+  // События для людей
+  {
+    text: 'Ты молишься в соборе Святого Креста.',
+    probability: 0.3,
+    effects: { faith: 2, imperium: 1, description: 'Литании наполняют воздух. Ты чувствуешь... присутствие? Или это просто эхо?' }
+  },
+  {
+    text: 'Техножрец осматривает твоё оборудование.',
     probability: 0.15,
-    effects: { strength: 1, addItem: 'Старый лазерган', description: 'Оно ещё работает. Повезло!' }
-  },
-  // Дополнительные события для людей
-  {
-    text: 'Ты посещаешь храм Императора.',
-    probability: 0.25,
-    effects: { faith: 2, willpower: 1, imperium: 1, description: 'Молитва укрепляет дух.' },
-    race: 'human'
+    effects: { techSkill: 1, credits: -5, description: 'Его механические глаза сканируют каждую деталь. "Оно не соответствует спецификациям." Штраф.' }
   },
   {
-    text: 'Ты встречаешь Инквизитора.',
+    text: 'Ты становишься свидетелем экстерминатуса соседней планеты.',
+    probability: 0.05,
+    effects: { willpower: 2, faith: 1, description: 'Целый мир... стёрт. Миллиарды жизней. Во имя Императора. Ты чувствуешь... ужас? Или одобрение?' }
+  },
+  // События для орков
+  {
+    text: 'Ты находишь гигантского скуига.',
+    probability: 0.2,
+    effects: { strength: 2, waaagh: 2, description: 'Он огромен! Ты оседлал его! WAAAGH! Теперь ты ещё страшнее!' }
+  },
+  {
+    text: 'Ты участвуешь в кровавом турнире.',
+    probability: 0.15,
+    effects: { strength: 3, health: -8, waaagh: 3, description: 'Ты дерёшься до последней крови. Побеждаешь! Или почти... WAAAGH!' }
+  },
+  {
+    text: 'Ты ешь что-то подозрительное.',
+    probability: 0.3,
+    effects: { health: -3, strength: 1, description: 'Живот крутит... но ты стал сильнее! Орский желудок всё переварит!' }
+  },
+  // События для эльдар
+  {
+    text: 'Ты чувствуешь присутствие Слаанеш.',
     probability: 0.1,
-    effects: { suspicion: 2, willpower: 1, description: 'Он смотрит на тебя... долго. Ты нервничаешь.' },
-    race: 'human'
+    effects: { warpCorruption: 3, psi: 1, description: 'Шёпот... обещания... экстаз. Ты отступаешь... но часть тебя хочет большего.' }
   },
   {
-    text: 'Ты участвуешь в празднике в честь Императора.',
+    text: 'Ты создаёшь произведение искусства из чистого псай-энергии.',
     probability: 0.2,
-    effects: { faith: 1, unity: 1, description: 'Все поют гимны. Ты чувствуешь единство.' },
-    race: 'human'
-  },
-  // Дополнительные события для орков
-  {
-    text: 'Ты находишь большую пушку.',
-    probability: 0.2,
-    effects: { strength: 2, waaagh: 2, addItem: 'Большая пушка', description: 'Она стреляет громко! WAAAGH!' },
-    race: 'ork'
+    effects: { psi: 2, nobility: 2, description: 'Красота... хрупкая, как память. Она переживёт тебя на тысячелетия.' }
   },
   {
-    text: 'Ты участвуешь в великой битве.',
+    text: 'Древний эльдар делится воспоминаниями о Падении.',
     probability: 0.15,
-    effects: { strength: 2, waaagh: 3, health: -5, description: 'Битва была жестокой. Но ты выжил! WAAAGH!' },
-    race: 'ork'
+    effects: { willpower: 2, psi: 1, description: 'Боль тысячелетий... ты чувствуешь её. И понимаешь, почему вы должны выжить.' }
   },
-  {
-    text: 'Ты ешь странное мясо.',
-    probability: 0.3,
-    effects: { health: 3, strength: 1, description: 'Вкусно! Ты чувствуешь себя сильнее.' },
-    race: 'ork'
-  },
-  // Дополнительные события для эльдар
-  {
-    text: 'Ты общаешься с древним эльдар.',
-    probability: 0.2,
-    effects: { nobility: 2, psi: 1, description: 'Его мудрость... бесценна.' },
-    race: 'eldar'
-  },
-  {
-    text: 'Ты создаёшь произведение искусства.',
-    probability: 0.25,
-    effects: { psi: 1, nobility: 1, description: 'Красота... в хаосе этого мира.' },
-    race: 'eldar'
-  },
-  {
-    text: 'Ты медитируешь на звёзды.',
-    probability: 0.3,
-    effects: { willpower: 2, psi: 1, description: 'Космос говорит с тобой.' },
-    race: 'eldar'
-  },
-  // Дополнительные события для тёмных эльдар
+  // События для тёмных эльдар
   {
     text: 'Ты организуешь великое представление боли.',
     probability: 0.2,
-    effects: { cruelty: 3, health: 3, description: 'Крики... музыка для ушей Друкхаари.' },
-    race: 'dark_eldar'
+    effects: { cruelty: 3, health: 3, description: 'Крики... музыка для ушей Друкхаари. ГОЛОД утихает... но ненадолго.' }
   },
   {
-    text: 'Ты плетёшь сложную интригу.',
-    probability: 0.25,
-    effects: { cunning: 2, description: 'Паутина лжи... идеально.' },
-    race: 'dark_eldar'
-  },
-  {
-    text: 'Ты находишь редкий яд.',
+    text: 'Ты находишь раба с редкой способностью.',
     probability: 0.15,
-    effects: { techSkill: 1, cruelty: 1, addItem: 'Редкий яд', description: 'Он убивает медленно... и болезненно.' },
-    race: 'dark_eldar'
-  },
-  // Дополнительные события для тау
-  {
-    text: 'Ты участвуешь в великом собрании.',
-    probability: 0.2,
-    effects: { unity: 2, faith: 1, description: 'Все касты вместе. Высшее Благо растёт.' },
-    race: 'tau'
+    effects: { cunning: 2, credits: 10, description: 'Его боль... экзотична. Ты знаешь, как её использовать.' }
   },
   {
-    text: 'Ты тестируешь новое оружие.',
-    probability: 0.25,
-    effects: { techSkill: 2, strength: 1, description: 'Оно работает... идеально.' },
-    race: 'tau'
-  },
-  {
-    text: 'Ты обучаешь молодых Тау.',
-    probability: 0.3,
-    effects: { unity: 1, cunning: 1, description: 'Знание — сила. Ты делишься им.' },
-    race: 'tau'
-  },
-  // Дополнительные события для гретчинов
-  {
-    text: 'Ты находишь спрятанное оружие.',
-    probability: 0.15,
-    effects: { sneakiness: 1, addItem: 'Скрытый нож', description: 'Оно маленькое... но острое.' },
-    race: 'gretchin'
-  },
-  {
-    text: 'Ты помогаешь другому гретчину.',
-    probability: 0.3,
-    effects: { unity: 1, willpower: 1, description: 'Вместе... легче.' },
-    race: 'gretchin'
-  },
-  {
-    text: 'Ты изучаешь орков.',
-    probability: 0.25,
-    effects: { cunning: 2, description: 'Их слабости... очевидны, если знать, куда смотреть.' },
-    race: 'gretchin'
-  },
-  // События с NPC
-  {
-    text: 'Ты встречаешь старого друга.',
-    probability: 0.2,
-    effects: { willpower: 1, faith: 1, description: 'Приятная встреча. Воспоминания греют душу.' }
-  },
-  {
-    text: 'Торговец предлагает редкий товар.',
-    probability: 0.15,
-    effects: { credits: -5, cunning: 1, description: 'Ты покупаешь что-то интересное. Может пригодиться.' }
-  },
-  {
-    text: 'Незнакомец просит помощи.',
-    probability: 0.2,
-    effects: { faith: 2, willpower: 1, description: 'Ты помогаешь незнакомцу. Доброта возвращается.' }
-  },
-  {
-    text: 'Ты ссоришься с соседом.',
+    text: 'Архонт бросает тебе вызов.',
     probability: 0.1,
-    effects: { willpower: -1, suspicion: 1, description: 'Конфликт... но ты чувствуешь себя правым.' }
+    effects: { strength: 2, cruelty: 2, health: -5, description: 'Ты принимаешь вызов. Побеждаешь... или почти. В Коммаготе нет вторых мест.' }
+  },
+  // События для тау
+  {
+    text: 'Ты участвуешь в ритуале Высшего Блага.',
+    probability: 0.3,
+    effects: { unity: 2, faith: 1, description: 'Все касты вместе. Эфирные ведут церемонию. Ты чувствуешь... цель.' }
   },
   {
-    text: 'Местный герой рассказывает истории.',
-    probability: 0.25,
-    effects: { willpower: 1, faith: 1, description: 'Истории вдохновляют. Ты чувствуешь себя частью чего-то большего.' }
+    text: 'Ты тестируешь новое оружие на пленниках.',
+    probability: 0.15,
+    effects: { techSkill: 2, unity: -1, description: 'Оно работает... эффективно. Но что-то внутри протестует. Или это слабость?' }
+  },
+  {
+    text: 'Ты встречаешь человека, который хочет присоединиться к Тау.',
+    probability: 0.2,
+    effects: { cunning: 1, unity: 1, description: 'Его глаза полны надежды. Ты видишь в нём... потенциал. Или угрозу?' }
+  },
+  // События для гретчинов
+  {
+    text: 'Ты прячешься от орка, который ищет рабов.',
+    probability: 0.35,
+    effects: { sneakiness: 2, description: 'Ты становишься тенью. Орк проходит мимо... но в следующий раз повезёт?' }
+  },
+  {
+    text: 'Ты крадёшь оружие у орка.',
+    probability: 0.2,
+    effects: { sneakiness: 2, addItem: 'Украденный бластер', description: 'Тихо. Быстро. Оружие теперь твоё. Но орки ищут вора...' }
+  },
+  {
+    text: 'Ты находишь другого гретчина, который хочет сбежать.',
+    probability: 0.15,
+    effects: { unity: 2, willpower: 1, description: 'Вместе... есть шанс. Или безумие? Но лучше безумие, чем рабство.' }
   },
 ];
 

@@ -21,9 +21,11 @@ export interface LegacyData {
 export interface NPC {
   id: string;
   name: string;
+  role: string; // Торговец, Инквизитор, Культист, Солдат и т.д.
   relationship: number; // -100 до 100
   met: boolean;
   lastInteraction?: number;
+  description?: string; // Краткое описание персонажа
 }
 
 export interface CharacterStats {

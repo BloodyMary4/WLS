@@ -33,12 +33,12 @@ export interface QuestRewards {
   };
 }
 
-// Доступные квесты
+// Доступные квесты в духе Warhammer 40,000
 export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>[] = [
   {
     id: 'quest_survivor',
-    name: 'Выживший',
-    description: 'Пережить первые 10 лет жизни',
+    name: 'Выживший в окопах',
+    description: 'Пережить первые 10 лет в этом мрачном мире. Смерть подстерегает на каждом шагу.',
     objectives: [
       {
         id: 'obj_age_10',
@@ -50,15 +50,14 @@ export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>
       },
     ],
     rewards: {
-      credits: 20,
-      influence: 5,
-      traits: ['Выживший'],
+      credits: 10,
+      traits: ['Закалённый войной'],
     },
   },
   {
     id: 'quest_believer',
-    name: 'Истинно верующий',
-    description: 'Достичь 8+ веры',
+    name: 'Слуга Императора',
+    description: 'Посвятить свою жизнь служению Императору. Вера - твой щит против тьмы.',
     objectives: [
       {
         id: 'obj_faith_8',
@@ -70,14 +69,14 @@ export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>
       },
     ],
     rewards: {
-      influence: 10,
-      traits: ['Благочестивый'],
+      traits: ['Благочестивый', 'Фанатик'],
+      factionRelations: { imperium: 10 },
     },
   },
   {
     id: 'quest_warrior',
-    name: 'Воин Империума',
-    description: 'Достичь 8+ силы и 5+ воли',
+    name: 'Молот Императора',
+    description: 'Стать оружием в руках Бога-Императора. Сила и воля - твои союзники.',
     objectives: [
       {
         id: 'obj_strength_8',
@@ -97,16 +96,16 @@ export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>
       },
     ],
     rewards: {
-      credits: 50,
-      influence: 15,
-      traits: ['Воин'],
+      credits: 25,
+      traits: ['Воин Императора', 'Безжалостный'],
       items: ['Церемониальный меч'],
+      factionRelations: { imperium: 15 },
     },
   },
   {
     id: 'quest_scholar',
-    name: 'Учёный',
-    description: 'Достичь 8+ хитрости и 5+ веры',
+    name: 'Хранитель знаний',
+    description: 'Познать тайны Вселенной. Знание - сила, но также и проклятие.',
     objectives: [
       {
         id: 'obj_cunning_8',
@@ -126,16 +125,15 @@ export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>
       },
     ],
     rewards: {
-      credits: 30,
-      influence: 20,
-      traits: ['Учёный'],
-      items: ['Древний свиток'],
+      credits: 15,
+      traits: ['Учёный', 'Мудрец'],
+      items: ['Запретный гримуар'],
     },
   },
   {
     id: 'quest_rich',
-    name: 'Богач',
-    description: 'Накопить 100+ кредитов',
+    name: 'Торговец смерти',
+    description: 'Накопить богатство в мире, где деньги - это кровь и порох.',
     objectives: [
       {
         id: 'obj_credits_100',
@@ -147,14 +145,14 @@ export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>
       },
     ],
     rewards: {
-      influence: 10,
-      traits: ['Богач'],
+      traits: ['Богач', 'Безжалостный делец'],
+      factionRelations: { criminals: 10 },
     },
   },
   {
     id: 'quest_influential',
-    name: 'Влиятельная личность',
-    description: 'Достичь 50+ влияния',
+    name: 'Тень в Императоре',
+    description: 'Достичь влияния, которое заставит трепетать даже Инквизицию.',
     objectives: [
       {
         id: 'obj_influence_50',
@@ -166,48 +164,105 @@ export const AVAILABLE_QUESTS: Omit<Quest, 'completed' | 'failed' | 'startedAt'>
       },
     ],
     rewards: {
-      credits: 100,
-      traits: ['Влиятельный'],
+      credits: 50,
+      traits: ['Влиятельный', 'Опасный'],
+      factionRelations: { imperium: -5, criminals: 15 },
     },
   },
   {
-    id: 'quest_diplomat',
-    name: 'Дипломат',
-    description: 'Достичь 5+ отношений с Империумом',
+    id: 'quest_inquisitor',
+    name: 'Молот Инквизиции',
+    description: 'Служить Инквизиции. Выслеживать еретиков и очищать Империум от скверны.',
     objectives: [
       {
-        id: 'obj_imperium_5',
-        description: 'Достичь 5 отношений с Империумом',
+        id: 'obj_suspicion_5',
+        description: 'Достичь 5 подозрения (выслеживать еретиков)',
         completed: false,
         type: 'stat',
-        target: 'imperium',
+        target: 'suspicion',
+        targetValue: 5,
+      },
+      {
+        id: 'obj_faith_6',
+        description: 'Достичь 6 веры',
+        completed: false,
+        type: 'stat',
+        target: 'faith',
+        targetValue: 6,
+      },
+    ],
+    rewards: {
+      credits: 30,
+      traits: ['Инквизитор', 'Охотник на еретиков'],
+      items: ['Печать Инквизиции'],
+      factionRelations: { imperium: 20, chaos: -20 },
+    },
+  },
+  {
+    id: 'quest_mutant',
+    name: 'Отметина Варпа',
+    description: 'Принять мутации как дар Тёмных Богов. Стань тем, чего боятся люди.',
+    objectives: [
+      {
+        id: 'obj_mutation_5',
+        description: 'Достичь 5 мутаций',
+        completed: false,
+        type: 'stat',
+        target: 'mutation',
         targetValue: 5,
       },
     ],
     rewards: {
-      credits: 40,
-      influence: 15,
-      traits: ['Дипломат'],
+      traits: ['Мутант', 'Избранный Хаосом'],
+      factionRelations: { chaos: 20, imperium: -30 },
     },
   },
   {
-    id: 'quest_social',
-    name: 'Душа компании',
-    description: 'Встретить 10+ NPC',
+    id: 'quest_psyker',
+    name: 'Провидец',
+    description: 'Развить псионические способности. Власть над Варпом - власть над реальностью.',
     objectives: [
       {
-        id: 'obj_npcs_10',
-        description: 'Встретить 10 NPC',
+        id: 'obj_psi_8',
+        description: 'Достичь 8 пси-силы',
         completed: false,
         type: 'stat',
-        target: 'npcs',
+        target: 'psi',
+        targetValue: 8,
+      },
+    ],
+    rewards: {
+      traits: ['Псайкер', 'Провидец'],
+      items: ['Фокус-кристалл'],
+      factionRelations: { imperium: -10 },
+    },
+  },
+  {
+    id: 'quest_heretic',
+    name: 'Путь Ереси',
+    description: 'Отвергнуть ложь Империума. Принять истину Хаоса.',
+    objectives: [
+      {
+        id: 'obj_imperium_minus10',
+        description: 'Достичь -10 отношений с Империумом',
+        completed: false,
+        type: 'stat',
+        target: 'imperium',
+        targetValue: -10,
+      },
+      {
+        id: 'obj_chaos_10',
+        description: 'Достичь 10 отношений с Хаосом',
+        completed: false,
+        type: 'stat',
+        target: 'chaos',
         targetValue: 10,
       },
     ],
     rewards: {
-      credits: 25,
-      influence: 10,
-      traits: ['Общительный'],
+      traits: ['Еретик', 'Слуга Тёмных Богов'],
+      items: ['Метка Хаоса'],
+      factionRelations: { imperium: -50, chaos: 30 },
     },
   },
 ];

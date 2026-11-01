@@ -378,97 +378,104 @@ function App() {
                 </div>
               </div>
 
-              {/* NPC Relations */}
+              {/* NPC Relations - в мрачном стиле Warhammer 40,000 */}
               {character.npcs.length > 0 && (
                 <div className="card-modern p-6 hover-lift">
                   <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
-                    <span className="text-2xl">👥</span>
-                    Знакомые ({character.npcs.length})
+                    <span className="text-2xl">⚔️</span>
+                    Встреченные души ({character.npcs.length})
                   </h3>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
                     {character.npcs.slice(0, 5).map((npc) => (
-                      <div key={npc.id} className="flex items-center justify-between p-2 bg-gray-800/50 rounded-lg">
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold text-gray-200">{npc.name}</div>
-                          <div className="text-xs text-gray-400">
-                            Последняя встреча: {npc.lastInteraction} лет
+                      <div key={npc.id} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-yellow-600/30 transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="text-sm font-bold text-gray-100">{npc.name}</div>
+                            <div className="text-xs text-yellow-600/80 italic">{npc.role}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-xs font-bold ${
+                              npc.relationship >= 50 ? 'text-green-400' :
+                              npc.relationship >= 0 ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>
+                              {npc.relationship > 0 ? 'Союзник' :
+                               npc.relationship >= 0 ? 'Нейтрал' : 'Враг'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {npc.lastInteraction} лет назад
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full transition-all ${
-                                npc.relationship >= 50 ? 'bg-green-500' :
-                                npc.relationship >= 0 ? 'bg-yellow-500' :
-                                'bg-red-500'
-                              }`}
-                              style={{ width: `${Math.abs(npc.relationship)}%` }}
-                            ></div>
-                          </div>
-                          <span className={`text-xs font-bold ${
-                            npc.relationship >= 50 ? 'text-green-400' :
-                            npc.relationship >= 0 ? 'text-yellow-400' :
-                            'text-red-400'
-                          }`}>
-                            {npc.relationship > 0 ? '+' : ''}{npc.relationship}
-                          </span>
+                        {npc.description && (
+                          <div className="text-xs text-gray-400 italic mb-2">{npc.description}</div>
+                        )}
+                        <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all ${
+                              npc.relationship >= 50 ? 'bg-green-500' :
+                              npc.relationship >= 0 ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${Math.abs(npc.relationship)}%` }}
+                          ></div>
                         </div>
                       </div>
                     ))}
                     {character.npcs.length > 5 && (
-                      <div className="text-center text-xs text-gray-500 pt-2">
-                        ...и ещё {character.npcs.length - 5}
+                      <div className="text-center text-xs text-gray-500 pt-2 italic">
+                        ...и ещё {character.npcs.length - 5} душ на твоём пути
                       </div>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Active Quests */}
+              {/* Active Quests - в мрачном стиле Warhammer 40,000 */}
               {gameState.activeQuests.length > 0 && (
                 <div className="card-modern p-6 hover-lift">
                   <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
-                    <span className="text-2xl">⚔️</span>
-                    Активные квесты ({gameState.activeQuests.length})
+                    <span className="text-2xl">📜</span>
+                    Испытания судьбы ({gameState.activeQuests.length})
                   </h3>
                   <div className="space-y-3 max-h-64 overflow-y-auto">
                     {gameState.activeQuests.map((quest) => (
-                      <div key={quest.id} className="p-3 bg-gray-800/50 rounded-lg border border-yellow-600/30">
-                        <div className="text-sm font-bold text-yellow-400 mb-2">{quest.name}</div>
-                        <div className="text-xs text-gray-400 mb-2">{quest.description}</div>
-                        <div className="space-y-1">
+                      <div key={quest.id} className="p-4 bg-gray-800/50 rounded-lg border border-yellow-600/30 hover:border-yellow-500/50 transition-all">
+                        <div className="text-base font-bold text-yellow-400 mb-2">{quest.name}</div>
+                        <div className="text-xs text-gray-400 italic mb-3 leading-relaxed">{quest.description}</div>
+                        <div className="space-y-2 mb-3">
                           {quest.objectives.map((obj) => (
-                            <div key={obj.id} className="flex items-center gap-2 text-xs">
-                              <span className={obj.completed ? 'text-green-400' : 'text-gray-500'}>
-                                {obj.completed ? '✓' : '○'}
+                            <div key={obj.id} className="flex items-start gap-2 text-xs">
+                              <span className={`text-sm ${obj.completed ? 'text-green-400' : 'text-gray-600'}`}>
+                                {obj.completed ? '☠' : '○'}
                               </span>
-                              <span className={obj.completed ? 'text-green-300' : 'text-gray-400'}>
+                              <span className={`flex-1 ${obj.completed ? 'text-green-300 line-through' : 'text-gray-400'}`}>
                                 {obj.description}
                               </span>
                             </div>
                           ))}
                         </div>
-                        <div className="mt-2 pt-2 border-t border-gray-700">
-                          <div className="text-xs text-gray-500">Награды:</div>
-                          <div className="flex flex-wrap gap-1 mt-1">
+                        <div className="pt-3 border-t border-gray-700">
+                          <div className="text-xs text-yellow-600/80 font-semibold mb-2">⚔️ Награды:</div>
+                          <div className="flex flex-wrap gap-2">
                             {quest.rewards.credits && (
-                              <span className="text-xs bg-yellow-900/30 text-yellow-400 px-2 py-0.5 rounded">
-                                💰 {quest.rewards.credits}
+                              <span className="text-xs bg-yellow-900/30 text-yellow-400 px-2 py-1 rounded border border-yellow-600/30">
+                                💰 {quest.rewards.credits} кредитов
                               </span>
                             )}
                             {quest.rewards.influence && (
-                              <span className="text-xs bg-purple-900/30 text-purple-400 px-2 py-0.5 rounded">
-                                ⭐ {quest.rewards.influence}
+                              <span className="text-xs bg-purple-900/30 text-purple-400 px-2 py-1 rounded border border-purple-600/30">
+                                ⭐ {quest.rewards.influence} влияния
                               </span>
                             )}
                             {quest.rewards.traits?.map((trait, i) => (
-                              <span key={i} className="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded">
+                              <span key={i} className="text-xs bg-red-900/30 text-red-400 px-2 py-1 rounded border border-red-600/30">
                                 🎭 {trait}
                               </span>
                             ))}
                             {quest.rewards.items?.map((item, i) => (
-                              <span key={i} className="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded">
-                                🎁 {item}
+                              <span key={i} className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded border border-blue-600/30">
+                                🗡️ {item}
                               </span>
                             ))}
                           </div>

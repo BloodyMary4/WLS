@@ -202,7 +202,16 @@ export function useGameState() {
     for (const quest of newlyCompleted) {
       finalChar = applyQuestRewards(finalChar, quest);
       finalCompletedQuests.push(quest);
-      newHistory.push(`[Квест] Завершён: ${quest.name}! Получены награды.`);
+      
+      // Мрачное уведомление в духе Warhammer 40,000
+      const completionMessages = [
+        `[ИСПЫТАНИЕ] ${quest.name} завершено. Судьба отметила тебя.`,
+        `[СУДЬБА] ${quest.name} - твоё имя теперь выжжено в хрониках.`,
+        `[РОК] ${quest.name} - ты прошёл через тьму и вышел... изменённым.`,
+        `[ЛЕГЕНДА] ${quest.name} - твои деяния будут помнить, даже когда звёзды погаснут.`
+      ];
+      const message = completionMessages[Math.floor(Math.random() * completionMessages.length)];
+      newHistory.push(message);
     }
     
     // Добавляем новые доступные квесты
@@ -213,7 +222,15 @@ export function useGameState() {
     if (newActiveQuests.length === 0 && availableQuests.length > 0) {
       const newQuest = createQuest(availableQuests[0], finalChar.age);
       newActiveQuests.push(newQuest);
-      newHistory.push(`[Квест] Новый квест: ${newQuest.name}`);
+      
+      // Мрачное уведомление о новом испытании
+      const questMessages = [
+        `[СУДЬБА] Новое испытание: ${newQuest.name}. ${newQuest.description}`,
+        `[РОК] ${newQuest.name} - путь, который ты должен пройти.`,
+        `[ИСПЫТАНИЕ] ${newQuest.name} - тьма ждёт тебя.`
+      ];
+      const message = questMessages[Math.floor(Math.random() * questMessages.length)];
+      newHistory.push(message);
     }
     
     setActiveQuests(newActiveQuests);
