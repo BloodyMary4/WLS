@@ -46,3 +46,12 @@
 
 ## Ключевые коммиты истории
 - Initial commit → .gitignore → синхронизация с GitHub → vitest (57→68 тестов) → rng с seed → CI/Pages/Electron workflows → релизы .exe → фиксы UI 1920x1080 → grimdark-редизайн → ссылки в README.
+
+## Релиз v0.3.0 (2026-11-01)
+- Исправлены ошибки типов и тестов после рефакторинга reducer (tsc ✅, 110/110 vitest ✅).
+- Расовые пределы жизни: эльдар/тёмные эльдар 500, орки 70, тау 60, гретчины 50, человек 80 (GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED_BY_RACE).
+- Мировые события (каждые 5 лет) теперь видны: блок «Мир» в Sidebar + запись [МИР] в хронику; счётчик уникальных событий → достижение «Путешественник» (≥3).
+- Убран двойной декремент microEventCooldown (остался только в triggerMicroEvent).
+- Шанс микро-событий: вес / MICRO_EVENTS.TRIGGER_DIVISOR (без магического *2).
+- Достижение за 2+ чуда «Император защищает» (intercessionCount).
+- Тег v0.3.0 → GitHub Actions Desktop Build собирает Windows setup.exe + portable.exe и публикует GitHub Release.
