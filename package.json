@@ -1,5 +1,8 @@
 {
-  "name": "sandbox-workspace",
+  "name": "wls",
+  "version": "0.1.0",
+  "description": "Warhammer Life Simulator - текстовый симулятор жизни во вселенной Warhammer 40k",
+  "author": "BloodyMary4",
   "private": true,
   "type": "module",
   "scripts": {
