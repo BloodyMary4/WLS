@@ -49,6 +49,8 @@ export interface CharacterStats {
   influence: number;
   inventory: string[];
   augmentics: string[];
+  /** Верность Императору (0–10). На 10 — шанс чудесного заступничества при смерти */
+  imperialCreed?: number;
   factionRelations: FactionRelations;
   npcs: NPC[];
   hiddenParams: {
@@ -107,6 +109,10 @@ export interface ChoiceEffects {
   chaos?: number;
   xenos?: number;
   criminals?: number;
+  /** Отношения с аристократией улья/планеты (-100..100) */
+  nobilityRel?: number;
+  /** Отношения с простолюдинами (-100..100) */
+  commoners?: number;
   addTrait?: string;
   removeTrait?: string;
   addItem?: string;

@@ -3,6 +3,7 @@ import { rng } from './rng';
 import { GAME_CONFIG } from './config';
 
 const { MAX_VALUE, MIN_VALUE } = GAME_CONFIG.STAT_THRESHOLDS;
+const { MAX_VALUE: FACTION_MAX_VALUE, MIN_VALUE: FACTION_MIN_VALUE } = GAME_CONFIG.FACTION_RELATIONS;
 
 export function generateWorldEvent(): string {
   const events = [
@@ -102,12 +103,65 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
     newChar.keyChoices = [...(newChar.keyChoices || []), effects.keyChoice];
   }
 
+  // Отношения с фракциями/сословиями из эффектов выбора.
+  // В eldar/dark_eldar-событиях `nobility` — скрытый параметр расы, его не трогаем;
+  // для связей с аристократией используется отдельный ключ `nobilityRel`.
+  const skipFaction = newChar.race === 'eldar' || newChar.race === 'dark_eldar';
+  const factionDeltaKeys = ['imperium', 'chaos', 'xenos', 'criminals'] as const;
+  factionDeltaKeys.forEach(faction => {
+    const delta = effects[faction];
+    if (delta !== undefined && delta !== 0) {
+      newChar.factionRelations[faction] = Math.max(FACTION_MIN_VALUE, Math.min(FACTION_MAX_VALUE, newChar.factionRelations[faction] + delta));
+    }
+  });
+  if (!skipFaction && effects.nobility !== undefined && effects.nobility !== 0) {
+    newChar.factionRelations.nobility = Math.max(FACTION_MIN_VALUE, Math.min(FACTION_MAX_VALUE, newChar.factionRelations.nobility + effects.nobility));
+  }
+  if (effects.nobilityRel !== undefined && effects.nobilityRel !== 0) {
+    newChar.factionRelations.nobility = Math.max(FACTION_MIN_VALUE, Math.min(FACTION_MAX_VALUE, newChar.factionRelations.nobility + effects.nobilityRel));
+  }
+  if (effects.commoners !== undefined && effects.commoners !== 0) {
+    newChar.factionRelations.commoners = Math.max(FACTION_MIN_VALUE, Math.min(FACTION_MAX_VALUE, newChar.factionRelations.commoners + effects.commoners));
+  }
+
+  // Вера в Императора: человеческие расы накапливают Верность с праведностью.
+  // Это скрытый ресурс «заступничества» — см. rollImperialIntercession().
+  if ((newChar.race === 'human' || newChar.race === 'gretchin') && effects.faith) {
+    const creedDelta = effects.faith > 0 ? Math.ceil(effects.faith / 2) : effects.faith;
+    newChar.imperialCreed = Math.max(0, Math.min(10, (newChar.imperialCreed ?? 0) + creedDelta));
+  }
+
   return newChar;
+}
+
+/**
+ * «Император защищает» — шанс чудесного заступничества при смерти от ран.
+ * Работает только для людей с высокой Верностью (creed >= 5).
+ * Возвращает true, если смерть отвведена (персонаж выживает с 1 HP).
+ */
+export function rollImperialIntercession(character: CharacterStats): boolean {
+  if (character.race !== 'human') return false;
+  const creed = character.imperialCreed ?? 0;
+  if (creed < 5) return false;
+  // 5% за каждый очко Верности сверх 4: creed 5 → 5%, creed 10 → 30%
+  return rng().next() < (creed - 4) * 0.05;
 }
 
 export function updateAgeStatus(character: CharacterStats): CharacterStats {
   const newChar = { ...character };
   newChar.age += 1;
+
+  // Естественное восстановление: раны затягиваются, если есть чем питаться.
+  // Без этого даже лёгкие урон-эффекты накапливаются и персонаж умирает к ~30 годам.
+  if (newChar.health > 0 && newChar.food > 0 && newChar.health < newChar.maxHealth) {
+    const regen = 2 + Math.floor(newChar.hiddenParams.willpower / 3);
+    newChar.health = Math.min(newChar.maxHealth, newChar.health + regen);
+  }
+
+  // Медленное исцеление рассудка в относительном спокойствии
+  if (newChar.sanity < 100 && newChar.warpAttention <= 2 && newChar.warpCorruption < 30) {
+    newChar.sanity = Math.min(100, newChar.sanity + 1);
+  }
 
   const currentStatus = newChar.status;
   const isChildStatus = ['Младенец', 'Малыш', 'Ребёнок', 'Подросток'].includes(currentStatus);
@@ -150,6 +204,14 @@ export function updateAgeStatus(character: CharacterStats): CharacterStats {
 
   if (newChar.age % 5 === 0) {
     newChar.worldEvent = generateWorldEvent();
+  }
+
+  // Старение: после среднего ожидаемого срока жизни тело сдаётся.
+  // В мрачной галактике дожить до ста лет — уже чудо, и оно не вечно.
+  const MAX_AGE = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
+  if (newChar.age > MAX_AGE) {
+    const frailty = Math.min(12, Math.floor((newChar.age - MAX_AGE) / 5) + 2);
+    newChar.health = Math.max(0, newChar.health - frailty);
   }
 
   return newChar;
@@ -228,6 +290,8 @@ export function applyMicroEventEffects(
     chaos?: number;
     xenos?: number;
     criminals?: number;
+    nobilityRel?: number;
+    commoners?: number;
     waaagh?: number;
     psi?: number;
     nobility?: number;
@@ -279,13 +343,17 @@ export function applyMicroEventEffects(
     }
   });
   
-  const factions = ['imperium', 'chaos', 'xenos', 'criminals'] as const;
+  // Отношения с фракциями и сословиями: единый диапазон [-100, 100]
+  const factionKeys = ['imperium', 'chaos', 'xenos', 'criminals', 'nobility', 'commoners'] as const;
+  const effectAliases: Record<string, string> = { nobility: 'nobilityRel', commoners: 'commoners' };
   const { MAX_VALUE: FACTION_MAX, MIN_VALUE: FACTION_MIN } = GAME_CONFIG.FACTION_RELATIONS;
-  
-  factions.forEach(faction => {
-    if (effects[faction] !== undefined) {
+
+  factionKeys.forEach(faction => {
+    const rawEffects = effects as unknown as Record<string, number | undefined>;
+    const delta = rawEffects[effectAliases[faction]] ?? rawEffects[faction];
+    if (delta !== undefined) {
       const currentValue = newChar.factionRelations[faction];
-      newChar.factionRelations[faction] = Math.max(FACTION_MIN, Math.min(FACTION_MAX, currentValue + effects[faction]!));
+      newChar.factionRelations[faction] = Math.max(FACTION_MIN, Math.min(FACTION_MAX, currentValue + delta));
     }
   });
   

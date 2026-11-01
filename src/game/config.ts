@@ -21,11 +21,19 @@ export const GAME_CONFIG = {
     MUTATION_DAMAGE_PER_YEAR: 5,
   },
   FACTION_RELATIONS: {
-    MAX_VALUE: 10,
-    MIN_VALUE: -10,
+    // Единый диапазон отношений с фракциями: [-100, 100]
+    // (совпадает с клампингом в applyQuestRewards, npcSystem и validation)
+    MAX_VALUE: 100,
+    MIN_VALUE: -100,
   },
   ACHIEVEMENTS: {
     DISPLAY_DURATION: 3000,
+  },
+  MICRO_EVENTS: {
+    /** Максимум микро-событий за один переход года */
+    MAX_PER_YEAR: 2,
+    /** Кулдаун (в годах) после срабатывания микро-события */
+    COOLDOWN_YEARS: 1,
   },
 };
 
@@ -35,4 +43,5 @@ export const DEATH_CAUSES = {
   PSI_OVERLOAD: 'psi_overload',
   HUNGER: 'hunger',
   INQUISITION: 'inquisition',
+  STARVATION: 'starvation',
 };
