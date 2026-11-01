@@ -112,6 +112,24 @@ describe('reducer: CHOOSE', () => {
     expect(saved).toBeGreaterThan(0);
   });
 
+  it('чудо заступничества сопровождается звуком «miracle» и лорной записью хроники', () => {
+    let found = false;
+    for (let seed = 0; seed < 60 && !found; seed++) {
+      setGlobalSeed(seed);
+      const game = makeGameState({ imperialCreed: 10, health: 50 });
+      const st: GameUiState = { ...initialUiState, game, phase: 'event' };
+      const outcome = computeChoose(st, lethalChoice);
+      if (!outcome.state.game!.gameOver) {
+        found = true;
+        expect(outcome.effects.some((e) => e.kind === 'playSound' && e.sound === 'miracle')).toBe(true);
+        const last = outcome.state.game!.history[outcome.state.game!.history.length - 1];
+        expect(last).toContain('Император защищает');
+        expect(last).toMatch(/Чудес за жизнь: 1 \(чудо\)/);
+      }
+    }
+    expect(found).toBe(true);
+  });
+
   it('низкая Верность не спасает от смерти', () => {
     for (let seed = 0; seed < 30; seed++) {
       setGlobalSeed(seed);

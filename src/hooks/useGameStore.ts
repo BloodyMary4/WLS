@@ -21,6 +21,7 @@ function runEffects(effects: GameEffect[], stateRef: React.MutableRefObject<Game
       case 'playSound':
         if (fx.sound === 'event') ambience.playEventSound();
         else if (fx.sound === 'death') ambience.playDeathSound();
+        else if (fx.sound === 'miracle') ambience.playMiracleChime();
         else ambience.playAchievementSound();
         break;
       case 'save': {

@@ -21,7 +21,7 @@ import {
   applyChoiceEffects,
   updateAgeStatus,
   applyMicroEventEffects,
-  rollImperialIntercession,
+
 } from './utils';
 import { GAME_CONFIG, DEATH_CAUSES } from './config';
 import { validateEvent, validateGameState, createDefaultEvent } from './validation';
@@ -62,7 +62,7 @@ export type GameAction =
 
 export type GameEffect =
   | { kind: 'unlockAudio' }
-  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' }
+  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' }
   | { kind: 'save' }
   | { kind: 'achievementToast'; durationMs: number };
 
@@ -122,6 +122,13 @@ const DEATH_CONDITIONS: DeathCondition[] = [
   },
 ];
 
+/** Русская плюрализация слова «чудо» для лорных записей хроники. */
+function declineMiraclesRu(n: number): string {
+  if (n % 10 === 1 && n % 100 !== 11) return 'чудо';
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'чуда';
+  return 'чудес';
+}
+
 /**
  * Проверяет условия смерти. Возвращает обновлённое состояние, если смерть
  * наступила (или чудом отвведена — «Император защищает»), либо null, если
@@ -148,7 +155,19 @@ function resolveDeathOrIntercession(
       'warp_attention',
       DEATH_CAUSES.INQUISITION,
     ];
-    if (INTERCEDABLE_CAUSES.includes(condition.cause) && rollImperialIntercession(character)) {
+    // Билл на чудо бросается отдельно от проверки условий — иначе расход RNG
+    // зависел бы от порядка условий смерти и ломал детерминизм по seed.
+    const intercessionRoll = INTERCEDABLE_CAUSES.includes(condition.cause)
+      ? rng().next()
+      : null;
+    const creed = character.imperialCreed ?? 0;
+    const miracleSaved =
+      intercessionRoll !== null &&
+      character.race === 'human' &&
+      creed >= 5 &&
+      intercessionRoll < (creed - 4) * 0.05;
+    if (miracleSaved) {
+      effects.push({ kind: 'playSound', sound: 'miracle' });
       const savedChar: CharacterStats = {
         ...character,
         health: Math.max(1, character.health),
@@ -164,7 +183,7 @@ function resolveDeathOrIntercession(
           character: savedChar,
           history: [
             ...history,
-            `[Год ${savedChar.age}] Смерть смотрела ${savedChar.name} в глаза — но Верность его была велика. Император защищает.`,
+            `[Год ${savedChar.age}] **Император защищает**: смерть смотрела ${savedChar.name} в глаза — и отвратила взор. Чудес за жизнь: ${savedChar.intercessionCount ?? 0} (${declineMiraclesRu(savedChar.intercessionCount ?? 0)}).`,
           ],
         },
       };

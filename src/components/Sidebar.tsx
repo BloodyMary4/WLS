@@ -3,6 +3,13 @@ import { HiddenStat } from './HiddenStat';
 
 type RaceInfo = { name: string; emoji: string; description: string };
 
+/** Русская плюрализация: 1 чудо / 2-4 чуда / 5+ чудес */
+function declineMiracles(n: number): string {
+  if (n % 10 === 1 && n % 100 !== 11) return 'чудо';
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'чуда';
+  return 'чудес';
+}
+
 interface SidebarProps {
   character: CharacterStats;
   raceInfo: RaceInfo;
@@ -33,6 +40,31 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
             </>
           )}
         </div>
+
+        {/* Верность Императору — скрытая добродетель людей: при 10 смерть может быть отвращена чудом */}
+        {character.race === 'human' && typeof character.imperialCreed === 'number' && (
+          <div className={`mt-4 pt-3 border-t ${character.imperialCreed >= 8 ? 'border-yellow-500/60 animate-candle' : 'border-[#c9a227]/20'}`}>
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="font-gothic text-[#b8a878] tracking-wide">🕊️ Верность Императору</span>
+              <span className={`font-bold ${character.imperialCreed >= 8 ? 'text-yellow-300' : 'text-[#d8c9a3]'}`}>
+                {character.imperialCreed}/10
+              </span>
+            </div>
+            <div className="wh-bar w-full overflow-hidden" style={{ height: '6px' }}>
+              <div
+                className="wh-bar-fill bg-gradient-to-r from-yellow-700 to-yellow-400"
+                style={{ width: `${(character.imperialCreed / 10) * 100}%`, height: '100%' }}
+              ></div>
+            </div>
+            {character.imperialCreed >= 5 && (
+              <p className="text-[11px] text-yellow-500/70 italic mt-1.5 leading-snug">
+                {character.intercessionCount
+                  ? `Смерть уже отводила взор ${character.intercessionCount} ${declineMiracles(character.intercessionCount)}.`
+                  : 'Твоя вера замечена на Троне. В час смерти Он может взглянуть вниз.'}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="wh-panel p-6">

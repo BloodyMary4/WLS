@@ -10,6 +10,9 @@ export class GrimdarkAmbience {
   private isPlaying = false;
   private volume = 0.55;
   private intervalId: ReturnType<typeof setTimeout> | null = null;
+  // Мастер-шейпер: защищает от клиппинга при наложении мелодических событий
+  // поверх плотного амбиент-дроуна (раньше все слои шли напрямую в destination).
+  private compressor: DynamicsCompressorNode | null = null;
 
   // Сохранённая настройка громкости (localStorage) — переживает перезагрузку страницы
   private static readonly VOLUME_KEY = 'wls-ambience-volume';
@@ -72,7 +75,16 @@ export class GrimdarkAmbience {
       this.audioContext = new Ctx();
       this.masterGain = this.audioContext.createGain();
       this.masterGain.gain.value = this.volume;
-      this.masterGain.connect(this.audioContext.destination);
+      // master → compressor → destination: мягкий лимитер вместо прямого подключения
+      const comp = this.audioContext.createDynamicsCompressor();
+      comp.threshold.value = -18;
+      comp.knee.value = 24;
+      comp.ratio.value = 6;
+      comp.attack.value = 0.004;
+      comp.release.value = 0.25;
+      this.compressor = comp;
+      this.masterGain.connect(comp);
+      comp.connect(this.audioContext.destination);
       return true;
     } catch (error) {
       console.error('Failed to initialize audio context:', error);
@@ -1201,15 +1213,73 @@ export class GrimdarkAmbience {
       chord.stop(finalTime + 1.5);
     });
 
+    // Эхо фанфары раньше шло мимо masterGain прямо в destination — ползунок
+    // громкости на него не влиял, и при наложении на амбиент слышен клиппинг.
     const delay = ctx.createDelay();
     delay.delayTime.value = 0.2;
     const feedback = ctx.createGain();
     feedback.gain.value = 0.25;
-    
-    master.connect(delay);
+    const echoSend = ctx.createGain();
+    echoSend.gain.value = 0.4;
+
+    echoSend.connect(delay);
     delay.connect(feedback);
     feedback.connect(delay);
-    delay.connect(ctx.destination);
+    delay.connect(master);
+
+    // «хвост» фанфары: последняя нота аккорда подзвучивается в эхо-шину
+    const tailOsc = ctx.createOscillator();
+    const tailGain = ctx.createGain();
+    tailOsc.type = 'sine';
+    tailOsc.frequency.value = 783.99;
+    tailGain.gain.setValueAtTime(0, finalTime + 1.3);
+    tailGain.gain.linearRampToValueAtTime(0.05, finalTime + 1.4);
+    tailGain.gain.exponentialRampToValueAtTime(0.001, finalTime + 2.6);
+    tailOsc.connect(tailGain);
+    tailGain.connect(echoSend);
+    tailGain.connect(master);
+    tailOsc.start(finalTime + 1.3);
+    tailOsc.stop(finalTime + 2.6);
+  }
+
+  /** «Звон чуда» — восходящие колокола при заступничестве Императора. */
+  playMiracleChime() {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const master = this.masterGain;
+    const now = ctx.currentTime;
+
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = (i - 1.5) * 0.3;
+
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+
+      const t0 = now + i * 0.14;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(0.16, t0 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 2.2);
+
+      const shimmer = ctx.createOscillator();
+      const shimmerGain = ctx.createGain();
+      shimmer.type = 'sine';
+      shimmer.frequency.value = freq * 2.01;
+      shimmerGain.gain.setValueAtTime(0, t0);
+      shimmerGain.gain.linearRampToValueAtTime(0.04, t0 + 0.03);
+      shimmerGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.4);
+
+      osc.connect(g); g.connect(panner);
+      shimmer.connect(shimmerGain); shimmerGain.connect(panner);
+      panner.connect(master);
+
+      osc.start(t0); osc.stop(t0 + 2.3);
+      shimmer.start(t0); shimmer.stop(t0 + 1.5);
+    });
   }
 
   playDeathSound() {
@@ -1496,6 +1566,7 @@ export class GrimdarkAmbience {
       this.audioContext = null;
     }
     this.masterGain = null;
+    this.compressor = null;
   }
 }
 

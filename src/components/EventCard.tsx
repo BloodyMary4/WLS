@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { GameEvent, Choice } from '../game/types';
 
 interface EventCardProps {
@@ -15,6 +16,34 @@ function isMiracle(text: string): boolean {
   return typeof text === 'string' && text.includes('Император защищает');
 }
 
+/**
+ * Мини-разметка лорных акцентов: **жирное золото**, _курсив бледный_.
+ * Текст событий — основа симулятора, поэтому ключевые имена и термины
+ * теперь подсвечиваются прямо в хронике (безопасно: никакого HTML).
+ */
+function richText(text: string): ReactNode[] {
+  const parts = String(text).split(/(\*\*[^*]+\*\*|_[^_]+_)/g);
+  const out: ReactNode[] = [];
+  parts.forEach((part, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(part)) {
+      out.push(
+        <strong key={i} className="text-[#e8c85a] font-semibold">
+          {part.slice(2, -2)}
+        </strong>,
+      );
+    } else if (/^_[^_]+_$/.test(part)) {
+      out.push(
+        <em key={i} className="text-[#b8a878] italic">
+          {part.slice(1, -1)}
+        </em>,
+      );
+    } else if (part) {
+      out.push(<span key={i}>{part}</span>);
+    }
+  });
+  return out;
+}
+
 /** Центральная карточка события: текст года или результат выбора. */
 export function EventCard({ event, age, phase, resultText, lastChoice, onChoice, onProceed }: EventCardProps) {
   return (
@@ -28,7 +57,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
         </div>
         <div className="wh-parchment rounded-sm p-6 pt-7">
           <p className="font-event text-lg leading-relaxed text-[#d8c9a3]">
-            {event.text}
+            {richText(event.text)}
           </p>
         </div>
       </div>
@@ -38,7 +67,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
           <div className={`wh-parchment rounded-sm p-6 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
               <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
-              <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{resultText}</p>
+              <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
             </div>
           </div>
           <button
