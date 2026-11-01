@@ -1,0 +1,2952 @@
+From 4da06f31d4272cde83187ddd0c8be1a6b3d33729 Mon Sep 17 00:00:00 2001
+From: WLS Dev <dev@wls.local>
+Date: Sun, 1 Nov 2026 06:29:09 +0000
+Subject: [PATCH 1/2] test: add vitest suite (57 tests) for utils, validation,
+ saveSystem, quests, achievements
+
+- vitest.config.ts + npm test / test:watch scripts
+- src/game/testHelpers.ts: makeCharacter/makeGameState factories
+- src/__tests__: utils, validation, saveSystem (localStorage mock), quests+achievements
+- CI: run tests in workflow; integrity check includes test files
+- deploy.yml: GitHub Pages workflow (--base /WLS/)
+- README: testing section
+---
+ .github/workflows/ci.yml                 |    1 +
+ .github/workflows/deploy.yml             |   40 +
+ README.md                                |    9 +
+ package-lock.json                        | 1228 +++++++++++++++++++++-
+ package.json                             |   10 +-
+ scripts/check-integrity.ts               |   10 +-
+ src/__tests__/questsAchievements.test.ts |  136 +++
+ src/__tests__/saveSystem.test.ts         |   60 ++
+ src/__tests__/utils.test.ts              |  141 +++
+ src/__tests__/validation.test.ts         |  119 +++
+ src/game/testHelpers.ts                  |   76 ++
+ vitest.config.ts                         |    9 +
+ 12 files changed, 1787 insertions(+), 52 deletions(-)
+ create mode 100644 .github/workflows/deploy.yml
+ create mode 100644 src/__tests__/questsAchievements.test.ts
+ create mode 100644 src/__tests__/saveSystem.test.ts
+ create mode 100644 src/__tests__/utils.test.ts
+ create mode 100644 src/__tests__/validation.test.ts
+ create mode 100644 src/game/testHelpers.ts
+ create mode 100644 vitest.config.ts
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 5b78646..e5556c5 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -18,4 +18,5 @@ jobs:
+       - run: npm ci
+       - run: npm run typecheck
+       - run: npm run check
++      - run: npm run test
+       - run: npm run build
+diff --git a/.github/workflows/deploy.yml b/.github/workflows/deploy.yml
+new file mode 100644
+index 0000000..3275dd1
+--- /dev/null
++++ b/.github/workflows/deploy.yml
+@@ -0,0 +1,40 @@
++name: Deploy to GitHub Pages
++
++on:
++  push:
++    branches: [main]
++  workflow_dispatch:
++
++permissions:
++  contents: read
++  pages: write
++  id-token: write
++
++concurrency:
++  group: pages
++  cancel-in-progress: true
++
++jobs:
++  build:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 20
++          cache: npm
++      - run: npm ci
++      - run: npx vite build --base /WLS/
++      - uses: actions/upload-pages-artifact@v3
++        with:
++          path: dist
++
++  deploy:
++    needs: build
++    runs-on: ubuntu-latest
++    environment:
++      name: github-pages
++      url: ${{ steps.deployment.outputs.page_url }}
++    steps:
++      - id: deployment
++        uses: actions/deploy-pages@v3
+diff --git a/README.md b/README.md
+index c4f13bd..7ce26d1 100644
+--- a/README.md
++++ b/README.md
+@@ -76,6 +76,15 @@ npm run build
+ npm run check
+ ```
+ 
++### Запуск тестов
++
++```bash
++npm test            # разовый прогон (vitest run)
++npm run test:watch  # режим наблюдения
++```
++
++Тесты покрывают ядро игровой логики: `utils` (эффекты выборов, старение), `validation`, `saveSystem`, `questSystem`, `achievements`. Настройки — в `vitest.config.ts`, фабрики объектов для тестов — в `src/game/testHelpers.ts`.
++
+ ### Восстановление структуры
+ 
+ ```bash
+diff --git a/package-lock.json b/package-lock.json
+index cbcf57c..215e42e 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -22,17 +22,79 @@
+       },
+       "devDependencies": {
+         "@tailwindcss/vite": "^4.1.7",
++        "@testing-library/jest-dom": "^6.9.1",
++        "@testing-library/react": "^16.3.3",
+         "@types/canvas-confetti": "^1.6.4",
+         "@types/react": "^18.2.0",
+         "@types/react-dom": "^18.2.0",
+         "@types/uuid": "^9.0.7",
+         "@vitejs/plugin-react": "^4.3.4",
++        "jsdom": "^29.1.1",
+         "tailwindcss": "^4.1.7",
+         "tsx": "^4.23.15",
+         "typescript": "^5.7.0",
+-        "vite": "^6.3.5"
++        "vite": "^6.3.5",
++        "vitest": "^4.1.12"
+       }
+     },
++    "node_modules/@adobe/css-tools": {
++      "version": "4.5.0",
++      "resolved": "https://registry.npmjs.org/@adobe/css-tools/-/css-tools-4.5.0.tgz",
++      "integrity": "sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/@asamuzakjp/css-color": {
++      "version": "5.1.11",
++      "resolved": "https://registry.npmjs.org/@asamuzakjp/css-color/-/css-color-5.1.11.tgz",
++      "integrity": "sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQIdJW0T8+qGgj3j5bpNKK7Q3G+LedJWg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@asamuzakjp/generational-cache": "^1.0.1",
++        "@csstools/css-calc": "^3.2.0",
++        "@csstools/css-color-parser": "^4.1.0",
++        "@csstools/css-parser-algorithms": "^4.0.0",
++        "@csstools/css-tokenizer": "^4.0.0"
++      },
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      }
++    },
++    "node_modules/@asamuzakjp/dom-selector": {
++      "version": "7.1.1",
++      "resolved": "https://registry.npmjs.org/@asamuzakjp/dom-selector/-/dom-selector-7.1.1.tgz",
++      "integrity": "sha512-67RZDnYRc8H/8MLDgQCDE//zoqVFwajkepHZgmXrbwybzXOEwOWGPYGmALYl9J2DOLfFPPs6kKCqmbzV895hTQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@asamuzakjp/generational-cache": "^1.0.1",
++        "@asamuzakjp/nwsapi": "^2.3.9",
++        "bidi-js": "^1.0.3",
++        "css-tree": "^3.2.1",
++        "is-potential-custom-element-name": "^1.0.1"
++      },
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      }
++    },
++    "node_modules/@asamuzakjp/generational-cache": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/@asamuzakjp/generational-cache/-/generational-cache-1.0.1.tgz",
++      "integrity": "sha512-wajfB8KqzMCN2KGNFdLkReeHncd0AslUSrvHVvvYWuU8ghncRJoA50kT3zP9MVL0+9g4/67H+cdvBskj9THPzg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      }
++    },
++    "node_modules/@asamuzakjp/nwsapi": {
++      "version": "2.3.9",
++      "resolved": "https://registry.npmjs.org/@asamuzakjp/nwsapi/-/nwsapi-2.3.9.tgz",
++      "integrity": "sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/@babel/code-frame": {
+       "version": "7.29.7",
+       "resolved": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz",
+@@ -324,6 +386,159 @@
+         "node": ">=6.9.0"
+       }
+     },
++    "node_modules/@bramus/specificity": {
++      "version": "2.4.3",
++      "resolved": "https://registry.npmjs.org/@bramus/specificity/-/specificity-2.4.3.tgz",
++      "integrity": "sha512-0GEz8qJWokkUVYQYRukmkSHIFNoBH8QTreeHrAFbvz1XFYc3Y+puhMs8PQ5x8GNugiC2l5jvDBXKLbBIByeSBw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "css-tree": "^3.2.1"
++      },
++      "bin": {
++        "specificity": "bin/cli.js"
++      }
++    },
++    "node_modules/@csstools/color-helpers": {
++      "version": "6.1.2",
++      "resolved": "https://registry.npmjs.org/@csstools/color-helpers/-/color-helpers-6.1.2.tgz",
++      "integrity": "sha512-grhRy3OKmniaAEKXMjua5z/EODX0MSqBGjunw8+j/3HQjOnahs2AGhvEOIYVUWcU6ScApbhLhVrQTX8XqrMrow==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/csstools"
++        },
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/csstools"
++        }
++      ],
++      "license": "MIT-0",
++      "engines": {
++        "node": ">=20.19.0"
++      }
++    },
++    "node_modules/@csstools/css-calc": {
++      "version": "3.4.3",
++      "resolved": "https://registry.npmjs.org/@csstools/css-calc/-/css-calc-3.4.3.tgz",
++      "integrity": "sha512-iex20d8CHVkyvg6B7UKV7uHnI2Bqo9g+EFfT9E0y+GvTvhZ/DwONJ+9aKb1dlqm0ZiGsL5RXjp0fCoJYnkeDjA==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/csstools"
++        },
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/csstools"
++        }
++      ],
++      "license": "MIT",
++      "engines": {
++        "node": ">=20.19.0"
++      },
++      "peerDependencies": {
++        "@csstools/css-parser-algorithms": "^4.0.2",
++        "@csstools/css-tokenizer": "^4.0.2"
++      }
++    },
++    "node_modules/@csstools/css-color-parser": {
++      "version": "4.2.7",
++      "resolved": "https://registry.npmjs.org/@csstools/css-color-parser/-/css-color-parser-4.2.7.tgz",
++      "integrity": "sha512-zgm9yjQz5iJB4VL8RyVwd71TWB8Q89FSxt/NzXoWqPSkEBOVtn9L6vAPtSc9hpKfB0Awo/AL2VKFHjYetBLFHQ==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/csstools"
++        },
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/csstools"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "@csstools/color-helpers": "^6.1.2",
++        "@csstools/css-calc": "^3.4.3"
++      },
++      "engines": {
++        "node": ">=20.19.0"
++      },
++      "peerDependencies": {
++        "@csstools/css-parser-algorithms": "^4.0.2",
++        "@csstools/css-tokenizer": "^4.0.2"
++      }
++    },
++    "node_modules/@csstools/css-parser-algorithms": {
++      "version": "4.0.2",
++      "resolved": "https://registry.npmjs.org/@csstools/css-parser-algorithms/-/css-parser-algorithms-4.0.2.tgz",
++      "integrity": "sha512-40cSKyMvK+tq4qz6Awrlye2WGuOKt3FwPgtGg6KTfbHOWNw+Rk1rzbAtZnZ6IBhsY491HLRnDXwoyBAijmmILA==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/csstools"
++        },
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/csstools"
++        }
++      ],
++      "license": "MIT",
++      "engines": {
++        "node": ">=20.19.0"
++      },
++      "peerDependencies": {
++        "@csstools/css-tokenizer": "^4.0.2"
++      }
++    },
++    "node_modules/@csstools/css-syntax-patches-for-csstree": {
++      "version": "1.1.16",
++      "resolved": "https://registry.npmjs.org/@csstools/css-syntax-patches-for-csstree/-/css-syntax-patches-for-csstree-1.1.16.tgz",
++      "integrity": "sha512-LsDbJPP/B8cPasUJyTA5S99F7C4G93ngW8hUluXz8CFeOaaRnBPtBiIlvgcPYU0HmHNz8CXg+1vwFrIB4F6Dgw==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/csstools"
++        },
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/csstools"
++        }
++      ],
++      "license": "MIT-0",
++      "peerDependencies": {
++        "css-tree": "^3.2.1"
++      },
++      "peerDependenciesMeta": {
++        "css-tree": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@csstools/css-tokenizer": {
++      "version": "4.0.2",
++      "resolved": "https://registry.npmjs.org/@csstools/css-tokenizer/-/css-tokenizer-4.0.2.tgz",
++      "integrity": "sha512-OoKoR0f76dCY666JlcbhmVTs2drYj1GUXZTYTcbUgJjh9Nv41aFfZ21bPQTERm5+L5cBDo466NltB2lplS5GBw==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/csstools"
++        },
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/csstools"
++        }
++      ],
++      "license": "MIT",
++      "engines": {
++        "node": ">=20.19.0"
++      }
++    },
+     "node_modules/@dnd-kit/accessibility": {
+       "version": "3.1.1",
+       "resolved": "https://registry.npmjs.org/@dnd-kit/accessibility/-/accessibility-3.1.1.tgz",
+@@ -819,6 +1034,24 @@
+         "node": ">=18"
+       }
+     },
++    "node_modules/@exodus/bytes": {
++      "version": "1.16.0",
++      "resolved": "https://registry.npmjs.org/@exodus/bytes/-/bytes-1.16.0.tgz",
++      "integrity": "sha512-IcpW84uEn3N7ETtNZMlxKhfl6Pec8rUNGOTBtWbK1FKhJxIFAptZyVrvVRVBimAJxJCgc3PxepxkdWWG4DVzfA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      },
++      "peerDependencies": {
++        "@noble/hashes": "^1.8.0 || ^2.0.0"
++      },
++      "peerDependenciesMeta": {
++        "@noble/hashes": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/@jridgewell/gen-mapping": {
+       "version": "0.3.13",
+       "resolved": "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz",
+@@ -1252,6 +1485,13 @@
+         "win32"
+       ]
+     },
++    "node_modules/@standard-schema/spec": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz",
++      "integrity": "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/@supabase/auth-js": {
+       "version": "2.112.3",
+       "resolved": "https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.112.3.tgz",
+@@ -1616,6 +1856,90 @@
+         "vite": "^5.2.0 || ^6 || ^7 || ^8"
+       }
+     },
++    "node_modules/@testing-library/dom": {
++      "version": "10.4.2",
++      "resolved": "https://registry.npmjs.org/@testing-library/dom/-/dom-10.4.2.tgz",
++      "integrity": "sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true,
++      "dependencies": {
++        "@babel/code-frame": "^7.10.4",
++        "@babel/runtime": "^7.12.5",
++        "@types/aria-query": "^5.0.1",
++        "aria-query": "5.3.0",
++        "dom-accessibility-api": "^0.5.9",
++        "lz-string": "^1.5.0",
++        "picocolors": "1.1.1",
++        "pretty-format": "^27.0.2"
++      },
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@testing-library/jest-dom": {
++      "version": "6.9.1",
++      "resolved": "https://registry.npmjs.org/@testing-library/jest-dom/-/jest-dom-6.9.1.tgz",
++      "integrity": "sha512-zIcONa+hVtVSSep9UT3jZ5rizo2BsxgyDYU7WFD5eICBE7no3881HGeb/QkGfsJs6JTkY1aQhT7rIPC7e+0nnA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@adobe/css-tools": "^4.4.0",
++        "aria-query": "^5.0.0",
++        "css.escape": "^1.5.1",
++        "dom-accessibility-api": "^0.6.3",
++        "picocolors": "^1.1.1",
++        "redent": "^3.0.0"
++      },
++      "engines": {
++        "node": ">=14",
++        "npm": ">=6",
++        "yarn": ">=1"
++      }
++    },
++    "node_modules/@testing-library/jest-dom/node_modules/dom-accessibility-api": {
++      "version": "0.6.3",
++      "resolved": "https://registry.npmjs.org/dom-accessibility-api/-/dom-accessibility-api-0.6.3.tgz",
++      "integrity": "sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/@testing-library/react": {
++      "version": "16.3.3",
++      "resolved": "https://registry.npmjs.org/@testing-library/react/-/react-16.3.3.tgz",
++      "integrity": "sha512-Uo193NgQbPMz6lrrhtRQQFcMC6Re/ELLFbbuVL30WDlZxlpZf9/lMHTAVxPRLw1q1iu9OJmR1c2BLiENRstdBg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@babel/runtime": "^7.12.5"
++      },
++      "engines": {
++        "node": ">=18"
++      },
++      "peerDependencies": {
++        "@testing-library/dom": "^10.0.0",
++        "@types/react": "^18.0.0 || ^19.0.0",
++        "@types/react-dom": "^18.0.0 || ^19.0.0",
++        "react": "^18.0.0 || ^19.0.0",
++        "react-dom": "^18.0.0 || ^19.0.0"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "@types/react-dom": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@types/aria-query": {
++      "version": "5.0.4",
++      "resolved": "https://registry.npmjs.org/@types/aria-query/-/aria-query-5.0.4.tgz",
++      "integrity": "sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true
++    },
+     "node_modules/@types/babel__core": {
+       "version": "7.20.5",
+       "resolved": "https://registry.npmjs.org/@types/babel__core/-/babel__core-7.20.5.tgz",
+@@ -1668,6 +1992,17 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/@types/chai": {
++      "version": "5.2.3",
++      "resolved": "https://registry.npmjs.org/@types/chai/-/chai-5.2.3.tgz",
++      "integrity": "sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@types/deep-eql": "*",
++        "assertion-error": "^2.0.1"
++      }
++    },
+     "node_modules/@types/d3-array": {
+       "version": "3.2.2",
+       "resolved": "https://registry.npmjs.org/@types/d3-array/-/d3-array-3.2.2.tgz",
+@@ -1731,6 +2066,13 @@
+       "integrity": "sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==",
+       "license": "MIT"
+     },
++    "node_modules/@types/deep-eql": {
++      "version": "4.0.2",
++      "resolved": "https://registry.npmjs.org/@types/deep-eql/-/deep-eql-4.0.2.tgz",
++      "integrity": "sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/@types/estree": {
+       "version": "1.0.9",
+       "resolved": "https://registry.npmjs.org/@types/estree/-/estree-1.0.9.tgz",
+@@ -1794,68 +2136,236 @@
+         "vite": "^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0"
+       }
+     },
+-    "node_modules/baseline-browser-mapping": {
+-      "version": "2.11.13",
+-      "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.11.13.tgz",
+-      "integrity": "sha512-k9HNuUVMlqVjQ9UHzfPjIqiDbWw7WqT1AoT7GL8VwvF3r0ZfArtgiSPAlmupyNquNgOJHTuH4CKYf8ttMTWBTQ==",
++    "node_modules/@vitest/expect": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/expect/-/expect-4.1.12.tgz",
++      "integrity": "sha512-vFlTt+YEu9WBpNjdGayNmlMVzrWPi1+sv853/7t2FU7hpO5gAFBKHzQmkCq5Xjpr+evegF2994LQT3hF3mRlqQ==",
+       "dev": true,
+-      "license": "Apache-2.0",
+-      "bin": {
+-        "baseline-browser-mapping": "dist/cli.cjs"
++      "license": "MIT",
++      "dependencies": {
++        "@standard-schema/spec": "^1.1.0",
++        "@types/chai": "^5.2.2",
++        "@vitest/spy": "4.1.12",
++        "@vitest/utils": "4.1.12",
++        "chai": "^6.2.2",
++        "tinyrainbow": "^3.1.0"
+       },
+-      "engines": {
+-        "node": ">=6.0.0"
++      "funding": {
++        "url": "https://opencollective.com/vitest"
+       }
+     },
+-    "node_modules/browserslist": {
+-      "version": "4.28.8",
+-      "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.28.8.tgz",
+-      "integrity": "sha512-V2NpofLblG64mfOtSgDhOJESZEGogzDMBv/q+W6oc4LXWP/q75eOXoOaaOu1EOadB9U4Bwx/e0yzbvwKH8zalA==",
++    "node_modules/@vitest/mocker": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/mocker/-/mocker-4.1.12.tgz",
++      "integrity": "sha512-fKShNpKZzupWZuY0z7egydvL0sqW4INEZBEExMBMAa6izlENEVHwoXgdaTCaBZ5fwlr4xf2o1wXC83n9RpO+NA==",
+       "dev": true,
+-      "funding": [
+-        {
+-          "type": "opencollective",
+-          "url": "https://opencollective.com/browserslist"
+-        },
+-        {
+-          "type": "tidelift",
+-          "url": "https://tidelift.com/funding/github/npm/browserslist"
++      "license": "MIT",
++      "dependencies": {
++        "@vitest/spy": "4.1.12",
++        "estree-walker": "^3.0.3",
++        "magic-string": "^0.30.21"
++      },
++      "funding": {
++        "url": "https://opencollective.com/vitest"
++      },
++      "peerDependencies": {
++        "msw": "^2.4.9",
++        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
++      },
++      "peerDependenciesMeta": {
++        "msw": {
++          "optional": true
+         },
+-        {
+-          "type": "github",
+-          "url": "https://github.com/sponsors/ai"
++        "vite": {
++          "optional": true
+         }
+-      ],
++      }
++    },
++    "node_modules/@vitest/pretty-format": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-4.1.12.tgz",
++      "integrity": "sha512-XW9O8+Mxx4VpCtkYdMJLZQQwsVryP9wk7cPKDxtXFfwSak6yRh5+2fep/Y0XF/ElBvJHq8bcYdi6aeuai0opZA==",
++      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "baseline-browser-mapping": "^2.11.12",
+-        "caniuse-lite": "^1.0.30001809",
+-        "electron-to-chromium": "^1.5.402",
+-        "node-releases": "^2.0.53",
+-        "update-browserslist-db": "^1.3.0"
++        "tinyrainbow": "^3.1.0"
+       },
+-      "bin": {
+-        "browserslist": "cli.js"
++      "funding": {
++        "url": "https://opencollective.com/vitest"
++      }
++    },
++    "node_modules/@vitest/runner": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/runner/-/runner-4.1.12.tgz",
++      "integrity": "sha512-NKlVKCr5QnCe8jijdMnmkpHHU+WTqiLFR6G0pHji9uRjXK9xJl1k1nTw6F3pOOj2PDcsDt2GKQMI7wIsaT491w==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@vitest/utils": "4.1.12",
++        "pathe": "^2.0.3"
+       },
+-      "engines": {
+-        "node": "^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7"
++      "funding": {
++        "url": "https://opencollective.com/vitest"
+       }
+     },
+-    "node_modules/caniuse-lite": {
+-      "version": "1.0.30001809",
+-      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001809.tgz",
+-      "integrity": "sha512-xxWVywk6a6Arlk+hymeycyn/VgqEfLDxupvhH/xiY5SJ/18kmi9o6MiO320DCUzypORHLtvh0I4i04tUhCNHNQ==",
++    "node_modules/@vitest/snapshot": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/snapshot/-/snapshot-4.1.12.tgz",
++      "integrity": "sha512-ko1y1Qgb/slzQ9mr+b89Cuqud8WG1TKtsPD8r7ZUBdvVOGt85Af2HwCqHujrhwJq95hs/9RM7fcAPg57o1vlzw==",
+       "dev": true,
+-      "funding": [
+-        {
+-          "type": "opencollective",
+-          "url": "https://opencollective.com/browserslist"
+-        },
+-        {
+-          "type": "tidelift",
+-          "url": "https://tidelift.com/funding/github/npm/caniuse-lite"
+-        },
+-        {
++      "license": "MIT",
++      "dependencies": {
++        "@vitest/pretty-format": "4.1.12",
++        "@vitest/utils": "4.1.12",
++        "magic-string": "^0.30.21",
++        "pathe": "^2.0.3"
++      },
++      "funding": {
++        "url": "https://opencollective.com/vitest"
++      }
++    },
++    "node_modules/@vitest/spy": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/spy/-/spy-4.1.12.tgz",
++      "integrity": "sha512-RGq9x4JNGNTZHEJxvN0oSiJjeSCExm0n2gZKKJZHY9cX5AVA6M7VJILBT3ZJ/tJ/0J9uWT7fETV9/btoi//vSg==",
++      "dev": true,
++      "license": "MIT",
++      "funding": {
++        "url": "https://opencollective.com/vitest"
++      }
++    },
++    "node_modules/@vitest/utils": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/@vitest/utils/-/utils-4.1.12.tgz",
++      "integrity": "sha512-Q3awXrwOfEV+qc3WmO5ONyE0yO7Q1gQ9/oyHxGLZ/pl7N3NO/ZztqQwKLuwMkV+CA1JYSIeO3gkHnRDIo4AVaA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@vitest/pretty-format": "4.1.12",
++        "convert-source-map": "^2.0.0",
++        "tinyrainbow": "^3.1.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/vitest"
++      }
++    },
++    "node_modules/ansi-regex": {
++      "version": "5.0.1",
++      "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz",
++      "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true,
++      "engines": {
++        "node": ">=8"
++      }
++    },
++    "node_modules/ansi-styles": {
++      "version": "5.2.0",
++      "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-5.2.0.tgz",
++      "integrity": "sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true,
++      "engines": {
++        "node": ">=10"
++      },
++      "funding": {
++        "url": "https://github.com/chalk/ansi-styles?sponsor=1"
++      }
++    },
++    "node_modules/aria-query": {
++      "version": "5.3.0",
++      "resolved": "https://registry.npmjs.org/aria-query/-/aria-query-5.3.0.tgz",
++      "integrity": "sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "dequal": "^2.0.3"
++      }
++    },
++    "node_modules/assertion-error": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/assertion-error/-/assertion-error-2.0.1.tgz",
++      "integrity": "sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/baseline-browser-mapping": {
++      "version": "2.11.13",
++      "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.11.13.tgz",
++      "integrity": "sha512-k9HNuUVMlqVjQ9UHzfPjIqiDbWw7WqT1AoT7GL8VwvF3r0ZfArtgiSPAlmupyNquNgOJHTuH4CKYf8ttMTWBTQ==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "bin": {
++        "baseline-browser-mapping": "dist/cli.cjs"
++      },
++      "engines": {
++        "node": ">=6.0.0"
++      }
++    },
++    "node_modules/bidi-js": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/bidi-js/-/bidi-js-1.1.0.tgz",
++      "integrity": "sha512-fX1Onk0tdVPC7obPWB5EbJ1z7NVhLq4m2xZLq2YXBkxzMXIGRpNMU88n0EPgWseKl12J7zXs7qrDxPK4sRs2fg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "require-from-string": "^2.0.2"
++      }
++    },
++    "node_modules/browserslist": {
++      "version": "4.28.8",
++      "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.28.8.tgz",
++      "integrity": "sha512-V2NpofLblG64mfOtSgDhOJESZEGogzDMBv/q+W6oc4LXWP/q75eOXoOaaOu1EOadB9U4Bwx/e0yzbvwKH8zalA==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/browserslist"
++        },
++        {
++          "type": "tidelift",
++          "url": "https://tidelift.com/funding/github/npm/browserslist"
++        },
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "baseline-browser-mapping": "^2.11.12",
++        "caniuse-lite": "^1.0.30001809",
++        "electron-to-chromium": "^1.5.402",
++        "node-releases": "^2.0.53",
++        "update-browserslist-db": "^1.3.0"
++      },
++      "bin": {
++        "browserslist": "cli.js"
++      },
++      "engines": {
++        "node": "^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7"
++      }
++    },
++    "node_modules/caniuse-lite": {
++      "version": "1.0.30001809",
++      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001809.tgz",
++      "integrity": "sha512-xxWVywk6a6Arlk+hymeycyn/VgqEfLDxupvhH/xiY5SJ/18kmi9o6MiO320DCUzypORHLtvh0I4i04tUhCNHNQ==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/browserslist"
++        },
++        {
++          "type": "tidelift",
++          "url": "https://tidelift.com/funding/github/npm/caniuse-lite"
++        },
++        {
+           "type": "github",
+           "url": "https://github.com/sponsors/ai"
+         }
+@@ -1872,6 +2382,16 @@
+         "url": "https://www.paypal.me/kirilvatev"
+       }
+     },
++    "node_modules/chai": {
++      "version": "6.3.0",
++      "resolved": "https://registry.npmjs.org/chai/-/chai-6.3.0.tgz",
++      "integrity": "sha512-XWAtwJ6OHO+tj0EKCs0Y2UamnyOxseZWltU4x2U2wh8g4AigdjwvtUjvLP2tqkA/avxHEtzxNaqGq/YGNwckKg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=18"
++      }
++    },
+     "node_modules/clsx": {
+       "version": "2.1.1",
+       "resolved": "https://registry.npmjs.org/clsx/-/clsx-2.1.1.tgz",
+@@ -1888,6 +2408,27 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/css-tree": {
++      "version": "3.2.1",
++      "resolved": "https://registry.npmjs.org/css-tree/-/css-tree-3.2.1.tgz",
++      "integrity": "sha512-X7sjQzceUhu1u7Y/ylrRZFU2FS6LRiFVp6rKLPg23y3x3c3DOKAwuXGDp+PAGjh6CSnCjYeAul8pcT8bAl+lSA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "mdn-data": "2.27.1",
++        "source-map-js": "^1.2.1"
++      },
++      "engines": {
++        "node": "^10 || ^12.20.0 || ^14.13.0 || >=15.0.0"
++      }
++    },
++    "node_modules/css.escape": {
++      "version": "1.5.1",
++      "resolved": "https://registry.npmjs.org/css.escape/-/css.escape-1.5.1.tgz",
++      "integrity": "sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/csstype": {
+       "version": "3.2.3",
+       "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
+@@ -2015,6 +2556,20 @@
+         "node": ">=12"
+       }
+     },
++    "node_modules/data-urls": {
++      "version": "7.0.0",
++      "resolved": "https://registry.npmjs.org/data-urls/-/data-urls-7.0.0.tgz",
++      "integrity": "sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "whatwg-mimetype": "^5.0.0",
++        "whatwg-url": "^16.0.0"
++      },
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      }
++    },
+     "node_modules/date-fns": {
+       "version": "2.30.0",
+       "resolved": "https://registry.npmjs.org/date-fns/-/date-fns-2.30.0.tgz",
+@@ -2049,12 +2604,29 @@
+         }
+       }
+     },
++    "node_modules/decimal.js": {
++      "version": "10.6.0",
++      "resolved": "https://registry.npmjs.org/decimal.js/-/decimal.js-10.6.0.tgz",
++      "integrity": "sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/decimal.js-light": {
+       "version": "2.5.1",
+       "resolved": "https://registry.npmjs.org/decimal.js-light/-/decimal.js-light-2.5.1.tgz",
+       "integrity": "sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==",
+       "license": "MIT"
+     },
++    "node_modules/dequal": {
++      "version": "2.0.3",
++      "resolved": "https://registry.npmjs.org/dequal/-/dequal-2.0.3.tgz",
++      "integrity": "sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=6"
++      }
++    },
+     "node_modules/detect-libc": {
+       "version": "2.1.2",
+       "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz",
+@@ -2065,6 +2637,14 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/dom-accessibility-api": {
++      "version": "0.5.16",
++      "resolved": "https://registry.npmjs.org/dom-accessibility-api/-/dom-accessibility-api-0.5.16.tgz",
++      "integrity": "sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true
++    },
+     "node_modules/dom-helpers": {
+       "version": "5.2.1",
+       "resolved": "https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz",
+@@ -2096,6 +2676,26 @@
+         "node": ">=10.13.0"
+       }
+     },
++    "node_modules/entities": {
++      "version": "8.1.0",
++      "resolved": "https://registry.npmjs.org/entities/-/entities-8.1.0.tgz",
++      "integrity": "sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA==",
++      "dev": true,
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=20.19.0"
++      },
++      "funding": {
++        "url": "https://github.com/fb55/entities?sponsor=1"
++      }
++    },
++    "node_modules/es-module-lexer": {
++      "version": "2.3.2",
++      "resolved": "https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-2.3.2.tgz",
++      "integrity": "sha512-poHGpORABojJJucnV9KbOavETW8lBVnphkW77ER5/BQ5Fz7oXSoCNek7IH3vR5nRjdsEz926ibFYX8KtLQmdyw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/esbuild": {
+       "version": "0.25.12",
+       "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.12.tgz",
+@@ -2148,12 +2748,32 @@
+         "node": ">=6"
+       }
+     },
++    "node_modules/estree-walker": {
++      "version": "3.0.3",
++      "resolved": "https://registry.npmjs.org/estree-walker/-/estree-walker-3.0.3.tgz",
++      "integrity": "sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@types/estree": "^1.0.0"
++      }
++    },
+     "node_modules/eventemitter3": {
+       "version": "4.0.7",
+       "resolved": "https://registry.npmjs.org/eventemitter3/-/eventemitter3-4.0.7.tgz",
+       "integrity": "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==",
+       "license": "MIT"
+     },
++    "node_modules/expect-type": {
++      "version": "1.4.0",
++      "resolved": "https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz",
++      "integrity": "sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "engines": {
++        "node": ">=12.0.0"
++      }
++    },
+     "node_modules/fast-equals": {
+       "version": "5.4.1",
+       "resolved": "https://registry.npmjs.org/fast-equals/-/fast-equals-5.4.1.tgz",
+@@ -2240,6 +2860,19 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/html-encoding-sniffer": {
++      "version": "6.0.0",
++      "resolved": "https://registry.npmjs.org/html-encoding-sniffer/-/html-encoding-sniffer-6.0.0.tgz",
++      "integrity": "sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@exodus/bytes": "^1.6.0"
++      },
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      }
++    },
+     "node_modules/iceberg-js": {
+       "version": "0.8.1",
+       "resolved": "https://registry.npmjs.org/iceberg-js/-/iceberg-js-0.8.1.tgz",
+@@ -2249,6 +2882,16 @@
+         "node": ">=20.0.0"
+       }
+     },
++    "node_modules/indent-string": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/indent-string/-/indent-string-4.0.0.tgz",
++      "integrity": "sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/internmap": {
+       "version": "2.0.3",
+       "resolved": "https://registry.npmjs.org/internmap/-/internmap-2.0.3.tgz",
+@@ -2258,6 +2901,13 @@
+         "node": ">=12"
+       }
+     },
++    "node_modules/is-potential-custom-element-name": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/is-potential-custom-element-name/-/is-potential-custom-element-name-1.0.1.tgz",
++      "integrity": "sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/jiti": {
+       "version": "2.7.0",
+       "resolved": "https://registry.npmjs.org/jiti/-/jiti-2.7.0.tgz",
+@@ -2274,6 +2924,57 @@
+       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==",
+       "license": "MIT"
+     },
++    "node_modules/jsdom": {
++      "version": "29.1.1",
++      "resolved": "https://registry.npmjs.org/jsdom/-/jsdom-29.1.1.tgz",
++      "integrity": "sha512-ECi4Fi2f7BdJtUKTflYRTiaMxIB0O6zfR1fX0GXpUrf6flp8QIYn1UT20YQqdSOfk2dfkCwS8LAFoJDEppNK5Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@asamuzakjp/css-color": "^5.1.11",
++        "@asamuzakjp/dom-selector": "^7.1.1",
++        "@bramus/specificity": "^2.4.2",
++        "@csstools/css-syntax-patches-for-csstree": "^1.1.3",
++        "@exodus/bytes": "^1.15.0",
++        "css-tree": "^3.2.1",
++        "data-urls": "^7.0.0",
++        "decimal.js": "^10.6.0",
++        "html-encoding-sniffer": "^6.0.0",
++        "is-potential-custom-element-name": "^1.0.1",
++        "lru-cache": "^11.3.5",
++        "parse5": "^8.0.1",
++        "saxes": "^6.0.0",
++        "symbol-tree": "^3.2.4",
++        "tough-cookie": "^6.0.1",
++        "undici": "^7.25.0",
++        "w3c-xmlserializer": "^5.0.0",
++        "webidl-conversions": "^8.0.1",
++        "whatwg-mimetype": "^5.0.0",
++        "whatwg-url": "^16.0.1",
++        "xml-name-validator": "^5.0.0"
++      },
++      "engines": {
++        "node": "^20.19.0 || ^22.13.0 || >=24.0.0"
++      },
++      "peerDependencies": {
++        "canvas": "^3.0.0"
++      },
++      "peerDependenciesMeta": {
++        "canvas": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/jsdom/node_modules/lru-cache": {
++      "version": "11.5.3",
++      "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.3.tgz",
++      "integrity": "sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==",
++      "dev": true,
++      "license": "BlueOak-1.0.0",
++      "engines": {
++        "node": "20 || >=22"
++      }
++    },
+     "node_modules/jsesc": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz",
+@@ -2598,6 +3299,17 @@
+         "react": "^16.5.1 || ^17.0.0 || ^18.0.0"
+       }
+     },
++    "node_modules/lz-string": {
++      "version": "1.5.0",
++      "resolved": "https://registry.npmjs.org/lz-string/-/lz-string-1.5.0.tgz",
++      "integrity": "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true,
++      "bin": {
++        "lz-string": "bin/bin.js"
++      }
++    },
+     "node_modules/magic-string": {
+       "version": "0.30.21",
+       "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz",
+@@ -2608,6 +3320,23 @@
+         "@jridgewell/sourcemap-codec": "^1.5.5"
+       }
+     },
++    "node_modules/mdn-data": {
++      "version": "2.27.1",
++      "resolved": "https://registry.npmjs.org/mdn-data/-/mdn-data-2.27.1.tgz",
++      "integrity": "sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==",
++      "dev": true,
++      "license": "CC0-1.0"
++    },
++    "node_modules/min-indent": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/min-indent/-/min-indent-1.0.1.tgz",
++      "integrity": "sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=4"
++      }
++    },
+     "node_modules/motion-dom": {
+       "version": "11.18.1",
+       "resolved": "https://registry.npmjs.org/motion-dom/-/motion-dom-11.18.1.tgz",
+@@ -2668,6 +3397,40 @@
+         "node": ">=0.10.0"
+       }
+     },
++    "node_modules/obug": {
++      "version": "2.2.1",
++      "resolved": "https://registry.npmjs.org/obug/-/obug-2.2.1.tgz",
++      "integrity": "sha512-XrsrhT5sybtKI6wakr2SPOlGZWWYbUXZ7a0jT8/QOeAPau+1X/bSegNe5YR75oJmEZQbKningirmGOEJCIk61Q==",
++      "dev": true,
++      "funding": [
++        "https://github.com/sponsors/sxzz",
++        "https://opencollective.com/debug"
++      ],
++      "license": "MIT",
++      "engines": {
++        "node": ">=12.20.0"
++      }
++    },
++    "node_modules/parse5": {
++      "version": "8.0.1",
++      "resolved": "https://registry.npmjs.org/parse5/-/parse5-8.0.1.tgz",
++      "integrity": "sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "entities": "^8.0.0"
++      },
++      "funding": {
++        "url": "https://github.com/inikulin/parse5?sponsor=1"
++      }
++    },
++    "node_modules/pathe": {
++      "version": "2.0.3",
++      "resolved": "https://registry.npmjs.org/pathe/-/pathe-2.0.3.tgz",
++      "integrity": "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/picocolors": {
+       "version": "1.1.1",
+       "resolved": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
+@@ -2717,6 +3480,30 @@
+         "node": "^10 || ^12 || >=14"
+       }
+     },
++    "node_modules/pretty-format": {
++      "version": "27.5.1",
++      "resolved": "https://registry.npmjs.org/pretty-format/-/pretty-format-27.5.1.tgz",
++      "integrity": "sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true,
++      "dependencies": {
++        "ansi-regex": "^5.0.1",
++        "ansi-styles": "^5.0.0",
++        "react-is": "^17.0.1"
++      },
++      "engines": {
++        "node": "^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0"
++      }
++    },
++    "node_modules/pretty-format/node_modules/react-is": {
++      "version": "17.0.2",
++      "resolved": "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz",
++      "integrity": "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==",
++      "dev": true,
++      "license": "MIT",
++      "peer": true
++    },
+     "node_modules/prop-types": {
+       "version": "15.8.1",
+       "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+@@ -2734,6 +3521,16 @@
+       "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==",
+       "license": "MIT"
+     },
++    "node_modules/punycode": {
++      "version": "2.3.1",
++      "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz",
++      "integrity": "sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=6"
++      }
++    },
+     "node_modules/react": {
+       "version": "18.3.1",
+       "resolved": "https://registry.npmjs.org/react/-/react-18.3.1.tgz",
+@@ -2871,6 +3668,30 @@
+         "decimal.js-light": "^2.4.1"
+       }
+     },
++    "node_modules/redent": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/redent/-/redent-3.0.0.tgz",
++      "integrity": "sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "indent-string": "^4.0.0",
++        "strip-indent": "^3.0.0"
++      },
++      "engines": {
++        "node": ">=8"
++      }
++    },
++    "node_modules/require-from-string": {
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/require-from-string/-/require-from-string-2.0.2.tgz",
++      "integrity": "sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
+     "node_modules/rollup": {
+       "version": "4.62.4",
+       "resolved": "https://registry.npmjs.org/rollup/-/rollup-4.62.4.tgz",
+@@ -2917,6 +3738,19 @@
+         "fsevents": "~2.3.2"
+       }
+     },
++    "node_modules/saxes": {
++      "version": "6.0.0",
++      "resolved": "https://registry.npmjs.org/saxes/-/saxes-6.0.0.tgz",
++      "integrity": "sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==",
++      "dev": true,
++      "license": "ISC",
++      "dependencies": {
++        "xmlchars": "^2.2.0"
++      },
++      "engines": {
++        "node": ">=v12.22.7"
++      }
++    },
+     "node_modules/scheduler": {
+       "version": "0.23.2",
+       "resolved": "https://registry.npmjs.org/scheduler/-/scheduler-0.23.2.tgz",
+@@ -2936,6 +3770,13 @@
+         "semver": "bin/semver.js"
+       }
+     },
++    "node_modules/siginfo": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/siginfo/-/siginfo-2.0.0.tgz",
++      "integrity": "sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==",
++      "dev": true,
++      "license": "ISC"
++    },
+     "node_modules/source-map-js": {
+       "version": "1.2.1",
+       "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+@@ -2946,6 +3787,40 @@
+         "node": ">=0.10.0"
+       }
+     },
++    "node_modules/stackback": {
++      "version": "0.0.2",
++      "resolved": "https://registry.npmjs.org/stackback/-/stackback-0.0.2.tgz",
++      "integrity": "sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/std-env": {
++      "version": "4.3.0",
++      "resolved": "https://registry.npmjs.org/std-env/-/std-env-4.3.0.tgz",
++      "integrity": "sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/strip-indent": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/strip-indent/-/strip-indent-3.0.0.tgz",
++      "integrity": "sha512-laJTa3Jb+VQpaC6DseHhF7dXVqHTfJPCRDaEbid/drOhgitgYku/letMUqOXFoWV0zIIUbjpdH2t+tYj4bQMRQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "min-indent": "^1.0.0"
++      },
++      "engines": {
++        "node": ">=8"
++      }
++    },
++    "node_modules/symbol-tree": {
++      "version": "3.2.4",
++      "resolved": "https://registry.npmjs.org/symbol-tree/-/symbol-tree-3.2.4.tgz",
++      "integrity": "sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/tailwindcss": {
+       "version": "4.3.3",
+       "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.3.tgz",
+@@ -2973,6 +3848,23 @@
+       "integrity": "sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==",
+       "license": "MIT"
+     },
++    "node_modules/tinybench": {
++      "version": "2.9.0",
++      "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-2.9.0.tgz",
++      "integrity": "sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/tinyexec": {
++      "version": "1.3.1",
++      "resolved": "https://registry.npmjs.org/tinyexec/-/tinyexec-1.3.1.tgz",
++      "integrity": "sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=18"
++      }
++    },
+     "node_modules/tinyglobby": {
+       "version": "0.2.17",
+       "resolved": "https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.17.tgz",
+@@ -2990,6 +3882,62 @@
+         "url": "https://github.com/sponsors/SuperchupuDev"
+       }
+     },
++    "node_modules/tinyrainbow": {
++      "version": "3.2.0",
++      "resolved": "https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-3.2.0.tgz",
++      "integrity": "sha512-LgO3D9yZJjApUiuUfl9iFAwrtaX4+lok3wJIqttGoKCHlWUqHqbQpnxCf82L8FjgKsh4iGo78hqJwgL8F6To2A==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=14.0.0"
++      }
++    },
++    "node_modules/tldts": {
++      "version": "7.4.19",
++      "resolved": "https://registry.npmjs.org/tldts/-/tldts-7.4.19.tgz",
++      "integrity": "sha512-48dH6aSpQnpbzDUc4vIQZ1VjB8tkK+e8c1yx05/SZK+rkssgjEOlxDd/yU8/a4vGYQ9vRgJr9dwMq9TJ0b3X2Q==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "tldts-core": "^7.4.19"
++      },
++      "bin": {
++        "tldts": "bin/cli.js"
++      }
++    },
++    "node_modules/tldts-core": {
++      "version": "7.4.20",
++      "resolved": "https://registry.npmjs.org/tldts-core/-/tldts-core-7.4.20.tgz",
++      "integrity": "sha512-C630TWXZCZmLq0F2bW4QqwnaaxCQ/svpAqvJwnC4JvgEM5ohhBnGsEzTLSOXcN+xjz+kEaHS5uoWIw2klnqd0A==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/tough-cookie": {
++      "version": "6.0.2",
++      "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-6.0.2.tgz",
++      "integrity": "sha512-exgYmnmL/sJpR3upZfXG5PoatXQii55xAiXGXzY+sROLZ/Y+SLcp9PgJNI9Vz37HpQ74WvDcLT8eqm+kV3FzrA==",
++      "dev": true,
++      "license": "BSD-3-Clause",
++      "dependencies": {
++        "tldts": "^7.0.5"
++      },
++      "engines": {
++        "node": ">=16"
++      }
++    },
++    "node_modules/tr46": {
++      "version": "6.0.0",
++      "resolved": "https://registry.npmjs.org/tr46/-/tr46-6.0.0.tgz",
++      "integrity": "sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "punycode": "^2.3.1"
++      },
++      "engines": {
++        "node": ">=20"
++      }
++    },
+     "node_modules/tslib": {
+       "version": "2.8.1",
+       "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+@@ -3513,6 +4461,16 @@
+         "node": ">=14.17"
+       }
+     },
++    "node_modules/undici": {
++      "version": "7.30.1",
++      "resolved": "https://registry.npmjs.org/undici/-/undici-7.30.1.tgz",
++      "integrity": "sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=20.18.1"
++      }
++    },
+     "node_modules/update-browserslist-db": {
+       "version": "1.3.1",
+       "resolved": "https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.3.1.tgz",
+@@ -3655,6 +4613,178 @@
+         }
+       }
+     },
++    "node_modules/vitest": {
++      "version": "4.1.12",
++      "resolved": "https://registry.npmjs.org/vitest/-/vitest-4.1.12.tgz",
++      "integrity": "sha512-5eWdz2yb3ajxWF3C8C4TjkXl7FGm3n2E/VlazALrQHzK7nYMSGFnCZto0bbPNl77AwkOZVLk0YnBAejUu0NiWA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@vitest/expect": "4.1.12",
++        "@vitest/mocker": "4.1.12",
++        "@vitest/pretty-format": "4.1.12",
++        "@vitest/runner": "4.1.12",
++        "@vitest/snapshot": "4.1.12",
++        "@vitest/spy": "4.1.12",
++        "@vitest/utils": "4.1.12",
++        "es-module-lexer": "^2.0.0",
++        "expect-type": "^1.3.0",
++        "magic-string": "^0.30.21",
++        "obug": "^2.1.1",
++        "pathe": "^2.0.3",
++        "picomatch": "^4.0.3",
++        "std-env": "^4.0.0-rc.1",
++        "tinybench": "^2.9.0",
++        "tinyexec": "^1.0.2",
++        "tinyglobby": "^0.2.15",
++        "tinyrainbow": "^3.1.0",
++        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
++        "why-is-node-running": "^2.3.0"
++      },
++      "bin": {
++        "vitest": "vitest.mjs"
++      },
++      "engines": {
++        "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/vitest"
++      },
++      "peerDependencies": {
++        "@edge-runtime/vm": "*",
++        "@opentelemetry/api": "^1.9.0",
++        "@types/node": "^20.0.0 || ^22.0.0 || >=24.0.0",
++        "@vitest/browser-playwright": "4.1.12",
++        "@vitest/browser-preview": "4.1.12",
++        "@vitest/browser-webdriverio": "^4.1.11",
++        "@vitest/coverage-istanbul": "4.1.12",
++        "@vitest/coverage-v8": "4.1.12",
++        "@vitest/ui": "4.1.12",
++        "happy-dom": "*",
++        "jsdom": "*",
++        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
++      },
++      "peerDependenciesMeta": {
++        "@edge-runtime/vm": {
++          "optional": true
++        },
++        "@opentelemetry/api": {
++          "optional": true
++        },
++        "@types/node": {
++          "optional": true
++        },
++        "@vitest/browser-playwright": {
++          "optional": true
++        },
++        "@vitest/browser-preview": {
++          "optional": true
++        },
++        "@vitest/browser-webdriverio": {
++          "optional": true
++        },
++        "@vitest/coverage-istanbul": {
++          "optional": true
++        },
++        "@vitest/coverage-v8": {
++          "optional": true
++        },
++        "@vitest/ui": {
++          "optional": true
++        },
++        "happy-dom": {
++          "optional": true
++        },
++        "jsdom": {
++          "optional": true
++        },
++        "vite": {
++          "optional": false
++        }
++      }
++    },
++    "node_modules/w3c-xmlserializer": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/w3c-xmlserializer/-/w3c-xmlserializer-5.0.0.tgz",
++      "integrity": "sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "xml-name-validator": "^5.0.0"
++      },
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/webidl-conversions": {
++      "version": "8.0.1",
++      "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-8.0.1.tgz",
++      "integrity": "sha512-BMhLD/Sw+GbJC21C/UgyaZX41nPt8bUTg+jWyDeg7e7YN4xOM05YPSIXceACnXVtqyEw/LMClUQMtMZ+PGGpqQ==",
++      "dev": true,
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=20"
++      }
++    },
++    "node_modules/whatwg-mimetype": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/whatwg-mimetype/-/whatwg-mimetype-5.0.0.tgz",
++      "integrity": "sha512-sXcNcHOC51uPGF0P/D4NVtrkjSU2fNsm9iog4ZvZJsL3rjoDAzXZhkm2MWt1y+PUdggKAYVoMAIYcs78wJ51Cw==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=20"
++      }
++    },
++    "node_modules/whatwg-url": {
++      "version": "16.0.1",
++      "resolved": "https://registry.npmjs.org/whatwg-url/-/whatwg-url-16.0.1.tgz",
++      "integrity": "sha512-1to4zXBxmXHV3IiSSEInrreIlu02vUOvrhxJJH5vcxYTBDAx51cqZiKdyTxlecdKNSjj8EcxGBxNf6Vg+945gw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@exodus/bytes": "^1.11.0",
++        "tr46": "^6.0.0",
++        "webidl-conversions": "^8.0.1"
++      },
++      "engines": {
++        "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
++      }
++    },
++    "node_modules/why-is-node-running": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/why-is-node-running/-/why-is-node-running-2.3.0.tgz",
++      "integrity": "sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "siginfo": "^2.0.0",
++        "stackback": "0.0.2"
++      },
++      "bin": {
++        "why-is-node-running": "cli.js"
++      },
++      "engines": {
++        "node": ">=8"
++      }
++    },
++    "node_modules/xml-name-validator": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/xml-name-validator/-/xml-name-validator-5.0.0.tgz",
++      "integrity": "sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/xmlchars": {
++      "version": "2.2.0",
++      "resolved": "https://registry.npmjs.org/xmlchars/-/xmlchars-2.2.0.tgz",
++      "integrity": "sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/yallist": {
+       "version": "3.1.1",
+       "resolved": "https://registry.npmjs.org/yallist/-/yallist-3.1.1.tgz",
+diff --git a/package.json b/package.json
+index 9142674..e8e09b0 100644
+--- a/package.json
++++ b/package.json
+@@ -7,7 +7,9 @@
+     "build": "vite build",
+     "typecheck": "tsc --noEmit",
+     "check": "tsx scripts/check-integrity.ts",
+-    "restore": "tsx scripts/restore-structure.ts"
++    "restore": "tsx scripts/restore-structure.ts",
++    "test": "vitest run",
++    "test:watch": "vitest"
+   },
+   "dependencies": {
+     "@dnd-kit/core": "^6.1.0",
+@@ -26,14 +28,18 @@
+   },
+   "devDependencies": {
+     "@tailwindcss/vite": "^4.1.7",
++    "@testing-library/jest-dom": "^6.9.1",
++    "@testing-library/react": "^16.3.3",
+     "@types/canvas-confetti": "^1.6.4",
+     "@types/react": "^18.2.0",
+     "@types/react-dom": "^18.2.0",
+     "@types/uuid": "^9.0.7",
+     "@vitejs/plugin-react": "^4.3.4",
++    "jsdom": "^29.1.1",
+     "tailwindcss": "^4.1.7",
+     "tsx": "^4.23.15",
+     "typescript": "^5.7.0",
+-    "vite": "^6.3.5"
++    "vite": "^6.3.5",
++    "vitest": "^4.1.12"
+   }
+ }
+diff --git a/scripts/check-integrity.ts b/scripts/check-integrity.ts
+index 9d9426d..e123754 100644
+--- a/scripts/check-integrity.ts
++++ b/scripts/check-integrity.ts
+@@ -39,7 +39,15 @@ const REQUIRED_FILES = [
+   // Хуки и компоненты
+   'src/hooks/useGameState.ts',
+   'src/components/AudioController.tsx',
+-  
++
++  // Тесты
++  'vitest.config.ts',
++  'src/game/testHelpers.ts',
++  'src/__tests__/utils.test.ts',
++  'src/__tests__/validation.test.ts',
++  'src/__tests__/saveSystem.test.ts',
++  'src/__tests__/questsAchievements.test.ts',
++
+   // Документация
+   'README.md',
+   'INTEGRITY.md',
+diff --git a/src/__tests__/questsAchievements.test.ts b/src/__tests__/questsAchievements.test.ts
+new file mode 100644
+index 0000000..3830618
+--- /dev/null
++++ b/src/__tests__/questsAchievements.test.ts
+@@ -0,0 +1,136 @@
++import { describe, it, expect } from 'vitest';
++import { checkQuests, applyQuestRewards, getAvailableQuests, createQuest, AVAILABLE_QUESTS, Quest } from '../game/questSystem';
++import { checkAchievements, ACHIEVEMENTS } from '../game/achievements';
++import { makeCharacter } from '../game/testHelpers';
++
++function makeQuest(overrides: Partial<Quest> = {}): Quest {
++  return {
++    id: 'q_test',
++    name: 'Тестовый квест',
++    description: 'opis',
++    objectives: [{ id: 'o1', description: 'd', completed: false, type: 'stat', target: 'credits', targetValue: 100 }],
++    rewards: { credits: 50 },
++    completed: false,
++    failed: false,
++    startedAt: 0,
++    ...overrides,
++  };
++}
++
++describe('checkQuests', () => {
++  it('квест завершается при выполнении всех целей', () => {
++    const char = makeCharacter({ credits: 150 });
++    const quest = makeQuest();
++    const { updatedQuests, completedQuests } = checkQuests(char, [quest]);
++    expect(completedQuests).toHaveLength(1);
++    expect(updatedQuests[0].completed).toBe(true);
++    expect(updatedQuests[0].objectives[0].completed).toBe(true);
++  });
++
++  it('цель не выполняется при недостатке стата', () => {
++    const char = makeCharacter({ credits: 10 });
++    const { completedQuests, updatedQuests } = checkQuests(char, [makeQuest()]);
++    expect(completedQuests).toHaveLength(0);
++    expect(updatedQuests[0].objectives[0].completed).toBe(false);
++  });
++
++  it('цель типа item проверяет инвентарь', () => {
++    const char = makeCharacter({ inventory: ['Лазгун'] });
++    const quest = makeQuest({
++      objectives: [{ id: 'o1', description: 'd', completed: false, type: 'item', target: 'Лазгун' }],
++    });
++    expect(checkQuests(char, [quest]).completedQuests).toHaveLength(1);
++  });
++
++  it('цель типа npc проверяет по подстроке имени (без учёта регистра)', () => {
++    const char = makeCharacter();
++    char.npcs = [{ id: 'n1', name: 'Инквизитор Гримм', role: 'r', relationship: 0, met: true }];
++    const quest = makeQuest({
++      objectives: [{ id: 'o1', description: 'd', completed: false, type: 'npc', target: 'инквизитор' }],
++    });
++    expect(checkQuests(char, [quest]).completedQuests).toHaveLength(1);
++  });
++
++  it('завершённый квест остаётся завершённым', () => {
++    const char = makeCharacter({ credits: 0 });
++    const done = makeQuest({ completed: true });
++    const { updatedQuests, completedQuests } = checkQuests(char, [done]);
++    expect(updatedQuests[0].completed).toBe(true);
++    expect(completedQuests).toHaveLength(0); // не переоткрыть
++  });
++});
++
++describe('applyQuestRewards', () => {
++  it('выдаёт credits и influence с клампом', () => {
++    const char = makeCharacter({ credits: 10, influence: 95 });
++    const r = applyQuestRewards(char, makeQuest({ rewards: { credits: 100, influence: 20 } }));
++    expect(r.credits).toBe(110);
++    expect(r.influence).toBe(100);
++  });
++
++  it('выдаёт уникальные трейты и предметы без дублей', () => {
++    let char = makeCharacter({ traits: ['Ветеран'], inventory: ['Кредитный чип'] });
++    char = applyQuestRewards(
++      char,
++      makeQuest({ rewards: { traits: ['Ветеран', 'Герой'], items: ['Кредитный чип', 'Меч'] } })
++    );
++    expect(char.traits).toEqual(['Ветеран', 'Герой']);
++    expect(char.inventory).toEqual(['Кредитный чип', 'Меч']);
++  });
++
++  it('не мутирует исходного персонажа', () => {
++    const char = makeCharacter({ credits: 10 });
++    applyQuestRewards(char, makeQuest({ rewards: { credits: 100 } }));
++    expect(char.credits).toBe(10);
++  });
++});
++
++describe('getAvailableQuests / createQuest', () => {
++  it('фильтрует уже активные квесты', () => {
++    const active = createQuest(AVAILABLE_QUESTS[0], 5);
++    const available = getAvailableQuests(makeCharacter(), [active]);
++    expect(available.find(q => q.id === active.id)).toBeUndefined();
++  });
++
++  it('quest_survivor недоступен после 10 лет', () => {
++    const old = getAvailableQuests(makeCharacter({ age: 15 }), []);
++    expect(old.find(q => q.id === 'quest_survivor')).toBeUndefined();
++    const young = getAvailableQuests(makeCharacter({ age: 5 }), []);
++    expect(young.find(q => q.id === 'quest_survivor')).toBeDefined();
++  });
++
++  it('createQuest добавляет поля состояния', () => {
++    const q = createQuest(AVAILABLE_QUESTS[1], 12);
++    expect(q.completed).toBe(false);
++    expect(q.failed).toBe(false);
++    expect(q.startedAt).toBe(12);
++  });
++});
++
++describe('checkAchievements', () => {
++  it('ACHIEVEMENTS имеют уникальные id', () => {
++    const ids = ACHIEVEMENTS.map(a => a.id);
++    expect(new Set(ids).size).toBe(ids.length);
++  });
++
++  it('не выдаёт уже разблокированные ачивки повторно', () => {
++    const char = makeCharacter({ age: 60 });
++    const first = checkAchievements(char, []);
++    const second = checkAchievements(char, first);
++    expect(second).toHaveLength(0);
++  });
++
++  it('детный персонаж не получает "долгожитель"-подобные ачивки', () => {
++    const baby = makeCharacter({ age: 1, health: 100 });
++    const unlocked = checkAchievements(baby, []);
++    const longLived = ACHIEVEMENTS.filter(a => /survivor|long|age/i.test(a.id) && a.condition(makeCharacter({ age: 80 })));
++    for (const a of longLived) {
++      expect(unlocked).not.toContain(a.id);
++    }
++  });
++
++  it('условия ачивок не падают на базовом персонаже', () => {
++    const char = makeCharacter();
++    expect(() => ACHIEVEMENTS.forEach(a => a.condition(char))).not.toThrow();
++  });
++});
+diff --git a/src/__tests__/saveSystem.test.ts b/src/__tests__/saveSystem.test.ts
+new file mode 100644
+index 0000000..8685354
+--- /dev/null
++++ b/src/__tests__/saveSystem.test.ts
+@@ -0,0 +1,60 @@
++import { describe, it, expect, beforeEach, vi } from 'vitest';
++import { saveGame, loadGame, hasSave } from '../game/saveSystem';
++import { makeGameState } from '../game/testHelpers';
++
++// Простой mock localStorage для node/jsdom окружения
++class MemoryStorage {
++  private map = new Map<string, string>();
++  getItem(key: string) { return this.map.has(key) ? this.map.get(key)! : null; }
++  setItem(key: string, value: string) { this.map.set(key, value); }
++  removeItem(key: string) { this.map.delete(key); }
++  clear() { this.map.clear(); }
++}
++
++beforeEach(() => {
++  const storage = new MemoryStorage();
++  vi.stubGlobal('localStorage', storage);
++});
++
++describe('saveSystem', () => {
++  it('hasSave возвращает false на пустом хранилище', () => {
++    expect(hasSave()).toBe(false);
++  });
++
++  it('save -> load сохраняет состояние и ачивки', () => {
++    const gs = makeGameState({ age: 33 });
++    expect(saveGame(gs, ['ach1', 'ach2'])).toBe(true);
++    expect(hasSave()).toBe(true);
++    const loaded = loadGame();
++    expect(loaded).not.toBeNull();
++    expect(loaded!.gameState.character.age).toBe(33);
++    expect(loaded!.unlockedAchievements).toEqual(['ach1', 'ach2']);
++  });
++
++  it('load при битом JSON чистит сохранение и возвращает null', () => {
++    localStorage.setItem('grimdark_save', '{broken json');
++    expect(loadGame()).toBeNull();
++    expect(localStorage.getItem('grimdark_save')).toBeNull();
++  });
++
++  it('load при неверной версии чистит сейв', () => {
++    localStorage.setItem('grimdark_save', JSON.stringify({ version: 999, gameState: {} }));
++    expect(loadGame()).toBeNull();
++    expect(localStorage.getItem('grimdark_save')).toBeNull();
++  });
++
++  it('load при отсутствии character/currentEvent чистит сейв', () => {
++    localStorage.setItem('grimdark_save', JSON.stringify({ version: 1, timestamp: 1, gameState: {}, unlockedAchievements: [] }));
++    expect(loadGame()).toBeNull();
++  });
++
++  it('save возвращает false при переполнении localStorage', () => {
++    const failing = {
++      getItem: () => null,
++      setItem: () => { throw new Error('QuotaExceededError'); },
++      removeItem: () => {},
++    };
++    vi.stubGlobal('localStorage', failing);
++    expect(saveGame(makeGameState(), [])).toBe(false);
++  });
++});
+diff --git a/src/__tests__/utils.test.ts b/src/__tests__/utils.test.ts
+new file mode 100644
+index 0000000..c9d4832
+--- /dev/null
++++ b/src/__tests__/utils.test.ts
+@@ -0,0 +1,141 @@
++import { describe, it, expect } from 'vitest';
++import { applyChoiceEffects, updateAgeStatus, getHealthColor, getSanityColor } from '../game/utils';
++import { makeCharacter } from '../game/testHelpers';
++import { GAME_CONFIG } from '../game/config';
++
++describe('applyChoiceEffects', () => {
++  it('не мутирует исходный объект', () => {
++    const char = makeCharacter();
++    const result = applyChoiceEffects(char, { health: -10, description: '' });
++    expect(char.health).toBe(80);
++    expect(result.health).toBe(70);
++    expect(result).not.toBe(char);
++  });
++
++  it('клампит health в диапазоне [0, maxHealth]', () => {
++    const char = makeCharacter({ health: 95 });
++    expect(applyChoiceEffects(char, { health: 50 , description: '' }).health).toBe(100);
++    expect(applyChoiceEffects(char, { health: -500 , description: '' }).health).toBe(0);
++  });
++
++  it('не даёт уйти credits/food/ammo в минус', () => {
++    const char = makeCharacter({ credits: 10, food: 2, ammo: 3 });
++    const r = applyChoiceEffects(char, { credits: -100, food: -100, ammo: -100 , description: '' });
++    expect(r.credits).toBe(0);
++    expect(r.food).toBe(0);
++    expect(r.ammo).toBe(0);
++  });
++
++  it('клампит sanity/warpCorruption в [0,100], luck в [1,10]', () => {
++    const char = makeCharacter();
++    expect(applyChoiceEffects(char, { sanity: 999 , description: '' }).sanity).toBe(100);
++    expect(applyChoiceEffects(char, { sanity: -999 , description: '' }).sanity).toBe(0);
++    expect(applyChoiceEffects(char, { warpCorruption: 999 , description: '' }).warpCorruption).toBe(100);
++    expect(applyChoiceEffects(char, { luck: 999 , description: '' }).luck).toBe(10);
++    expect(applyChoiceEffects(char, { luck: -999 , description: '' }).luck).toBe(1);
++  });
++
++  it('изменяет скрытые параметры в пределах [MIN_VALUE, MAX_VALUE]', () => {
++    const char = makeCharacter();
++    const r = applyChoiceEffects(char, { faith: 100 , description: '' });
++    expect(r.hiddenParams.faith).toBe(GAME_CONFIG.STAT_THRESHOLDS.MAX_VALUE);
++  });
++
++  it('добавляет/удаляет трейты без дубликатов', () => {
++    let char = makeCharacter({ traits: ['Солдат'] });
++    char = applyChoiceEffects(char, { addTrait: 'Еретик' , description: '' });
++    char = applyChoiceEffects(char, { addTrait: 'Еретик' , description: '' });
++    expect(char.traits).toEqual(['Солдат', 'Еретик']);
++    char = applyChoiceEffects(char, { removeTrait: 'Солдат' , description: '' });
++    expect(char.traits).toEqual(['Еретик']);
++  });
++
++  it('добавляет/удаляет предметы инвентаря и keyChoice', () => {
++    let char = makeCharacter();
++    char = applyChoiceEffects(char, { addItem: 'Лазгун' , description: '' });
++    expect(char.inventory).toContain('Лазгун');
++    char = applyChoiceEffects(char, { removeItem: 'Лазгун' , description: '' });
++    expect(char.inventory).not.toContain('Лазгун');
++    char = applyChoiceEffects(char, { keyChoice: 'Присягнул Инквизиции' , description: '' });
++    expect(char.keyChoices).toContain('Присягнул Инквизиции');
++  });
++
++  it('нулевые эффекты не меняют состояние', () => {
++    const char = makeCharacter();
++    const r = applyChoiceEffects(char, { health: 0, credits: 0 , description: '' });
++    expect(r).toEqual(char);
++  });
++});
++
++describe('updateAgeStatus', () => {
++  it('увеличивает возраст на 1', () => {
++    const char = makeCharacter({ age: 20 });
++    expect(updateAgeStatus(char).age).toBe(21);
++  });
++
++  it('переход статуса Ребёнок -> Подросток в 13 лет', () => {
++    const char = makeCharacter({ age: 12, status: 'Ребёнок' });
++    const r = updateAgeStatus(char);
++    expect(r.age).toBe(13);
++    expect(r.status).toBe('Подросток');
++  });
++
++  it('переход статуса Подросток -> Взрослый в 18 лет', () => {
++    const char = makeCharacter({ age: 17, status: 'Подросток' });
++    expect(updateAgeStatus(char).status).toBe('Взрослый');
++  });
++
++  it('взрослый статус не меняется с возрастом', () => {
++    const char = makeCharacter({ age: 40, status: 'Ветеран' });
++    expect(updateAgeStatus(char).status).toBe('Ветеран');
++  });
++
++  it('высокая мутация наносит урон здоровью каждый год', () => {
++    const base = makeCharacter();
++    const char = makeCharacter({
++      health: 80,
++      hiddenParams: { ...base.hiddenParams, mutation: GAME_CONFIG.STAT_THRESHOLDS.MUTATION_DAMAGE },
++    });
++    const r = updateAgeStatus(char);
++    expect(r.health).toBe(80 - GAME_CONFIG.HEALTH.MUTATION_DAMAGE_PER_YEAR);
++  });
++
++  it('голод (food=0) вредит здоровью, иначе еда убывает', () => {
++    const starving = makeCharacter({ food: 0, health: 50 });
++    expect(updateAgeStatus(starving).health).toBe(45);
++    const fed = makeCharacter({ food: 5, health: 50 });
++    const r = updateAgeStatus(fed);
++    expect(r.health).toBe(50);
++    expect(r.food).toBe(4);
++  });
++
++  it('сильная порча варпа снижает рассудок', () => {
++    const char = makeCharacter({ warpCorruption: 60, sanity: 50, warpAttention: 0 });
++    const r = updateAgeStatus(char);
++    expect(r.sanity).toBeLessThan(50);
++  });
++
++  it('низкий рассудок повышает внимание варпа', () => {
++    const char = makeCharacter({ sanity: 10, warpAttention: 1 });
++    expect(updateAgeStatus(char).warpAttention).toBe(2);
++  });
++
++  it('генерирует мировое событие каждые 5 лет', () => {
++    const char = makeCharacter({ age: 24 }); // станет 25
++    expect(updateAgeStatus(char).worldEvent).toBeTruthy();
++  });
++});
++
++describe('цвета состояний', () => {
++  it('getHealthColor: полный HP зелёный, критический красный', () => {
++    expect(getHealthColor(100, 100)).toBe('text-green-400');
++    expect(getHealthColor(10, 100)).toBe('text-red-400');
++    expect(getHealthColor(30, 100)).toBe('text-yellow-400');
++  });
++
++  it('getSanityColor: границы корректны', () => {
++    expect(getSanityColor(90)).toBe('text-blue-400');
++    expect(getSanityColor(50)).toBe('text-yellow-400');
++    expect(getSanityColor(10)).toBe('text-red-400');
++  });
++});
+diff --git a/src/__tests__/validation.test.ts b/src/__tests__/validation.test.ts
+new file mode 100644
+index 0000000..6039247
+--- /dev/null
++++ b/src/__tests__/validation.test.ts
+@@ -0,0 +1,119 @@
++import { describe, it, expect } from 'vitest';
++import {
++  validateCharacter,
++  validateEvent,
++  validateGameState,
++  validateLegacyData,
++  createDefaultEvent,
++} from '../game/validation';
++import { makeCharacter, makeGameState } from '../game/testHelpers';
++
++describe('validateCharacter', () => {
++  it('валидный персонаж проходит проверку', () => {
++    expect(validateCharacter(makeCharacter())).toBe(true);
++  });
++
++  it('отсутствующие name/race/planet — невалидно', () => {
++    expect(validateCharacter(makeCharacter({ name: '' }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ race: '' as never }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ planet: '' }))).toBe(false);
++  });
++
++  it('health вне [0, maxHealth] — невалидно', () => {
++    expect(validateCharacter(makeCharacter({ health: -1 }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ health: 101, maxHealth: 100 }))).toBe(false);
++  });
++
++  it('sanity/warpCorruption/luck/influence вне диапазона — невалидно', () => {
++    expect(validateCharacter(makeCharacter({ sanity: 101 }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ warpCorruption: -5 }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ luck: 0 }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ luck: 11 }))).toBe(false);
++    expect(validateCharacter(makeCharacter({ influence: 200 }))).toBe(false);
++  });
++
++  it('скрытые параметры вне [0,10] — невалидно', () => {
++    const char = makeCharacter();
++    char.hiddenParams.faith = 11;
++    expect(validateCharacter(char)).toBe(false);
++  });
++
++  it('фракционные отношения вне [-10,10] — невалидно', () => {
++    const char = makeCharacter();
++    char.factionRelations.imperium = 15;
++    expect(validateCharacter(char)).toBe(false);
++  });
++
++  it('не-массивы в inventory/traits — невалидно', () => {
++    const char = makeCharacter();
++    (char as unknown as Record<string, unknown>).inventory = 'not-an-array';
++    expect(validateCharacter(char)).toBe(false);
++  });
++});
++
++describe('validateEvent', () => {
++  it('валидное событие проходит', () => {
++    expect(validateEvent(createDefaultEvent())).toBe(true);
++  });
++
++  it('пустой текст или без выборов — невалидно', () => {
++    expect(validateEvent({ text: '', choices: [{ letter: 'А', text: 'x', effects: { description: 'y' } }] })).toBe(false);
++    expect(validateEvent({ text: 'есть', choices: [] })).toBe(false);
++  });
++
++  it('выбор без effects.description — невалидно', () => {
++    expect(
++      validateEvent({
++        text: 'событие',
++        choices: [{ letter: 'А', text: 'действовать', effects: {} as never }],
++      })
++    ).toBe(false);
++  });
++});
++
++describe('validateGameState', () => {
++  it('валидное состояние проходит', () => {
++    expect(validateGameState(makeGameState())).toBe(true);
++  });
++
++  it('битый персонаж ломает валидацию состояния', () => {
++    const gs = makeGameState({ sanity: 999 });
++    expect(validateGameState(gs)).toBe(false);
++  });
++
++  it('gameOver не boolean — невалидно', () => {
++    const gs = makeGameState();
++    (gs as unknown as Record<string, unknown>).gameOver = 'yes';
++    expect(validateGameState(gs)).toBe(false);
++  });
++});
++
++describe('validateLegacyData', () => {
++  const valid = {
++    totalGamesPlayed: 3,
++    totalYearsLived: 120,
++    bestAge: 45,
++    achievementsEverUnlocked: ['a'],
++    racesPlayed: ['human'],
++    deathsByCause: { health: 1 },
++  };
++
++  it('валидные данные проходят', () => {
++    expect(validateLegacyData(valid)).toBe(true);
++  });
++
++  it('null/не-объект — невалидно', () => {
++    expect(validateLegacyData(null)).toBe(false);
++    expect(validateLegacyData('string')).toBe(false);
++  });
++
++  it('отрицательные счётчики — невалидно', () => {
++    expect(validateLegacyData({ ...valid, bestAge: -1 })).toBe(false);
++    expect(validateLegacyData({ ...valid, totalGamesPlayed: -5 })).toBe(false);
++  });
++
++  it('отсутствующие поля — невалидно', () => {
++    const { deathsByCause, ...rest } = valid;
++    expect(validateLegacyData(rest)).toBe(false);
++  });
++});
+diff --git a/src/game/testHelpers.ts b/src/game/testHelpers.ts
+new file mode 100644
+index 0000000..ea0f324
+--- /dev/null
++++ b/src/game/testHelpers.ts
+@@ -0,0 +1,76 @@
++import { CharacterStats, GameState } from './types';
++
++/**
++ * Фабрика персонажа для тестов. Переопределяйте поля через overrides.
++ */
++export function makeCharacter(overrides: Partial<CharacterStats> = {}): CharacterStats {
++  return {
++    name: 'Тест',
++    race: 'human',
++    raceName: 'Человек',
++    age: 20,
++    health: 80,
++    maxHealth: 100,
++    sanity: 70,
++    warpCorruption: 0,
++    warpAttention: 0,
++    luck: 5,
++    credits: 50,
++    food: 10,
++    ammo: 0,
++    caste: 'Рабочий',
++    planet: 'Терра',
++    planetType: 'Улей-мир',
++    status: 'Взрослый',
++    influence: 10,
++    inventory: [],
++    augmentics: [],
++    factionRelations: {
++      imperium: 0,
++      chaos: 0,
++      xenos: 0,
++      criminals: 0,
++      nobility: 0,
++      commoners: 0,
++    },
++    npcs: [],
++    hiddenParams: {
++      faith: 5,
++      cunning: 5,
++      strength: 5,
++      willpower: 5,
++      mutation: 0,
++      suspicion: 0,
++      waaagh: 0,
++      psi: 0,
++      nobility: 0,
++      cruelty: 0,
++      unity: 0,
++      techSkill: 0,
++      sneakiness: 0,
++    },
++    traits: [],
++    body: 'обычное тело',
++    gender: 'мужской',
++    microEventCooldown: 0,
++    keyChoices: [],
++    ...overrides,
++  };
++}
++
++export function makeGameState(characterOverrides: Partial<CharacterStats> = {}): GameState {
++  return {
++    character: makeCharacter(characterOverrides),
++    currentEvent: {
++      text: 'Тестовое событие.',
++      choices: [
++        { letter: 'А', text: 'Действовать', effects: { description: 'Ничего не происходит.' } },
++      ],
++    },
++    history: [],
++    gameOver: false,
++    deathMessage: '',
++    activeQuests: [],
++    completedQuests: [],
++  };
++}
+diff --git a/vitest.config.ts b/vitest.config.ts
+new file mode 100644
+index 0000000..4471fd9
+--- /dev/null
++++ b/vitest.config.ts
+@@ -0,0 +1,9 @@
++import { defineConfig } from 'vitest/config';
++
++export default defineConfig({
++  test: {
++    environment: 'node',
++    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
++    globals: false,
++  },
++});
+-- 
+2.39.5
+
+
+From 9c88261b0f4d0be8089236ab545ef5e10c0ece59 Mon Sep 17 00:00:00 2001
+From: WLS Dev <dev@wls.local>
+Date: Sun, 1 Nov 2026 06:39:53 +0000
+Subject: [PATCH 2/2] feat: seeded deterministic RNG (mulberry32) replacing
+ Math.random in game logic; unify faction relations range [-100,100]; +11 rng
+ tests (68 total)
+
+---
+ scripts/check-integrity.ts       |  1 +
+ src/App.tsx                      |  4 +-
+ src/__tests__/rng.test.ts        | 85 ++++++++++++++++++++++++++++++++
+ src/__tests__/validation.test.ts | 12 ++++-
+ src/game/data.ts                 | 81 +++++++++++++++---------------
+ src/game/events/humanEvents.ts   |  5 +-
+ src/game/microEvents.ts          |  3 +-
+ src/game/npcSystem.ts            | 27 +++++-----
+ src/game/rng.ts                  | 84 +++++++++++++++++++++++++++++++
+ src/game/types.ts                |  2 +
+ src/game/utils.ts                |  3 +-
+ src/game/validation.ts           |  5 +-
+ src/hooks/useGameState.ts        | 23 ++++++---
+ 13 files changed, 268 insertions(+), 67 deletions(-)
+ create mode 100644 src/__tests__/rng.test.ts
+ create mode 100644 src/game/rng.ts
+
+diff --git a/scripts/check-integrity.ts b/scripts/check-integrity.ts
+index e123754..5c5278f 100644
+--- a/scripts/check-integrity.ts
++++ b/scripts/check-integrity.ts
+@@ -43,6 +43,7 @@ const REQUIRED_FILES = [
+   // Тесты
+   'vitest.config.ts',
+   'src/game/testHelpers.ts',
++  'src/game/rng.ts',
+   'src/__tests__/utils.test.ts',
+   'src/__tests__/validation.test.ts',
+   'src/__tests__/saveSystem.test.ts',
+diff --git a/src/App.tsx b/src/App.tsx
+index ddb7e8f..d200f39 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -169,7 +169,7 @@ function App() {
+               )}
+               
+               <button 
+-                onClick={startNewGame} 
++                onClick={() => startNewGame()} 
+                 className="btn-modern bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-5 px-16 rounded-xl text-2xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
+               >
+                 ⚔️ Начать новую игру
+@@ -623,7 +623,7 @@ function App() {
+                       </div>
+                     </div>
+                     <button
+-                      onClick={startNewGame}
++                      onClick={() => startNewGame()}
+                       className="btn-modern bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-4 px-14 rounded-xl text-xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
+                     >
+                       ⚔️ Начать новую жизнь
+diff --git a/src/__tests__/rng.test.ts b/src/__tests__/rng.test.ts
+new file mode 100644
+index 0000000..dc15f9f
+--- /dev/null
++++ b/src/__tests__/rng.test.ts
+@@ -0,0 +1,85 @@
++import { describe, it, expect } from 'vitest';
++import { createRNG, hashSeed, setGlobalSeed, rng } from '../game/rng';
++
++describe('rng (mulberry32)', () => {
++  it('детерминирован: одинаковый seed даёт одинаковую последовательность', () => {
++    const a = createRNG(42);
++    const b = createRNG(42);
++    const seqA = Array.from({ length: 100 }, () => a.next());
++    const seqB = Array.from({ length: 100 }, () => b.next());
++    expect(seqA).toEqual(seqB);
++  });
++
++  it('разные seed дают разные последовательности', () => {
++    const a = createRNG(1);
++    const b = createRNG(2);
++    expect(a.next()).not.toBe(b.next());
++  });
++
++  it('next() всегда в [0, 1)', () => {
++    const r = createRNG(7);
++    for (let i = 0; i < 10000; i++) {
++      const v = r.next();
++      expect(v).toBeGreaterThanOrEqual(0);
++      expect(v).toBeLessThan(1);
++    }
++  });
++
++  it('int() в диапазоне включительно', () => {
++    const r = createRNG(99);
++    const seen = new Set<number>();
++    for (let i = 0; i < 1000; i++) {
++      const v = r.int(3, 6);
++      expect(v).toBeGreaterThanOrEqual(3);
++      expect(v).toBeLessThanOrEqual(6);
++      seen.add(v);
++    }
++    expect([...seen].sort()).toEqual([3, 4, 5, 6]);
++  });
++
++  it('pick() возвращает элемент массива, детерминированно', () => {
++    const arr = ['a', 'b', 'c', 'd'];
++    const r1 = createRNG(5);
++    const r2 = createRNG(5);
++    for (let i = 0; i < 50; i++) {
++      const v = r1.pick(arr);
++      expect(arr).toContain(v);
++      expect(r2.pick(arr)).toBe(v);
++    }
++  });
++
++  it('shuffle() — перестановка без потерь элементов', () => {
++    const r = createRNG(123);
++    const src = [1, 2, 3, 4, 5, 6, 7, 8];
++    const sh = r.shuffle(src);
++    expect(sh.sort((x, y) => x - y)).toEqual(src);
++  });
++
++  it('chance(0) никогда, chance(1) всегда', () => {
++    const r = createRNG(10);
++    for (let i = 0; i < 100; i++) {
++      expect(r.chance(0)).toBe(false);
++      expect(r.chance(1)).toBe(true);
++    }
++  });
++
++  it('weighted() уважает нулевые веса', () => {
++    const r = createRNG(3);
++    const items = [{ id: 'a', w: 0 }, { id: 'b', w: 1 }] as const;
++    for (let i = 0; i < 50; i++) {
++      expect(r.weighted(items, (it) => it.w).id).toBe('b');
++    }
++  });
++
++  it('hashSeed стабилен для строк', () => {
++    expect(hashSeed('warhammer')).toBe(hashSeed('warhammer'));
++    expect(hashSeed('warhammer')).not.toBe(hashSeed('Warhammer'));
++  });
++
++  it('global rng переинициализируется через setGlobalSeed', () => {
++    setGlobalSeed(2026);
++    const first = rng().next();
++    setGlobalSeed(2026);
++    expect(rng().next()).toBe(first);
++  });
++});
+diff --git a/src/__tests__/validation.test.ts b/src/__tests__/validation.test.ts
+index 6039247..680353d 100644
+--- a/src/__tests__/validation.test.ts
++++ b/src/__tests__/validation.test.ts
+@@ -38,9 +38,19 @@ describe('validateCharacter', () => {
+     expect(validateCharacter(char)).toBe(false);
+   });
+ 
+-  it('фракционные отношения вне [-10,10] — невалидно', () => {
++  it('фракционные отношения в [-100,100] — валидно (единый диапазон с квестами)', () => {
+     const char = makeCharacter();
+     char.factionRelations.imperium = 15;
++    expect(validateCharacter(char)).toBe(true);
++    char.factionRelations.chaos = -100;
++    expect(validateCharacter(char)).toBe(true);
++  });
++
++  it('фракционные отношения вне [-100,100] — невалидно', () => {
++    const char = makeCharacter();
++    char.factionRelations.imperium = 101;
++    expect(validateCharacter(char)).toBe(false);
++    char.factionRelations.imperium = -101;
+     expect(validateCharacter(char)).toBe(false);
+   });
+ 
+diff --git a/src/game/data.ts b/src/game/data.ts
+index b3e9740..ed0f053 100644
+--- a/src/game/data.ts
++++ b/src/game/data.ts
+@@ -1,4 +1,5 @@
+ import { CharacterStats, GameEvent, Race } from './types';
++import { rng } from './rng';
+ import { 
+   getHumanEvent, 
+   getOrkEvent, 
+@@ -171,7 +172,7 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
+ // ============ ГЕНЕРАЦИЯ ПЕРСОНАЖА ============
+ 
+ export function generateCharacter(): CharacterStats {
+-  const raceRoll = Math.random();
++  const raceRoll = rng().next();
+   let race: Race;
+   if (raceRoll < 0.50) race = 'human';
+   else if (raceRoll < 0.65) race = 'ork';
+@@ -195,61 +196,61 @@ function generateCharacterByRace(race: Race): CharacterStats {
+   switch (race) {
+     case 'human': {
+       const planets = HUMAN_PLANETS;
+-      planet = planets[Math.floor(Math.random() * planets.length)];
++      planet = planets[Math.floor(rng().next() * planets.length)];
+       const castes = HUMAN_CASTES;
+-      caste = castes[Math.floor(Math.random() * castes.length)];
+-      gender = Math.random() > 0.5 ? 'М' : 'Ж';
++      caste = castes[Math.floor(rng().next() * castes.length)];
++      gender = rng().next() > 0.5 ? 'М' : 'Ж';
+       name = gender === 'М'
+-        ? HUMAN_MALE_NAMES[Math.floor(Math.random() * HUMAN_MALE_NAMES.length)]
+-        : HUMAN_FEMALE_NAMES[Math.floor(Math.random() * HUMAN_FEMALE_NAMES.length)];
++        ? HUMAN_MALE_NAMES[Math.floor(rng().next() * HUMAN_MALE_NAMES.length)]
++        : HUMAN_FEMALE_NAMES[Math.floor(rng().next() * HUMAN_FEMALE_NAMES.length)];
+       body = gender === 'М' ? 'Человек, хрупкое' : 'Человек, хрупкое';
+       break;
+     }
+     case 'ork': {
+-      planet = ORK_PLANETS[Math.floor(Math.random() * ORK_PLANETS.length)];
+-      caste = ORK_CASTES[Math.floor(Math.random() * ORK_CASTES.length)];
+-      name = ORK_NAMES[Math.floor(Math.random() * ORK_NAMES.length)];
++      planet = ORK_PLANETS[Math.floor(rng().next() * ORK_PLANETS.length)];
++      caste = ORK_CASTES[Math.floor(rng().next() * ORK_CASTES.length)];
++      name = ORK_NAMES[Math.floor(rng().next() * ORK_NAMES.length)];
+       gender = 'М';
+       body = 'Зелёный, мускулистый';
+       maxHealth = 130;
+       break;
+     }
+     case 'eldar': {
+-      planet = ELDAR_PLANETS[Math.floor(Math.random() * ELDAR_PLANETS.length)];
+-      caste = ELDAR_CASTES[Math.floor(Math.random() * ELDAR_CASTES.length)];
+-      gender = Math.random() > 0.5 ? 'М' : 'Ж';
++      planet = ELDAR_PLANETS[Math.floor(rng().next() * ELDAR_PLANETS.length)];
++      caste = ELDAR_CASTES[Math.floor(rng().next() * ELDAR_CASTES.length)];
++      gender = rng().next() > 0.5 ? 'М' : 'Ж';
+       name = gender === 'М'
+-        ? ELDAR_MALE_NAMES[Math.floor(Math.random() * ELDAR_MALE_NAMES.length)]
+-        : ELDAR_FEMALE_NAMES[Math.floor(Math.random() * ELDAR_FEMALE_NAMES.length)];
++        ? ELDAR_MALE_NAMES[Math.floor(rng().next() * ELDAR_MALE_NAMES.length)]
++        : ELDAR_FEMALE_NAMES[Math.floor(rng().next() * ELDAR_FEMALE_NAMES.length)];
+       body = gender === 'М' ? 'Эльдар, грациозное' : 'Эльдар, грациозное';
+       maxHealth = 80;
+       break;
+     }
+     case 'dark_eldar': {
+-      planet = DARK_ELDAR_PLANETS[Math.floor(Math.random() * DARK_ELDAR_PLANETS.length)];
+-      caste = DARK_ELDAR_CASTES[Math.floor(Math.random() * DARK_ELDAR_CASTES.length)];
+-      gender = Math.random() > 0.5 ? 'М' : 'Ж';
++      planet = DARK_ELDAR_PLANETS[Math.floor(rng().next() * DARK_ELDAR_PLANETS.length)];
++      caste = DARK_ELDAR_CASTES[Math.floor(rng().next() * DARK_ELDAR_CASTES.length)];
++      gender = rng().next() > 0.5 ? 'М' : 'Ж';
+       name = gender === 'М'
+-        ? DARK_ELDAR_MALE_NAMES[Math.floor(Math.random() * DARK_ELDAR_MALE_NAMES.length)]
+-        : DARK_ELDAR_FEMALE_NAMES[Math.floor(Math.random() * DARK_ELDAR_FEMALE_NAMES.length)];
++        ? DARK_ELDAR_MALE_NAMES[Math.floor(rng().next() * DARK_ELDAR_MALE_NAMES.length)]
++        : DARK_ELDAR_FEMALE_NAMES[Math.floor(rng().next() * DARK_ELDAR_FEMALE_NAMES.length)];
+       body = gender === 'М' ? 'Друкхаари, изящное' : 'Друкхаари, изящное';
+       maxHealth = 90;
+       break;
+     }
+     case 'tau': {
+-      planet = TAU_PLANETS[Math.floor(Math.random() * TAU_PLANETS.length)];
+-      caste = TAU_CASTES[Math.floor(Math.random() * TAU_CASTES.length)];
++      planet = TAU_PLANETS[Math.floor(rng().next() * TAU_PLANETS.length)];
++      caste = TAU_CASTES[Math.floor(rng().next() * TAU_CASTES.length)];
+       const allTauNames = [...TAU_NAMES_EARTH, ...TAU_NAMES_FIRE, ...TAU_NAMES_AIR, ...TAU_NAMES_WATER, ...TAU_NAMES_ETHEREAL];
+-      name = allTauNames[Math.floor(Math.random() * allTauNames.length)];
++      name = allTauNames[Math.floor(rng().next() * allTauNames.length)];
+       gender = 'Бесполый';
+       body = 'Тау, стройное';
+       maxHealth = 85;
+       break;
+     }
+     case 'gretchin': {
+-      planet = GRETCHIN_PLANETS[Math.floor(Math.random() * GRETCHIN_PLANETS.length)];
+-      caste = GRETCHIN_CASTES[Math.floor(Math.random() * GRETCHIN_CASTES.length)];
+-      name = GRETCHIN_NAMES[Math.floor(Math.random() * GRETCHIN_NAMES.length)];
++      planet = GRETCHIN_PLANETS[Math.floor(rng().next() * GRETCHIN_PLANETS.length)];
++      caste = GRETCHIN_CASTES[Math.floor(rng().next() * GRETCHIN_CASTES.length)];
++      name = GRETCHIN_NAMES[Math.floor(rng().next() * GRETCHIN_NAMES.length)];
+       gender = 'М';
+       body = 'Маленькое, зелёное, хилое';
+       maxHealth = 50;
+@@ -265,35 +266,35 @@ function generateCharacterByRace(race: Race): CharacterStats {
+   }
+ 
+   const hiddenParams: CharacterStats['hiddenParams'] = {
+-    faith: Math.floor(Math.random() * 3),
+-    cunning: Math.floor(Math.random() * 3),
+-    strength: Math.floor(Math.random() * 3),
+-    willpower: Math.floor(Math.random() * 3),
+-    mutation: Math.floor(Math.random() * 2),
++    faith: Math.floor(rng().next() * 3),
++    cunning: Math.floor(rng().next() * 3),
++    strength: Math.floor(rng().next() * 3),
++    willpower: Math.floor(rng().next() * 3),
++    mutation: Math.floor(rng().next() * 2),
+     suspicion: 0,
+   };
+ 
+   switch (race) {
+     case 'ork':
+-      hiddenParams.waaagh = Math.floor(Math.random() * 3) + 1;
++      hiddenParams.waaagh = Math.floor(rng().next() * 3) + 1;
+       hiddenParams.strength += 2;
+       break;
+     case 'eldar':
+-      hiddenParams.psi = Math.floor(Math.random() * 3) + 1;
+-      hiddenParams.nobility = Math.floor(Math.random() * 3);
++      hiddenParams.psi = Math.floor(rng().next() * 3) + 1;
++      hiddenParams.nobility = Math.floor(rng().next() * 3);
+       break;
+     case 'dark_eldar':
+-      hiddenParams.cruelty = Math.floor(Math.random() * 3) + 1;
+-      hiddenParams.psi = Math.floor(Math.random() * 2);
++      hiddenParams.cruelty = Math.floor(rng().next() * 3) + 1;
++      hiddenParams.psi = Math.floor(rng().next() * 2);
+       hiddenParams.cunning += 1;
+       break;
+     case 'tau':
+-      hiddenParams.unity = Math.floor(Math.random() * 3) + 2;
+-      hiddenParams.techSkill = Math.floor(Math.random() * 3) + 1;
++      hiddenParams.unity = Math.floor(rng().next() * 3) + 2;
++      hiddenParams.techSkill = Math.floor(rng().next() * 3) + 1;
+       break;
+     case 'gretchin':
+-      hiddenParams.sneakiness = Math.floor(Math.random() * 3) + 2;
+-      hiddenParams.techSkill = Math.floor(Math.random() * 2);
++      hiddenParams.sneakiness = Math.floor(rng().next() * 3) + 2;
++      hiddenParams.techSkill = Math.floor(rng().next() * 2);
+       hiddenParams.cunning += 1;
+       break;
+   }
+@@ -308,7 +309,7 @@ function generateCharacterByRace(race: Race): CharacterStats {
+     sanity: 100,
+     warpCorruption: 0,
+     warpAttention: 0,
+-    luck: Math.floor(Math.random() * 5) + 3,
++    luck: Math.floor(rng().next() * 5) + 3,
+     credits: caste.startCredits,
+     food: 10,
+     ammo: 0,
+diff --git a/src/game/events/humanEvents.ts b/src/game/events/humanEvents.ts
+index 1af26c8..4d67a89 100644
+--- a/src/game/events/humanEvents.ts
++++ b/src/game/events/humanEvents.ts
+@@ -1,4 +1,5 @@
+ import { CharacterStats, GameEvent } from '../types';
++import { rng } from '../rng';
+ 
+ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
+   const pt = c.planetType;
+@@ -60,7 +61,7 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
+         ]
+       },
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   }
+   
+   if (age === 1) {
+@@ -132,7 +133,7 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
+         ]
+       },
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   }
+   
+   if (age >= 6 && age <= 12) {
+diff --git a/src/game/microEvents.ts b/src/game/microEvents.ts
+index 2131df3..f0994ee 100644
+--- a/src/game/microEvents.ts
++++ b/src/game/microEvents.ts
+@@ -1,4 +1,5 @@
+ import { CharacterStats, ChoiceEffects } from './types';
++import { rng } from './rng';
+ 
+ export interface MicroEvent {
+   text: string;
+@@ -165,7 +166,7 @@ export function triggerMicroEvent(character: CharacterStats): { event: MicroEven
+   });
+   
+   for (const event of availableEvents) {
+-    if (Math.random() < event.probability) {
++    if (rng().next() < event.probability) {
+       return { event, triggered: true };
+     }
+   }
+diff --git a/src/game/npcSystem.ts b/src/game/npcSystem.ts
+index 430c298..faf95b9 100644
+--- a/src/game/npcSystem.ts
++++ b/src/game/npcSystem.ts
+@@ -1,4 +1,5 @@
+ import { CharacterStats, NPC } from './types';
++import { rng } from './rng';
+ 
+ // Имена NPC для разных рас
+ const NPC_NAMES = {
+@@ -47,8 +48,8 @@ const NPC_ROLES = {
+ export function generateNPC(race: string, age: number): NPC {
+   const names = NPC_NAMES[race as keyof typeof NPC_NAMES] || NPC_NAMES.human;
+   const roles = NPC_ROLES[race as keyof typeof NPC_ROLES] || NPC_ROLES.human;
+-  const name = names[Math.floor(Math.random() * names.length)];
+-  const role = roles[Math.floor(Math.random() * roles.length)];
++  const name = names[Math.floor(rng().next() * names.length)];
++  const role = roles[Math.floor(rng().next() * roles.length)];
+   
+   // Генерируем описание в духе Warhammer 40,000
+   const descriptions = [
+@@ -65,13 +66,13 @@ export function generateNPC(race: string, age: number): NPC {
+   ];
+   
+   return {
+-    id: `npc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
++    id: `npc_${Date.now()}_${rng().next().toString(36).substr(2, 9)}`,
+     name: name,
+     role: role,
+-    relationship: Math.floor(Math.random() * 40) - 20, // от -20 до 20
++    relationship: Math.floor(rng().next() * 40) - 20, // от -20 до 20
+     met: true,
+     lastInteraction: age,
+-    description: descriptions[Math.floor(Math.random() * descriptions.length)]
++    description: descriptions[Math.floor(rng().next() * descriptions.length)]
+   };
+ }
+ 
+@@ -128,13 +129,13 @@ export function getEnemies(character: CharacterStats): NPC[] {
+  */
+ export function randomNPCEncounter(character: CharacterStats): { type: 'new' | 'old'; npc?: NPC } {
+   // 30% шанс встретить нового NPC
+-  if (Math.random() < 0.3) {
++  if (rng().next() < 0.3) {
+     return { type: 'new', npc: generateNPC(character.race, character.age) };
+   }
+   
+   // 70% шанс встретить старого NPC (если есть)
+-  if (character.npcs.length > 0 && Math.random() < 0.7) {
+-    const randomNpc = character.npcs[Math.floor(Math.random() * character.npcs.length)];
++  if (character.npcs.length > 0 && rng().next() < 0.7) {
++    const randomNpc = character.npcs[Math.floor(rng().next() * character.npcs.length)];
+     return { type: 'old', npc: randomNpc };
+   }
+   
+@@ -155,7 +156,7 @@ export function generateNPCEvent(character: CharacterStats, npc: NPC): string {
+       `${npc.name} приглашает вас на празднество.`,
+       `${npc.name} дарит вам редкий предмет.`,
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   } else if (relationship >= 30) {
+     // Хорошие отношения
+     const events = [
+@@ -164,7 +165,7 @@ export function generateNPCEvent(character: CharacterStats, npc: NPC): string {
+       `${npc.name} рассказывает интересные слухи.`,
+       `${npc.name} просит о небольшой услуге.`,
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   } else if (relationship >= -30) {
+     // Нейтральные отношения
+     const events = [
+@@ -173,7 +174,7 @@ export function generateNPCEvent(character: CharacterStats, npc: NPC): string {
+       `Вы видите ${npc.name} вдали.`,
+       `${npc.name} занят своими делами.`,
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   } else if (relationship >= -70) {
+     // Плохие отношения
+     const events = [
+@@ -182,7 +183,7 @@ export function generateNPCEvent(character: CharacterStats, npc: NPC): string {
+       `${npc.name} шепчется с другими о вас.`,
+       `${npc.name} открыто выражает недовольство.`,
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   } else {
+     // Очень плохие отношения
+     const events = [
+@@ -191,6 +192,6 @@ export function generateNPCEvent(character: CharacterStats, npc: NPC): string {
+       `${npc.name} плетёт заговор против вас.`,
+       `${npc.name} нанимает убийц для вас.`,
+     ];
+-    return events[Math.floor(Math.random() * events.length)];
++    return events[Math.floor(rng().next() * events.length)];
+   }
+ }
+diff --git a/src/game/rng.ts b/src/game/rng.ts
+new file mode 100644
+index 0000000..6ea0a65
+--- /dev/null
++++ b/src/game/rng.ts
+@@ -0,0 +1,84 @@
++// Детерминированный генератор псевдослучайных чисел (mulberry32).
++// Позволяет воспроизводить партии по seed: одна и та же последовательность
++// событий/NPC/проверок при одинаковом seed.
++
++export type RNG = {
++  /** Следующее число в [0, 1) */
++  next(): number;
++  /** Целое в диапазоне [min, max] включительно */
++  int(min: number, max: number): number;
++  /** Случайный элемент массива */
++  pick<T>(arr: readonly T[]): T;
++  /** Случайный элемент с вероятностью появления weights (не нормализуется) */
++  weighted<T>(items: readonly T[], weight: (item: T) => number): T;
++  /** Перемешивание Фишера–Йетса (возвращает новый массив) */
++  shuffle<T>(arr: readonly T[]): T[];
++  /** true с вероятностью p */
++  chance(p: number): boolean;
++  /** Текущий seed (состояние) — для сохранения в сейв */
++  getState(): number;
++};
++
++export function hashSeed(str: string): number {
++  // xmur3
++  let h = 1779033703 ^ str.length;
++  for (let i = 0; i < str.length; i++) {
++    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
++    h = (h << 13) | (h >>> 19);
++  }
++  h = Math.imul(h ^ (h >>> 16), 2246822507);
++  h = Math.imul(h ^ (h >>> 13), 3266489909);
++  return (h ^= h >>> 16) >>> 0;
++}
++
++export function createRNG(seed: number): RNG {
++  let a = seed >>> 0;
++  const next = (): number => {
++    a |= 0;
++    a = (a + 0x6d2b79f5) | 0;
++    let t = Math.imul(a ^ (a >>> 15), 1 | a);
++    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
++    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
++  };
++  return {
++    next,
++    int: (min, max) => min + Math.floor(next() * (max - min + 1)),
++    pick: (arr) => arr[Math.floor(next() * arr.length)],
++    weighted: (items, weight) => {
++      const total = items.reduce((s, it) => s + Math.max(0, weight(it)), 0);
++      if (total <= 0) return items[Math.floor(next() * items.length)];
++      let r = next() * total;
++      for (const it of items) {
++        r -= Math.max(0, weight(it));
++        if (r < 0) return it;
++      }
++      return items[items.length - 1];
++    },
++    shuffle: (arr) => {
++      const out = arr.slice();
++      for (let i = out.length - 1; i > 0; i--) {
++        const j = Math.floor(next() * (i + 1));
++        [out[i], out[j]] = [out[j], out[i]];
++      }
++      return out;
++    },
++    chance: (p) => next() < p,
++    getState: () => a >>> 0,
++  };
++}
++
++/** Глобальный RNG по умолчанию. Инициализируется случайным seed. */
++let globalRNG: RNG = createRNG((Math.random() * 2 ** 32) >>> 0);
++
++export function setGlobalSeed(seed: number): void {
++  globalRNG = createRNG(seed);
++}
++
++export function getGlobalSeedState(): number {
++  return globalRNG.getState();
++}
++
++/** Точка входа для всей игровой случайности. Заменяет Math.random(). */
++export function rng(): RNG {
++  return globalRNG;
++}
+diff --git a/src/game/types.ts b/src/game/types.ts
+index 6668c6b..75f511f 100644
+--- a/src/game/types.ts
++++ b/src/game/types.ts
+@@ -133,4 +133,6 @@ export interface GameState {
+   deathMessage: string;
+   activeQuests: Quest[];
+   completedQuests: Quest[];
++  /** Seed партии для воспроизводимости (опционально — старые сейвы без него валидны) */
++  seed?: number;
+ }
+diff --git a/src/game/utils.ts b/src/game/utils.ts
+index 67855a1..53f633b 100644
+--- a/src/game/utils.ts
++++ b/src/game/utils.ts
+@@ -1,4 +1,5 @@
+ import { CharacterStats, ChoiceEffects } from './types';
++import { rng } from './rng';
+ import { GAME_CONFIG } from './config';
+ 
+ const { MAX_VALUE, MIN_VALUE } = GAME_CONFIG.STAT_THRESHOLDS;
+@@ -21,7 +22,7 @@ export function generateWorldEvent(): string {
+     'Восстание рабочих на промышленном мире',
+     'Пираты атакали торговый путь',
+   ];
+-  return events[Math.floor(Math.random() * events.length)];
++  return events[Math.floor(rng().next() * events.length)];
+ }
+ 
+ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEffects): CharacterStats {
+diff --git a/src/game/validation.ts b/src/game/validation.ts
+index 817020b..28a3700 100644
+--- a/src/game/validation.ts
++++ b/src/game/validation.ts
+@@ -38,7 +38,10 @@ export function validateCharacter(character: CharacterStats): boolean {
+   const factions = ['imperium', 'chaos', 'xenos', 'criminals', 'nobility', 'commoners'];
+   for (const faction of factions) {
+     const value = character.factionRelations[faction as keyof typeof character.factionRelations];
+-    if (value < -10 || value > 10) return false;
++    // Единый диапазон отношений с фракциями: [-100, 100]
++    // (совпадает с клампингом в applyQuestRewards и npcSystem)
++    if (typeof value !== 'number' || Number.isNaN(value)) return false;
++    if (value < -100 || value > 100) return false;
+   }
+   
+   return true;
+diff --git a/src/hooks/useGameState.ts b/src/hooks/useGameState.ts
+index 1c21ecf..a321e11 100644
+--- a/src/hooks/useGameState.ts
++++ b/src/hooks/useGameState.ts
+@@ -1,4 +1,5 @@
+ import { useState, useCallback, useEffect, useMemo } from 'react';
++import { rng, setGlobalSeed, hashSeed } from '../game/rng';
+ import { GameState, Choice, CharacterStats } from '../game/types';
+ import { generateCharacter, getEventForAge, getDeathMessage } from '../game/data';
+ import { getAmbience } from '../game/audio';
+@@ -168,7 +169,7 @@ export function useGameState() {
+     }
+     
+     // Встреча с NPC (20% шанс)
+-    if (Math.random() < 0.2) {
++    if (rng().next() < 0.2) {
+       const encounter = randomNPCEncounter(newChar);
+       if (encounter.npc) {
+         if (encounter.type === 'new') {
+@@ -178,7 +179,7 @@ export function useGameState() {
+           newHistory.push(`[NPC] ${eventText}`);
+           
+           // Случайное изменение отношений
+-          const relationshipChange = Math.floor(Math.random() * 20) - 10;
++          const relationshipChange = Math.floor(rng().next() * 20) - 10;
+           newChar = updateNPCRelationship(newChar, encounter.npc.id, relationshipChange);
+         } else {
+           // Встреча с известным NPC
+@@ -186,7 +187,7 @@ export function useGameState() {
+           newHistory.push(`[NPC] ${eventText}`);
+           
+           // Случайное изменение отношений
+-          const relationshipChange = Math.floor(Math.random() * 10) - 5;
++          const relationshipChange = Math.floor(rng().next() * 10) - 5;
+           newChar = updateNPCRelationship(newChar, encounter.npc.id, relationshipChange);
+         }
+       }
+@@ -210,7 +211,7 @@ export function useGameState() {
+         `[РОК] ${quest.name} - ты прошёл через тьму и вышел... изменённым.`,
+         `[ЛЕГЕНДА] ${quest.name} - твои деяния будут помнить, даже когда звёзды погаснут.`
+       ];
+-      const message = completionMessages[Math.floor(Math.random() * completionMessages.length)];
++      const message = completionMessages[Math.floor(rng().next() * completionMessages.length)];
+       newHistory.push(message);
+     }
+     
+@@ -229,7 +230,7 @@ export function useGameState() {
+         `[РОК] ${newQuest.name} - путь, который ты должен пройти.`,
+         `[ИСПЫТАНИЕ] ${newQuest.name} - тьма ждёт тебя.`
+       ];
+-      const message = questMessages[Math.floor(Math.random() * questMessages.length)];
++      const message = questMessages[Math.floor(rng().next() * questMessages.length)];
+       newHistory.push(message);
+     }
+     
+@@ -249,8 +250,14 @@ export function useGameState() {
+     setLastChoice(null);
+   }, [gameState, activeQuests, completedQuests]);
+ 
+-  const startNewGame = useCallback(() => {
++  const startNewGame = useCallback((seedStr?: string) => {
+     try {
++      // Seed партии: детерминированность для тестов и баг-репортов.
++      const seed = seedStr && seedStr.trim()
++        ? hashSeed(seedStr.trim())
++        : (rng().next() * 2 ** 32) >>> 0;
++      setGlobalSeed(seed);
++
+       const character = generateCharacter();
+       
+       if (!character) {
+@@ -284,6 +291,7 @@ export function useGameState() {
+         deathMessage: '',
+         activeQuests: [],
+         completedQuests: [],
++        seed,
+       };
+       
+       if (!validateGameState(newGameState)) {
+@@ -306,6 +314,9 @@ export function useGameState() {
+     try {
+       const savedData = loadGame();
+       if (savedData && validateGameState(savedData.gameState)) {
++        if (typeof savedData.gameState.seed === 'number') {
++          setGlobalSeed(savedData.gameState.seed);
++        }
+         setGameState(savedData.gameState);
+         setUnlockedAchievements(savedData.unlockedAchievements);
+         setResultText('');
+-- 
+2.39.5
+
