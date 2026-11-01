@@ -1,7 +1,1 @@
 node_modules/
-
-# Electron desktop builds
-release/
-*.exe
-*.blockmap
-latest*.yml
