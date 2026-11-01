@@ -53,7 +53,9 @@ export function makeCharacter(overrides: Partial<CharacterStats> = {}): Characte
     traits: [],
     body: 'обычное тело',
     gender: 'мужской',
-    microEventCooldown: 0,
+    // Кулдаун >1 намеренно: в тестах микро-события не должны случайно
+    // двигать suspicion/sanity и ломать предпосылки про условия смерти.
+    microEventCooldown: 3,
     keyChoices: [],
     ...overrides,
   };

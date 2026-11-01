@@ -208,23 +208,28 @@ describe('«Император защищает» — расширяемые п�
   it('нулевая Верность никогда не спасает от Инквизиции', () => {
     for (let seed = 1; seed <= 30; seed++) {
       const state = makeStateWith({
-        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 0, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 } }),
+        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 0, influence: 0, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 } }),
       });
       setGlobalSeed(seed);
       const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
-      expect(outcome.state.game?.gameOver).toBe(true);
-      expect(outcome.state.phase).toBe('dead');
+      const game = outcome.state.game!;
+      expect(game.gameOver).toBe(true);
+      expect(game.deathMessage).toContain('Инквизици');
     }
   });
 
   it('безумие (sanity<=0) не отводится чудом — даже с creed 10', () => {
     for (let seed = 1; seed <= 30; seed++) {
+      // warpAttention 10 — гарантированное безумие: исцеление рассудка требует attention<=2,
+      // а регенерация здоровья при этом остаётся активной (health>0, food>0).
       const state = makeStateWith({
-        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 10, sanity: 0 }),
+        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 10, sanity: 0, influence: 0, warpAttention: 10 }),
       });
       setGlobalSeed(seed);
       const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
       expect(outcome.state.game?.gameOver).toBe(true);
+      expect(outcome.state.phase).toBe('dead');
+      expect(outcome.state.game?.deathMessage).toContain('Безумие');
     }
   });
 });
