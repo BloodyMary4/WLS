@@ -1,6 +1,14 @@
 # Warhammer Life Simulator
 
-Текстовый симулятор жизни в вселенной Warhammer 40,000.
+Текстовый симулятор жизни во вселенной Warhammer 40,000.
+
+## 🕹️ Играть онлайн
+
+**[▶ Играть в браузере](https://bloodymary4.github.io/WLS/)** — веб-версия, обновляется автоматически при каждом пуше в main.
+
+## 💻 Версия для ПК (Windows)
+
+Скачайте portable-версию или установщик со страницы релизов: **[GitHub Releases](https://github.com/BloodyMary4/WLS/releases/latest)**
 
 ## 🎮 Особенности
 
