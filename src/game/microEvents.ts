@@ -276,6 +276,32 @@ export const MICRO_EVENTS: MicroEvent[] = [
     effects: { cunning: 2, description: 'Их слабости... очевидны, если знать, куда смотреть.' },
     race: 'gretchin'
   },
+  // События с NPC
+  {
+    text: 'Ты встречаешь старого друга.',
+    probability: 0.2,
+    effects: { willpower: 1, faith: 1, description: 'Приятная встреча. Воспоминания греют душу.' }
+  },
+  {
+    text: 'Торговец предлагает редкий товар.',
+    probability: 0.15,
+    effects: { credits: -5, cunning: 1, description: 'Ты покупаешь что-то интересное. Может пригодиться.' }
+  },
+  {
+    text: 'Незнакомец просит помощи.',
+    probability: 0.2,
+    effects: { faith: 2, willpower: 1, description: 'Ты помогаешь незнакомцу. Доброта возвращается.' }
+  },
+  {
+    text: 'Ты ссоришься с соседом.',
+    probability: 0.1,
+    effects: { willpower: -1, suspicion: 1, description: 'Конфликт... но ты чувствуешь себя правым.' }
+  },
+  {
+    text: 'Местный герой рассказывает истории.',
+    probability: 0.25,
+    effects: { willpower: 1, faith: 1, description: 'Истории вдохновляют. Ты чувствуешь себя частью чего-то большего.' }
+  },
 ];
 
 export function triggerMicroEvent(character: CharacterStats): { event: MicroEvent; triggered: boolean } {

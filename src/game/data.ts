@@ -327,6 +327,7 @@ function generateCharacterByRace(race: Race): CharacterStats {
       nobility: 0,
       commoners: 0,
     },
+    npcs: [],
     hiddenParams,
     traits: [],
     body,

@@ -18,6 +18,14 @@ export interface LegacyData {
   deathsByCause: Record<string, number>;
 }
 
+export interface NPC {
+  id: string;
+  name: string;
+  relationship: number; // -100 до 100
+  met: boolean;
+  lastInteraction?: number;
+}
+
 export interface CharacterStats {
   name: string;
   race: Race;
@@ -40,6 +48,7 @@ export interface CharacterStats {
   inventory: string[];
   augmentics: string[];
   factionRelations: FactionRelations;
+  npcs: NPC[];
   hiddenParams: {
     faith: number;
     cunning: number;
@@ -112,10 +121,14 @@ export interface GameEvent {
   choices: Choice[];
 }
 
+import { Quest } from './questSystem';
+
 export interface GameState {
   character: CharacterStats;
   currentEvent: GameEvent;
   history: string[];
   gameOver: boolean;
   deathMessage: string;
+  activeQuests: Quest[];
+  completedQuests: Quest[];
 }

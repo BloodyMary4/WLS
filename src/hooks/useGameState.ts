@@ -9,6 +9,8 @@ import { applyChoiceEffects, updateAgeStatus, applyMicroEventEffects } from '../
 import { GAME_CONFIG, DEATH_CAUSES } from '../game/config';
 import { validateEvent, validateGameState, createDefaultEvent } from '../game/validation';
 import { saveGame, loadGame, hasSave } from '../game/saveSystem';
+import { randomNPCEncounter, addNPC, generateNPCEvent, updateNPCRelationship } from '../game/npcSystem';
+import { checkQuests, applyQuestRewards, getAvailableQuests, createQuest } from '../game/questSystem';
 
 export function useGameState() {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -17,6 +19,8 @@ export function useGameState() {
   const [lastChoice, setLastChoice] = useState<Choice | null>(null);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [newAchievement, setNewAchievement] = useState<string | null>(null);
+  const [activeQuests, setActiveQuests] = useState<any[]>([]);
+  const [completedQuests, setCompletedQuests] = useState<any[]>([]);
 
   const deathConditions = useMemo(() => [
     {
@@ -81,6 +85,8 @@ export function useGameState() {
       history,
       gameOver: true,
       deathMessage: message,
+      activeQuests,
+      completedQuests,
     });
   }, [gameState, unlockedAchievements]);
 
@@ -142,31 +148,89 @@ export function useGameState() {
       history: newHistory,
       gameOver: false,
       deathMessage: '',
+      activeQuests,
+      completedQuests,
     });
   }, [gameState, unlockedAchievements, checkDeathConditions]);
 
   const proceedToNextYear = useCallback(() => {
     if (!gameState) return;
     
-    const microEventResult = triggerMicroEvent(gameState.character);
+    let newChar = gameState.character;
+    const newHistory = [...gameState.history];
+    
+    // Микро-события
+    const microEventResult = triggerMicroEvent(newChar);
     if (microEventResult.triggered) {
       const microEvent = microEventResult.event;
-      const newChar = applyMicroEventEffects(gameState.character, microEvent.effects);
-      
-      const microHistoryEntry = `[Микро] ${microEvent.text} → ${microEvent.effects.description}`;
-      const newHistory = [...gameState.history, microHistoryEntry];
-      
-      setGameState({
-        ...gameState,
-        character: newChar,
-        history: newHistory,
-      });
+      newChar = applyMicroEventEffects(newChar, microEvent.effects);
+      newHistory.push(`[Микро] ${microEvent.text} → ${microEvent.effects.description}`);
     }
+    
+    // Встреча с NPC (20% шанс)
+    if (Math.random() < 0.2) {
+      const encounter = randomNPCEncounter(newChar);
+      if (encounter.npc) {
+        if (encounter.type === 'new') {
+          // Новая встреча
+          newChar = addNPC(newChar, encounter.npc);
+          const eventText = generateNPCEvent(newChar, encounter.npc);
+          newHistory.push(`[NPC] ${eventText}`);
+          
+          // Случайное изменение отношений
+          const relationshipChange = Math.floor(Math.random() * 20) - 10;
+          newChar = updateNPCRelationship(newChar, encounter.npc.id, relationshipChange);
+        } else {
+          // Встреча с известным NPC
+          const eventText = generateNPCEvent(newChar, encounter.npc);
+          newHistory.push(`[NPC] ${eventText}`);
+          
+          // Случайное изменение отношений
+          const relationshipChange = Math.floor(Math.random() * 10) - 5;
+          newChar = updateNPCRelationship(newChar, encounter.npc.id, relationshipChange);
+        }
+      }
+    }
+    
+    // Проверка квестов
+    const { updatedQuests, completedQuests: newlyCompleted } = checkQuests(newChar, activeQuests);
+    
+    // Применяем награды за завершённые квесты
+    let finalChar = newChar;
+    const finalCompletedQuests = [...completedQuests];
+    
+    for (const quest of newlyCompleted) {
+      finalChar = applyQuestRewards(finalChar, quest);
+      finalCompletedQuests.push(quest);
+      newHistory.push(`[Квест] Завершён: ${quest.name}! Получены награды.`);
+    }
+    
+    // Добавляем новые доступные квесты
+    const availableQuests = getAvailableQuests(finalChar, updatedQuests);
+    const newActiveQuests = [...updatedQuests.filter(q => !q.completed)];
+    
+    // Автоматически добавляем первый доступный квест, если нет активных
+    if (newActiveQuests.length === 0 && availableQuests.length > 0) {
+      const newQuest = createQuest(availableQuests[0], finalChar.age);
+      newActiveQuests.push(newQuest);
+      newHistory.push(`[Квест] Новый квест: ${newQuest.name}`);
+    }
+    
+    setActiveQuests(newActiveQuests);
+    setCompletedQuests(finalCompletedQuests);
+    
+    setGameState({
+      ...gameState,
+      character: finalChar,
+      history: newHistory,
+      activeQuests: newActiveQuests,
+      completedQuests: finalCompletedQuests,
+    });
     
     setShowResult(false);
     setResultText('');
     setLastChoice(null);
-  }, [gameState]);
+  }, [gameState, activeQuests, completedQuests]);
 
   const startNewGame = useCallback(() => {
     try {
@@ -201,6 +265,8 @@ export function useGameState() {
         history: initialHistory,
         gameOver: false,
         deathMessage: '',
+        activeQuests: [],
+        completedQuests: [],
       };
       
       if (!validateGameState(newGameState)) {

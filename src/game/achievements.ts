@@ -310,6 +310,49 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Собрать 10+ черт характера',
     icon: '🌟',
     condition: (c) => c.traits.length >= 10
+  },
+  // Достижения NPC
+  {
+    id: 'social_butterfly',
+    name: 'Душа компании',
+    description: 'Встретить 10+ NPC',
+    icon: '🦋',
+    condition: (c) => c.npcs.length >= 10
+  },
+  {
+    id: 'beloved',
+    name: 'Любимец',
+    description: 'Иметь 3+ друзей (отношения 50+)',
+    icon: '❤️',
+    condition: (c) => c.npcs.filter(npc => npc.relationship >= 50).length >= 3
+  },
+  {
+    id: 'feared',
+    name: 'Страшилище',
+    description: 'Иметь 3+ врагов (отношения -50+)',
+    icon: '💀',
+    condition: (c) => c.npcs.filter(npc => npc.relationship <= -50).length >= 3
+  },
+  {
+    id: 'networker',
+    name: 'Нетворкер',
+    description: 'Встретить 20+ NPC',
+    icon: '🕸️',
+    condition: (c) => c.npcs.length >= 20
+  },
+  {
+    id: 'best_friend',
+    name: 'Лучший друг',
+    description: 'Достичь 100 отношений с NPC',
+    icon: '🤝',
+    condition: (c) => c.npcs.some(npc => npc.relationship >= 100)
+  },
+  {
+    id: 'nemesis',
+    name: 'Заклятый враг',
+    description: 'Достичь -100 отношений с NPC',
+    icon: '⚔️',
+    condition: (c) => c.npcs.some(npc => npc.relationship <= -100)
   }
 ];
 
