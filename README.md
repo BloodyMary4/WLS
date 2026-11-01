@@ -76,6 +76,15 @@ npm run build
 npm run check
 ```
 
+### Запуск тестов
+
+```bash
+npm test            # разовый прогон (vitest run)
+npm run test:watch  # режим наблюдения
+```
+
+Тесты покрывают ядро игровой логики: `utils` (эффекты выборов, старение), `validation`, `saveSystem`, `questSystem`, `achievements`. Настройки — в `vitest.config.ts`, фабрики объектов для тестов — в `src/game/testHelpers.ts`.
+
 ### Восстановление структуры
 
 ```bash

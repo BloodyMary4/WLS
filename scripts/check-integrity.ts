@@ -39,7 +39,15 @@ const REQUIRED_FILES = [
   // Хуки и компоненты
   'src/hooks/useGameState.ts',
   'src/components/AudioController.tsx',
-  
+
+  // Тесты
+  'vitest.config.ts',
+  'src/game/testHelpers.ts',
+  'src/__tests__/utils.test.ts',
+  'src/__tests__/validation.test.ts',
+  'src/__tests__/saveSystem.test.ts',
+  'src/__tests__/questsAchievements.test.ts',
+
   // Документация
   'README.md',
   'INTEGRITY.md',
