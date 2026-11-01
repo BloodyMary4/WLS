@@ -96,30 +96,33 @@ function App() {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black">
+      <div className="wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
         <AudioController />
         
         {/* Фоновые эффекты */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-yellow-600/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-600/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-0 left-1/4 w-64 h-64 bg-yellow-700/10 rounded-full blur-3xl animate-candle"></div>
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-900/15 rounded-full blur-3xl animate-candle" style={{animationDelay: '1.3s'}}></div>
         </div>
         
         <div className="relative z-10 container mx-auto px-6 py-12">
           <div className="max-w-[1600px] mx-auto">
             {/* Заголовок */}
             <div className="text-center mb-16 animate-fade-in">
-              <h1 className="text-5xl xl:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent animate-glow">
+              <h1 className="font-gothic text-5xl xl:text-6xl font-bold mb-4 tracking-[0.15em] uppercase bg-gradient-to-b from-[#f0d878] via-[#c9a227] to-[#7a5c10] bg-clip-text text-transparent">
                 WARHAMMER LIFE
               </h1>
-              <p className="text-xl text-gray-300 mb-3 font-light">
+              <p className="font-event text-xl text-[#b8a878] mb-3 italic">
                 Симулятор жизни в вселенной Warhammer 40,000
               </p>
-              <div className="w-48 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mx-auto mt-4"></div>
+              <p className="font-event text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">
+                Во тьме далёкого будущего есть только война
+              </p>
+              <div className="wh-divider max-w-md mx-auto mt-4"></div>
             </div>
 
             {/* Описание */}
-            <div className="card-modern p-8 mb-12 animate-fade-in" style={{animationDelay: '0.2s'}}>
+            <div className="wh-panel wh-frame p-8 mb-12 animate-fade-in" style={{animationDelay: '0.2s'}}>
               <div className="flex items-start gap-4">
                 <div className="text-5xl animate-pulse">⚔️</div>
                 <div className="flex-1">
@@ -139,19 +142,19 @@ function App() {
 
             {/* Расы */}
             <div className="mb-12 animate-fade-in" style={{animationDelay: '0.4s'}}>
-              <h2 className="text-3xl font-bold text-center mb-8 text-yellow-500">Выбери свою судьбу</h2>
+              <h2 className="font-gothic text-3xl font-bold text-center mb-8 uppercase tracking-[0.15em] text-[#e8c85a]">Выбери свою судьбу</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Object.entries(RACE_INFO).map(([key, info], index) => (
                   <div 
                     key={key} 
-                    className="card-modern hover-lift p-6 animate-scale-in"
+                    className="wh-panel hover-lift p-6 animate-scale-in cursor-pointer"
                     style={{animationDelay: `${0.5 + index * 0.1}s`}}
                   >
                     <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">
                       {info.emoji}
                     </div>
-                    <h3 className="text-xl font-bold text-yellow-500 mb-2">{info.name}</h3>
-                    <p className="text-base text-gray-400 leading-relaxed">{info.description}</p>
+                    <h3 className="font-gothic text-xl font-bold text-[#e8c85a] mb-2 uppercase tracking-wide">{info.name}</h3>
+                    <p className="font-event text-base text-[#a89870] leading-relaxed">{info.description}</p>
                   </div>
                 ))}
               </div>
@@ -162,7 +165,7 @@ function App() {
               {hasSave && (
                 <button 
                   onClick={loadSavedGame} 
-                  className="btn-modern bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-4 px-12 rounded-xl text-xl border-2 border-gray-600 hover:border-yellow-500 transition-all shadow-lg hover:shadow-yellow-500/30"
+                  className="btn-modern bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic font-bold py-4 px-12 rounded-sm text-xl border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shadow-lg"
                 >
                   📜 Продолжить игру
                 </button>
@@ -170,7 +173,7 @@ function App() {
               
               <button 
                 onClick={() => startNewGame()} 
-                className="btn-modern bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-5 px-16 rounded-xl text-2xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
+                className="btn-wh-primary btn-modern font-bold py-5 px-16 rounded-sm text-2xl hover:scale-105"
               >
                 ⚔️ Начать новую игру
               </button>
@@ -182,10 +185,10 @@ function App() {
                 Каждый ход = 1 год жизни • 6 рас • Клавиши A-D для выбора
               </p>
               <div className="flex justify-center gap-3 mt-4">
-                <kbd className="px-4 py-2 bg-gray-800 border border-yellow-600/50 rounded text-yellow-400 text-base font-mono">A</kbd>
-                <kbd className="px-4 py-2 bg-gray-800 border border-yellow-600/50 rounded text-yellow-400 text-base font-mono">B</kbd>
-                <kbd className="px-4 py-2 bg-gray-800 border border-yellow-600/50 rounded text-yellow-400 text-base font-mono">C</kbd>
-                <kbd className="px-4 py-2 bg-gray-800 border border-yellow-600/50 rounded text-yellow-400 text-base font-mono">D</kbd>
+                <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">A</kbd>
+                <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">B</kbd>
+                <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">C</kbd>
+                <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">D</kbd>
               </div>
             </div>
           </div>
@@ -205,18 +208,18 @@ function App() {
   }
 
   return (
-    <div className="game-container">
+    <div className="game-container wh-grain wh-vignette" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
       
       {newAchievement && (
         <div className="fixed bottom-6 right-6 z-50 animate-scale-in max-w-md">
-          <div className="bg-gradient-to-br from-yellow-900/90 to-orange-900/90 border-2 border-yellow-500 rounded-2xl px-6 py-4 shadow-2xl backdrop-blur-sm animate-glow">
+          <div className="wh-panel wh-frame px-6 py-4 shadow-2xl backdrop-blur-sm">
             <div className="flex items-center gap-4">
               <div className="text-4xl animate-pulse shrink-0">
                 {ACHIEVEMENTS.find(a => a.id === newAchievement)?.icon}
               </div>
               <div>
-                <div className="text-base text-yellow-400 font-bold uppercase tracking-wider mb-2">
+                <div className="font-gothic text-base text-[#e8c85a] font-bold uppercase tracking-widest mb-2">
                   🏆 Достижение разблокировано!
                 </div>
                 <div className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
@@ -231,13 +234,13 @@ function App() {
         </div>
       )}
       
-      <header className="sticky top-0 z-40 glass-effect border-b border-yellow-600/20 shadow-lg">
+      <header className="sticky top-0 z-40 border-b border-[#c9a227]/30 shadow-lg" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)', backdropFilter: 'blur(8px)' }}>
         <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
           <div className="flex items-center justify-between mb-3 animate-slide-in-left">
             <div className="flex items-center gap-3 min-w-0">
               <div className="text-3xl shrink-0">{raceInfo.emoji}</div>
               <div className="min-w-0">
-                <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent truncate">
+                <div className="font-gothic text-xl font-bold uppercase tracking-wide bg-gradient-to-b from-[#f0d878] to-[#a8821a] bg-clip-text text-transparent truncate">
                   {character.name}
                 </div>
                 <div className="text-sm text-gray-400 truncate">
@@ -251,7 +254,7 @@ function App() {
                   startNewGame();
                 }
               }}
-              className="btn-modern bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-sm py-1.5 px-4 rounded-lg border border-gray-600 hover:border-yellow-500 transition-all shadow-lg hover:shadow-yellow-500/30 shrink-0"
+              className="btn-modern bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic text-sm py-1.5 px-4 rounded-sm border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shadow-lg shrink-0"
             >
               🔄 Новая игра
             </button>
@@ -288,7 +291,7 @@ function App() {
               barColor={getWarpCorruptionBarColor(character.warpCorruption)}
             />
             
-            <div className="bg-gray-900 rounded px-3 py-2">
+            <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-yellow-400 font-semibold">💰 {character.credits}₡</span>
                 <span className="text-green-400 font-semibold">🍖 {character.food}</span>
@@ -296,7 +299,7 @@ function App() {
               </div>
             </div>
             
-            <div className="bg-gray-900 rounded px-3 py-2">
+            <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-400">⭐ Влияние:</span>
                 <span className="text-orange-400 font-bold">{character.influence}</span>
@@ -307,7 +310,7 @@ function App() {
               </div>
             </div>
             
-            <div className="bg-gray-900 rounded px-3 py-2">
+            <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
               <div className="text-xs text-gray-400 mb-1">Статус</div>
               <div className="text-sm text-purple-400 font-semibold truncate">{character.status}</div>
             </div>
@@ -326,8 +329,8 @@ function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             <aside className={`lg:col-span-3 space-y-4 animate-slide-in-left ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
-              <div className="card-modern p-6 hover-lift">
-                <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
+              <div className="wh-panel p-6">
+                <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
                   <span className="text-2xl">📊</span>
                   Характеристики
                 </h3>
@@ -345,8 +348,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="card-modern p-6 hover-lift">
-                <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
+              <div className="wh-panel p-6">
+                <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
                   <span className="text-2xl">{raceInfo.emoji}</span>
                   Расовые особенности
                 </h3>
@@ -361,8 +364,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="card-modern p-6 hover-lift">
-                <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
+              <div className="wh-panel p-6">
+                <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
                   <span className="text-2xl">🎒</span>
                   Снаряжение
                 </h3>
@@ -380,8 +383,8 @@ function App() {
 
               {/* NPC Relations - в мрачном стиле Warhammer 40,000 */}
               {character.npcs.length > 0 && (
-                <div className="card-modern p-6 hover-lift">
-                  <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
+                <div className="wh-panel p-6">
+                  <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
                     <span className="text-2xl">⚔️</span>
                     Встреченные души ({character.npcs.length})
                   </h3>
@@ -433,8 +436,8 @@ function App() {
 
               {/* Active Quests - в мрачном стиле Warhammer 40,000 */}
               {gameState.activeQuests.length > 0 && (
-                <div className="card-modern p-6 hover-lift">
-                  <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
+                <div className="wh-panel p-6">
+                  <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
                     <span className="text-2xl">📜</span>
                     Испытания судьбы ({gameState.activeQuests.length})
                   </h3>
@@ -486,8 +489,8 @@ function App() {
                 </div>
               )}
 
-              <div className="card-modern p-6 hover-lift">
-                <h3 className="text-lg font-bold text-yellow-500 mb-4 pb-3 border-b border-yellow-600/30 flex items-center gap-3">
+              <div className="wh-panel p-6">
+                <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
                   <span className="text-2xl">📜</span>
                   Хроника
                 </h3>
@@ -507,7 +510,7 @@ function App() {
 
             <div className="lg:col-span-9 animate-slide-in-right">
               {/* Прогресс жизни */}
-              <div className="card-modern p-6 mb-4 hover-lift">
+              <div className="wh-panel p-6 mb-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-base text-gray-400 font-semibold flex items-center gap-2">
                     <span className="text-2xl">⏳</span>
@@ -515,27 +518,27 @@ function App() {
                   </span>
                   <span className="text-base text-gray-400 font-bold">{character.age} / ~80 лет</span>
                 </div>
-                <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
-                  <div 
-                    className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 shimmer"
-                    style={{ width: `${Math.min(100, (character.age / 80) * 100)}%` }}
+                <div className="wh-bar w-full overflow-hidden" style={{ height: '10px' }}>
+                  <div
+                    className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
+                    style={{ width: `${Math.min(100, (character.age / 80) * 100)}%`, height: '100%' }}
                   ></div>
                 </div>
               </div>
 
               {/* Основная карточка события */}
-              <div className="card-modern p-8">
+              <div className="wh-panel wh-frame p-8">
                 {!gameOver ? (
                   <>
                     <div className="mb-6">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
-                        <span className="text-lg font-bold text-red-400 uppercase tracking-wide">
-                          ⚡ Событие • Год {character.age}
+                        <span className="font-gothic text-lg font-bold text-[#c0392b] uppercase tracking-[0.2em]">
+                          Событие &bull; М41.{String(character.age).padStart(3,'0')}
                         </span>
                       </div>
-                      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-yellow-600/20 shadow-inner">
-                        <p className="text-lg leading-relaxed text-yellow-300">
+                      <div className="wh-parchment rounded-sm p-6 pt-7">
+                        <p className="font-event text-lg leading-relaxed text-[#d8c9a3]">
                           {currentEvent.text}
                         </p>
                       </div>
@@ -543,39 +546,38 @@ function App() {
 
                     {showResult && lastChoice ? (
                       <div className="space-y-4 animate-fade-in">
-                        <div className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-600 rounded-xl p-6 shadow-lg">
+                        <div className="wh-parchment rounded-sm p-6" style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
                           <div className="flex items-start gap-3">
                             <span className="text-3xl">⚔️</span>
-                            <p className="text-lg leading-relaxed text-yellow-300 flex-1">{resultText}</p>
+                            <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{resultText}</p>
                           </div>
                         </div>
                         <button
                           onClick={proceedToNextYear}
-                          className="btn-modern w-full bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-4 rounded-xl text-xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
+                          className="btn-wh-primary btn-modern w-full font-bold py-4 rounded-sm text-xl transition-all hover:scale-[1.02]"
                         >
                           Продолжить → Год {character.age}
                         </button>
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        <p className="text-lg font-bold text-yellow-500 uppercase mb-4 flex items-center gap-3">
-                          <span className="text-2xl">⚜️</span>
+                        <p className="font-gothic text-lg font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4 flex items-center gap-3">
                           Твоё решение:
                         </p>
                         {currentEvent.choices.map((choice, index) => (
                           <button
                             key={choice.letter}
                             onClick={() => handleChoice(choice)}
-                            className="btn-modern w-full text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 border-2 border-gray-700 hover:border-yellow-500 rounded-xl transition-all shadow-lg hover:shadow-yellow-500/30 hover:scale-[1.02] animate-slide-in-left"
+                            className="btn-modern w-full text-left p-4 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] animate-slide-in-left"
                             style={{animationDelay: `${index * 0.1}s`}}
                           >
                             <div className="flex items-start gap-4">
-                              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-yellow-600 to-yellow-800 rounded-lg flex items-center justify-center shadow-lg">
-                                <span className="text-yellow-100 font-bold text-lg">
+                              <div className="wh-choice-letter flex-shrink-0 w-10 h-10 flex items-center justify-center shadow-lg">
+                                <span className="font-bold text-lg">
                                   {choice.letter}
                                 </span>
                               </div>
-                              <span className="text-lg text-yellow-300 flex-1 leading-relaxed pt-1">{choice.text}</span>
+                              <span className="font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1">{choice.text}</span>
                             </div>
                           </button>
                         ))}
@@ -588,14 +590,14 @@ function App() {
                       <div className="text-8xl animate-pulse">☠️</div>
                       <div className="absolute inset-0 bg-red-600/20 rounded-full blur-3xl animate-pulse"></div>
                     </div>
-                    <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent animate-glow">
+                    <h2 className="font-gothic text-5xl font-bold mb-6 uppercase tracking-[0.25em] bg-gradient-to-b from-[#e74c3c] via-[#a30000] to-[#5c0000] bg-clip-text text-transparent">
                       СМЕРТЬ
                     </h2>
                     <p className="text-lg leading-relaxed mb-10 max-w-2xl mx-auto text-gray-300">
                       {deathMessage}
                     </p>
-                    <div className="card-modern p-8 mb-10 text-left max-w-2xl mx-auto hover-lift">
-                      <h3 className="text-2xl font-bold text-yellow-500 mb-6 flex items-center gap-3">
+                    <div className="wh-panel wh-frame p-8 mb-10 text-left max-w-2xl mx-auto">
+                      <h3 className="font-gothic text-2xl font-bold text-[#e8c85a] mb-6 uppercase tracking-[0.15em] flex items-center gap-3">
                         <span className="text-3xl">📜</span>
                         Итоги жизни
                       </h3>
@@ -624,7 +626,7 @@ function App() {
                     </div>
                     <button
                       onClick={() => startNewGame()}
-                      className="btn-modern bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-yellow-400 font-bold py-4 px-14 rounded-xl text-xl border-2 border-yellow-600 hover:border-yellow-400 transition-all shadow-lg hover:shadow-yellow-500/50 hover:scale-105"
+                      className="btn-wh-primary btn-modern font-bold py-4 px-14 rounded-sm text-xl transition-all hover:scale-105"
                     >
                       ⚔️ Начать новую жизнь
                     </button>
@@ -636,7 +638,7 @@ function App() {
         </div>
       </main>
 
-      <footer className="glass-effect border-t border-yellow-600/20 py-4 mt-8">
+      <footer className="border-t border-[#c9a227]/30 py-4 mt-8" style={{ background: 'rgba(11,10,8,0.9)' }}>
         <div className="mx-auto w-full max-w-[1700px] px-6 text-center">
           <div className="flex justify-center gap-3 mb-3">
             <span className="text-xl animate-pulse">⚔️</span>
@@ -669,16 +671,16 @@ function App() {
 
 function HiddenStat({ label, value, icon, color }: { label: string; value: number; icon: string; color: string }) {
   return (
-    <div className="flex items-center gap-3 group hover:bg-gray-800/50 rounded-lg p-2 transition-all">
+    <div className="flex items-center gap-3 group hover:bg-[#c9a227]/5 rounded-sm p-2 transition-all">
       <span className="text-xl w-8 text-center transform group-hover:scale-110 transition-transform">{icon}</span>
-      <span className="text-base text-gray-400 w-28 font-semibold">{label}</span>
-      <div className="flex-1 bg-gray-800 rounded-full h-2.5 overflow-hidden shadow-inner">
-        <div 
-          className={`h-2.5 rounded-full ${color} transition-all duration-500 shadow-lg`}
-          style={{ width: `${value * 10}%` }}
+      <span className="font-gothic text-sm text-[#b8a878] w-28 tracking-wide">{label}</span>
+      <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }}>
+        <div
+          className={`wh-bar-fill ${color}`}
+          style={{ width: `${value * 10}%`, height: '100%' }}
         ></div>
       </div>
-      <span className="text-base text-gray-300 w-10 text-right font-bold">{value}</span>
+      <span className="text-base text-[#d8c9a3] w-10 text-right font-bold">{value}</span>
     </div>
   );
 }
