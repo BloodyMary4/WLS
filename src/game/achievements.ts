@@ -382,6 +382,27 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Аристократия благоволит тебе (80+)',
     icon: '🏰',
     condition: (c) => c.factionRelations.nobility >= 80
+  },
+  {
+    id: 'tithe_payer',
+    name: 'Верная десятина',
+    description: 'Платить десятину Империуму с честью: имперские отношения 60+',
+    icon: '⚙️',
+    condition: (c) => c.factionRelations.imperium >= 60 && c.race === 'human'
+  },
+  {
+    id: 'inquisitors_darling',
+    name: 'Любимец Инквизиции',
+    description: 'Подозрение 8+ — чёрные корабли интересуются тобой лично',
+    icon: '👁',
+    condition: (c) => c.hiddenParams.suspicion >= 8
+  },
+  {
+    id: 'thousand_sons',
+    name: 'Тысяча сыновей',
+    description: 'Пережить заступничество Императора дважды. Он упорно не хочет тебя отпускать.',
+    icon: '✝️',
+    condition: (c) => (c.intercessionCount ?? 0) >= 2
   }
 ];
 

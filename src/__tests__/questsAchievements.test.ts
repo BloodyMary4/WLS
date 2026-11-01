@@ -245,3 +245,38 @@ describe('расширенные награды квестов', () => {
     expect(r.imperialCreed).toBe(10);
   });
 });
+
+describe('новые лорные достижения', () => {
+  const find = (id: string) => ACHIEVEMENTS.find(a => a.id === id)!;
+
+  it('Верная десятина — только для людей с имперскими отношениями 60+', () => {
+    const human = makeCharacter({ race: 'human' });
+    human.factionRelations.imperium = 60;
+    expect(find('tithe_payer').condition(human)).toBe(true);
+    human.factionRelations.imperium = 59;
+    expect(find('tithe_payer').condition(human)).toBe(false);
+    const ork = makeCharacter({ race: 'ork' });
+    ork.factionRelations.imperium = 100;
+    expect(find('tithe_payer').condition(ork)).toBe(false);
+  });
+
+  it('Любимец Инквизиции — подозрение 8+', () => {
+    const char = makeCharacter();
+    char.hiddenParams.suspicion = 8;
+    expect(find('inquisitors_darling').condition(char)).toBe(true);
+    char.hiddenParams.suspicion = 7;
+    expect(find('inquisitors_darling').condition(char)).toBe(false);
+  });
+
+  it('Тысяча сыновей — два чудесных заступничества', () => {
+    const char = makeCharacter();
+    expect(find('thousand_sons').condition(char)).toBe(false);
+    char.intercessionCount = 2;
+    expect(find('thousand_sons').condition(char)).toBe(true);
+  });
+
+  it('все id достижений уникальны', () => {
+    const ids = ACHIEVEMENTS.map(a => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});

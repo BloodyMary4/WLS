@@ -140,7 +140,11 @@ function resolveDeathOrIntercession(
 
     // «Император защищает»: высокая Верность людей может отвратить смерть от ран.
     if (condition.cause === DEATH_CAUSES.HEALTH && rollImperialIntercession(character)) {
-      const savedChar: CharacterStats = { ...character, health: 1 };
+      const savedChar: CharacterStats = {
+        ...character,
+        health: 1,
+        intercessionCount: (character.intercessionCount ?? 0) + 1,
+      };
       return {
         ...state,
         game: {
