@@ -157,6 +157,31 @@ export const MICRO_EVENTS: MicroEvent[] = [
     probability: 0.15,
     effects: { unity: 2, willpower: 1, description: 'Вместе... есть шанс. Или безумие? Но лучше безумие, чем рабство.' }
   },
+  // Позорные механики: поражение в бою / поимка (кто побеждает — получает эффект на стороне)
+  {
+    race: ['human', 'eldar', 'dark_eldar', 'tau'],
+    text: 'Ты проигрываешь поединок — противник валит тебя в грязь и отбирает всё ценное.',
+    probability: 0.05,
+    effects: { credits: -8, health: -6, suspicion: 1, description: 'Позор. Ты поднимаешься, сплёвывая кровью. Долг чести придётся возвращать.' }
+  },
+  {
+    race: 'ork',
+    text: 'Босс побил тебя перед всей бандой — орки ревут, топая ногами. Обидно до скрежета зубов.',
+    probability: 0.08,
+    effects: { waaagh: -2, health: -5, strength: 1, description: 'Больно! Но злость — хорошее топливо. В следующий раз башка треснет первой.' }
+  },
+  {
+    race: 'gretchin',
+    text: 'Тебя поймали на краже. Орк подбрасывает тебя вверх и ловит за шкирку.',
+    probability: 0.1,
+    effects: { health: -4, sneakiness: 1, food: -2, description: 'Почти прикончил... но ты выжил. Завтра украдёшь ещё хитрее.' }
+  },
+  {
+    race: 'dark_eldar',
+    text: 'Тебя настиг Ковчег Инцизаров — твой план провалился, жертва ускользнула.',
+    probability: 0.06,
+    effects: { cruelty: -1, sanity: -3, suspicion: 2, description: 'ГОЛОД не утолен. В Коммаготе неудачников ждёт участь рабов. Беги, пока можешь.' }
+  },
   // Глобальные события в духе Вечной Ереси — отношения с сословиями и фракциями
   {
     text: 'Слухи о вторжении флота Хаоса сеют панику в улье.',
@@ -188,11 +213,47 @@ export function canTriggerMicroEvent(character: CharacterStats): boolean {
   return (character.microEventCooldown ?? 0) <= 0;
 }
 
+/**
+ * Расово-нейтральные «вкрапления» Империи — срабатывают у всех рас,
+ * если персонаж живёт в пределах Империума человека (люди, гретчины,
+ * а также орки/эльдар/тау на оккупированных/торговых мирах).
+ */
+const IMPERIUM_FLAVOR_RACES: string[] = ['human', 'gretchin'];
+
 export interface MicroEventResult {
   event: MicroEvent;
   triggered: boolean;
   /** Значение microEventCooldown на следующий год */
   nextCooldown: number;
+}
+
+/**
+ * Выбор следующего микро-события. Детерминирован по seed партии:
+ * события выбираются через rng().weighted по вероятности — это даёт
+ * естественную вариативность вместо «первое подходящее всегда».
+ * MAX_PER_YEAR учитывается вызывающей стороной (reducer может звать
+ * функцию повторно в пределах года, пока cooldown позволяет).
+ */
+export function pickMicroEvent(character: CharacterStats): MicroEvent | null {
+  const inImperium = IMPERIUM_FLAVOR_RACES.includes(character.race) ||
+    (character.planetType ?? '').includes('Улей') ||
+    (character.planetType ?? '').includes('Мир-крепость');
+
+  const availableEvents = MICRO_EVENTS.filter(event => {
+    if (event.race) {
+      if (Array.isArray(event.race)) return event.race.includes(character.race);
+      return event.race === character.race;
+    }
+    // События без race-фильтра доступны всем, но имперские «сплетни»
+    // не должны сыпаться на тау с родного мира.
+    if (!inImperium && (event.effects.imperium !== undefined || event.effects.faith !== undefined)) {
+      return false;
+    }
+    return true;
+  });
+
+  if (availableEvents.length === 0) return null;
+  return rng().weighted(availableEvents, e => e.probability);
 }
 
 export function triggerMicroEvent(character: CharacterStats): MicroEventResult {
@@ -202,17 +263,10 @@ export function triggerMicroEvent(character: CharacterStats): MicroEventResult {
     return { event: MICRO_EVENTS[0], triggered: false, nextCooldown: prevCooldown };
   }
 
-  const availableEvents = MICRO_EVENTS.filter(event => {
-    if (!event.race) return true;
-    if (Array.isArray(event.race)) return event.race.includes(character.race);
-    return event.race === character.race;
-  });
-
-  for (const event of availableEvents) {
-    if (rng().next() < event.probability) {
-      return { event, triggered: true, nextCooldown: GAME_CONFIG.MICRO_EVENTS.COOLDOWN_YEARS };
-    }
+  const picked = pickMicroEvent(character);
+  if (picked && rng().next() < picked.probability * 2) {
+    return { event: picked, triggered: true, nextCooldown: GAME_CONFIG.MICRO_EVENTS.COOLDOWN_YEARS };
   }
 
-  return { event: availableEvents[0] ?? MICRO_EVENTS[0], triggered: false, nextCooldown: 0 };
+  return { event: picked ?? MICRO_EVENTS[0], triggered: false, nextCooldown: 0 };
 }

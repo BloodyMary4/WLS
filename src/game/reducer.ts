@@ -138,11 +138,23 @@ function resolveDeathOrIntercession(
   for (const condition of DEATH_CONDITIONS) {
     if (!condition.check(character)) continue;
 
-    // «Император защищает»: высокая Верность людей может отвратить смерть от ран.
-    if (condition.cause === DEATH_CAUSES.HEALTH && rollImperialIntercession(character)) {
+    // «Император защищает»: высокая Верность людей может отвратить насильственную смерть
+    // (раны, голод, порча, внимание Варпа, инквизиция). Исключения: безумие — душа уже
+    // потеряна, и экстремальные мутации — плоть стала нечеловеческой (ересь во плоти).
+    const INTERCEDABLE_CAUSES: string[] = [
+      DEATH_CAUSES.HEALTH,
+      DEATH_CAUSES.HUNGER,
+      'warp_corruption',
+      'warp_attention',
+      DEATH_CAUSES.INQUISITION,
+    ];
+    if (INTERCEDABLE_CAUSES.includes(condition.cause) && rollImperialIntercession(character)) {
       const savedChar: CharacterStats = {
         ...character,
-        health: 1,
+        health: Math.max(1, character.health),
+        warpCorruption: Math.min(95, character.warpCorruption),
+        warpAttention: Math.min(9, character.warpAttention),
+        food: Math.max(1, character.food),
         intercessionCount: (character.intercessionCount ?? 0) + 1,
       };
       return {

@@ -185,3 +185,46 @@ describe('reducer: LOAD_SAVED_GAME / CLEAR_ACHIEVEMENT_TOAST', () => {
     expect(makeCharacter().race).toBe('human'); // sanity helper smoke
   });
 });
+
+function makeStateWith(characterOverrides: Parameters<typeof makeCharacter>[0]): GameUiState {
+  return { ...initialUiState, phase: 'result', game: makeGameState(characterOverrides) };
+}
+
+describe('«Император защищает» — расширяемые причины', () => {
+  // Смерть от инквизиции: suspicion>=10, age>10, human. Creed 10 → шанс спасения 30%.
+  it('высокая Верность спасает от смерти по приговору Инквизиции', () => {
+    let saved = false;
+    for (let seed = 1; seed <= 40 && !saved; seed++) {
+      const state = makeStateWith({
+        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 10, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 } }),
+      });
+      setGlobalSeed(seed);
+      const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
+      if (!outcome.state.game?.gameOver) saved = true;
+    }
+    expect(saved).toBe(true);
+  });
+
+  it('нулевая Верность никогда не спасает от Инквизиции', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const state = makeStateWith({
+        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 0, hiddenParams: { ...makeCharacter().hiddenParams, suspicion: 10 } }),
+      });
+      setGlobalSeed(seed);
+      const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
+      expect(outcome.state.game?.gameOver).toBe(true);
+      expect(outcome.state.phase).toBe('dead');
+    }
+  });
+
+  it('безумие (sanity<=0) не отводится чудом — даже с creed 10', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const state = makeStateWith({
+        character: makeCharacter({ race: 'human', age: 25, imperialCreed: 10, sanity: 0 }),
+      });
+      setGlobalSeed(seed);
+      const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
+      expect(outcome.state.game?.gameOver).toBe(true);
+    }
+  });
+});
