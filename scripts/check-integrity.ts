@@ -37,7 +37,8 @@ const REQUIRED_FILES = [
   'src/game/events/gretchinEvents.ts',
   
   // Хуки и компоненты
-  'src/hooks/useGameState.ts',
+  'src/hooks/useGameStore.ts',
+  'src/game/reducer.ts',
   'src/components/AudioController.tsx',
 
   // Тесты
