@@ -22,7 +22,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
           <div className="flex items-center gap-3 min-w-0">
             <div className="text-3xl shrink-0">{raceInfo.emoji}</div>
             <div className="min-w-0">
-              <div className="font-gothic text-xl font-bold uppercase tracking-wide bg-gradient-to-b from-[#f0d878] to-[#a8821a] bg-clip-text text-transparent truncate">
+              <div className="font-gothic text-xl font-bold uppercase tracking-wide bg-gradient-to-b from-[#f0d878] to-[#a8821a] bg-clip-text text-transparent truncate animate-gold-sheen">
                 {character.name}
               </div>
               <div className="text-sm text-gray-400 truncate">
@@ -51,6 +51,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barValue={character.health}
             barMax={character.maxHealth}
             barColor={getHealthBarColor(character.health, character.maxHealth)}
+            danger={character.health / character.maxHealth <= 0.25}
           />
           <StatCard
             label="Рассудок"
@@ -60,6 +61,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barValue={character.sanity}
             barMax={100}
             barColor={getSanityBarColor(character.sanity)}
+            danger={character.sanity <= 20}
           />
           <StatCard
             label="Порча"
@@ -69,6 +71,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barValue={character.warpCorruption}
             barMax={100}
             barColor={getWarpCorruptionBarColor(character.warpCorruption)}
+            danger={character.warpCorruption >= 80}
           />
           <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
             <div className="flex items-center justify-between text-xs">

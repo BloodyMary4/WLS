@@ -587,3 +587,63 @@ p {
 .fade-in {
   animation: fadeIn 0.5s ease-out;
 }
+
+/* ===== Grimdark-дополнения: разворот пергамента, чудо, тревога ===== */
+
+/* Пергамент «разворачивается» при смене события (key={age-event} перезапускает анимацию) */
+@keyframes parchmentUnroll {
+  0% {
+    opacity: 0;
+    transform: perspective(700px) rotateX(-14deg) translateY(-10px);
+    filter: blur(2px);
+  }
+  60% {
+    opacity: 1;
+    transform: perspective(700px) rotateX(3deg) translateY(0);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(700px) rotateX(0deg);
+  }
+}
+.animate-parchment {
+  animation: parchmentUnroll 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top center;
+}
+
+/* Золотая вспышка — «Император защищает» (чудо заступничества в хронике) */
+@keyframes miracleFlash {
+  0% { box-shadow: 0 0 0 rgba(232, 200, 90, 0); }
+  25% { box-shadow: 0 0 34px rgba(232, 200, 90, 0.85), inset 0 0 24px rgba(232, 200, 90, 0.35); }
+  100% { box-shadow: 0 0 0 rgba(232, 200, 90, 0); }
+}
+.wh-miracle {
+  animation: miracleFlash 2.4s ease-out 1;
+  border-color: rgba(232, 200, 90, 0.9) !important;
+}
+
+/* Тревожное красное свечение критических статус-баров */
+@keyframes dangerPulse {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
+  50% { filter: drop-shadow(0 0 9px rgba(239, 68, 68, 1)); }
+}
+.wh-bar-fill-danger {
+  animation: dangerPulse 1.6s ease-in-out infinite;
+}
+
+/* Свечение золотого текста заголовков — как позолота в луче свечи */
+@keyframes goldSheen {
+  0%, 100% { text-shadow: 0 0 6px rgba(201, 162, 39, 0.25); }
+  50% { text-shadow: 0 0 16px rgba(232, 200, 90, 0.55); }
+}
+.animate-gold-sheen {
+  animation: goldSheen 5s ease-in-out infinite;
+}
+
+/* Уважение к пользователям с reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-parchment, .wh-miracle, .wh-bar-fill-danger, .animate-gold-sheen, .animate-candle {
+    animation: none !important;
+  }
+}

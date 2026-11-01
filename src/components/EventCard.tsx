@@ -10,14 +10,19 @@ interface EventCardProps {
   onProceed: () => void;
 }
 
+/** Помечает карточку золотым чудом, если текст содержит запись о заступничестве. */
+function isMiracle(text: string): boolean {
+  return typeof text === 'string' && text.includes('Император защищает');
+}
+
 /** Центральная карточка события: текст года или результат выбора. */
 export function EventCard({ event, age, phase, resultText, lastChoice, onChoice, onProceed }: EventCardProps) {
   return (
-    <div className="wh-panel wh-frame p-8">
+    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame p-8 animate-parchment">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
-          <span className="font-gothic text-lg font-bold text-[#c0392b] uppercase tracking-[0.2em]">
+          <span className="font-gothic text-lg font-bold text-[#c0392b] uppercase tracking-[0.2em] animate-candle">
             Событие &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
@@ -30,9 +35,9 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
 
       {phase === 'result' && lastChoice ? (
         <div className="space-y-4 animate-fade-in">
-          <div className="wh-parchment rounded-sm p-6" style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
+          <div className={`wh-parchment rounded-sm p-6 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
-              <span className="text-3xl">⚔️</span>
+              <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
               <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{resultText}</p>
             </div>
           </div>

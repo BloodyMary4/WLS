@@ -8,6 +8,8 @@ interface StatCardProps {
   barValue?: number;
   barMax?: number;
   barColor?: string;
+  /** Тревожное красное свечение заполненной полосы (критические значения). */
+  danger?: boolean;
   children?: React.ReactNode;
 }
 
@@ -19,6 +21,7 @@ export function StatCard({
   barValue = 0,
   barMax = 100,
   barColor = 'bg-blue-500',
+  danger = false,
   children 
 }: StatCardProps) {
   const barPercentage = showBar ? Math.min(100, (barValue / barMax) * 100) : 0;
@@ -34,7 +37,7 @@ export function StatCard({
       {showBar && (
         <div className="wh-bar w-full overflow-hidden">
           <div 
-            className={`wh-bar-fill ${barColor}`}
+            className={`wh-bar-fill ${barColor} ${danger ? 'wh-bar-fill-danger' : ''}`}
             style={{ width: `${barPercentage}%` }}
           ></div>
         </div>

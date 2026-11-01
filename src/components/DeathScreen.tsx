@@ -11,6 +11,7 @@ interface DeathScreenProps {
 
 /** Эпитафия: итоги жизни и кнопка новой реинкарнации. */
 export function DeathScreen({ character, raceInfo, deathMessage, onNewLife }: DeathScreenProps) {
+  const miracles = character.intercessionCount ?? 0;
   return (
     <div className="text-center py-16 animate-fade-in">
       <div className="relative inline-block mb-8">
@@ -23,6 +24,16 @@ export function DeathScreen({ character, raceInfo, deathMessage, onNewLife }: De
       <p className="text-lg leading-relaxed mb-10 max-w-2xl mx-auto text-gray-300">
         {deathMessage}
       </p>
+      {miracles > 0 && (
+        <div className="wh-parchment wh-miracle rounded-sm p-5 mb-10 max-w-2xl mx-auto animate-gold-sheen">
+          <p className="font-event text-lg italic text-[#e8d9b0]">
+            🕊️ Смерть отводила взор {miracles} {miracles === 1 ? 'раз' : miracles < 5 ? 'раза' : 'раз'} — но в последний раз Трон молчал.
+          </p>
+          <p className="font-gothic text-sm uppercase tracking-[0.2em] text-[#c9a227] mt-2">
+            Чудес заступничества за жизнь: {miracles}
+          </p>
+        </div>
+      )}
       <div className="wh-panel wh-frame p-8 mb-10 text-left max-w-2xl mx-auto">
         <h3 className="font-gothic text-2xl font-bold text-[#e8c85a] mb-6 uppercase tracking-[0.15em] flex items-center gap-3">
           <span className="text-3xl">📜</span>
@@ -37,6 +48,12 @@ export function DeathScreen({ character, raceInfo, deathMessage, onNewLife }: De
             <span className="text-gray-400">Прожито лет:</span>
             <span className="font-bold text-white text-3xl">{character.age}</span>
           </div>
+          {miracles > 0 && (
+            <div className="flex justify-between items-center py-3 border-b border-gray-700">
+              <span className="text-gray-400">Чудес Императора:</span>
+              <span className="font-bold text-[#e8c85a] text-xl">🕊️ ×{miracles}</span>
+            </div>
+          )}
           <div className="flex justify-between items-center py-3 border-b border-gray-700">
             <span className="text-gray-400">Планета:</span>
             <span className="font-semibold text-cyan-400 text-lg">{character.planet}</span>

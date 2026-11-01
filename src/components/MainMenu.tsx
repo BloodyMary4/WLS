@@ -23,7 +23,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
         <div className="max-w-[1600px] mx-auto">
           {/* Заголовок */}
           <div className="text-center mb-16 animate-fade-in">
-            <h1 className="font-gothic text-5xl xl:text-6xl font-bold mb-4 tracking-[0.15em] uppercase bg-gradient-to-b from-[#f0d878] via-[#c9a227] to-[#7a5c10] bg-clip-text text-transparent">
+            <h1 className="font-gothic text-5xl xl:text-6xl font-bold mb-4 tracking-[0.15em] uppercase bg-gradient-to-b from-[#f0d878] via-[#c9a227] to-[#7a5c10] bg-clip-text text-transparent animate-gold-sheen">
               WARHAMMER LIFE
             </h1>
             <p className="font-event text-xl text-[#b8a878] mb-3 italic">
