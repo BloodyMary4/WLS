@@ -63,3 +63,4 @@ scripts/logs/
 !scripts/check-integrity.ts
 !scripts/restore-structure.ts
 .next/
+*.patch
