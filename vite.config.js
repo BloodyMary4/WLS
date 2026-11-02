@@ -3,7 +3,9 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  base: process.env.VITE_BASE || "/",
+  // Относительный путь по умолчанию: dist/index.html можно открывать напрямую
+  // (file://) и загружать через electron loadFile без потери ассетов.
+  base: process.env.VITE_BASE || "./",
   plugins: [react(), tailwindcss()],
   server: {
     host: "0.0.0.0",
