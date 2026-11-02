@@ -916,3 +916,13 @@ p {
   .game-fit .wh-event-card .choice-btn { padding: 0.45rem 0.75rem; }
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
 }
+
+/* ===== v0.3.29: «Кодекс» — плотная стопка окон-карточек левого отсека ===== */
+.wh-window-closed { border-bottom-width: 1px; }
+.wh-window-closed .wh-window-head { border-bottom: none; }
+@media (min-width: 1024px) and (min-height: 640px) {
+  /* Левый отсек: окна прижаты друг к другу, скролла колонки нет —
+     всё умещается за счёт свёрнутых второстепенных окон */
+  .game-fit .wh-codex { gap: 4px; flex: 0 0 auto; }
+  .game-fit .fit-col > .wh-codex { overflow: hidden; }
+}

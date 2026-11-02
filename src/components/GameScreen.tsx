@@ -8,7 +8,7 @@ import { AudioController } from './AudioController';
 import { AchievementToast } from './AchievementToast';
 import { GameHeader } from './GameHeader';
 import { useFit } from '../game/useFit';
-import { Sidebar } from './Sidebar';
+import { CodexPanel } from './CodexPanel';
 import { ChroniclePanel } from './ChroniclePanel';
 import { EventWindow } from './EventWindow';
 import { DeathScreen } from './DeathScreen';
@@ -77,15 +77,13 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
         <main className="flex-1 min-h-0 py-1.5">
           <div className="mx-auto w-full max-w-[1700px] h-full px-2 xl:px-3">
             <div className="fit-grid grid grid-cols-12 gap-2 h-full min-h-0">
-              {/* Левый отсек: кодекс персонажа (окна скроллятся только внутри себя) */}
+              {/* Левый отсек: «Кодекс» — стопка окон-карточек, умещается без скролла */}
               <div className="col-span-3 fit-col animate-slide-in-left min-h-0">
-                <div className="fit-scroll flex-1 pr-1">
-                  <Sidebar
-                    character={character}
-                    raceInfo={raceInfo}
-                    activeQuests={game.activeQuests}
-                  />
-                </div>
+                <CodexPanel
+                  character={character}
+                  raceInfo={raceInfo}
+                  activeQuests={game.activeQuests}
+                />
               </div>
 
               {/* Центр: главное окно события занимает всю высоту — решения всегда на экране */}
@@ -116,18 +114,14 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
                 )}
               </div>
 
-              {/* Правый отсек: хроника жизни — окно на всю высоту */}
+              {/* Правый отсек: хроника жизни — окно на всю высоту, скролл только внутри ленты */}
               <div className="col-span-3 fit-col animate-slide-in-right min-h-0">
-                <div className="fit-scroll flex-1 pr-1 flex">
-                  <div className="flex-1 min-h-0 flex flex-col">
-                    <ChroniclePanel
-                      history={history}
-                      logRef={logRef}
-                      chroniclePinned={chroniclePinned}
-                      onJumpToLatest={jumpToLatest}
-                    />
-                  </div>
-                </div>
+                <ChroniclePanel
+                  history={history}
+                  logRef={logRef}
+                  chroniclePinned={chroniclePinned}
+                  onJumpToLatest={jumpToLatest}
+                />
               </div>
             </div>
           </div>
@@ -181,15 +175,13 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
       <main className="flex-1 min-h-0 py-1.5">
         <div className="mx-auto w-full max-w-[1700px] h-full px-2 xl:px-3">
           <div className="fit-grid grid grid-cols-12 gap-2 h-full min-h-0 items-stretch">
-            {/* Левый отсек: окна досье, свойств, снаряжения, связей */}
+            {/* Левый отсек: «Кодекс» — стопка окон-карточек */}
             <div className="col-span-3 fit-col animate-slide-in-left">
-              <div className="fit-scroll flex-1 pr-1">
-                <Sidebar
-                  character={character}
-                  raceInfo={raceInfo}
-                  activeQuests={game.activeQuests}
-                />
-              </div>
+              <CodexPanel
+                character={character}
+                raceInfo={raceInfo}
+                activeQuests={game.activeQuests}
+              />
             </div>
 
             {/* Центральный иллюминатор: путь жизни + событие/смерть */}
@@ -244,18 +236,14 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
               )}
             </div>
 
-            {/* Правый отсек: хроника жизни — отдельное окно на всю высоту */}
+            {/* Правый отсек: хроника жизни — окно на всю высоту, скролл только внутри ленты */}
             <div className="col-span-3 fit-col animate-slide-in-right">
-              <div className="fit-scroll flex-1 pr-1 flex">
-                <div className="flex-1 min-h-0 flex flex-col">
-                  <ChroniclePanel
-                    history={history}
-                    logRef={logRef}
-                    chroniclePinned={chroniclePinned}
-                    onJumpToLatest={jumpToLatest}
-                  />
-                </div>
-              </div>
+              <ChroniclePanel
+                history={history}
+                logRef={logRef}
+                chroniclePinned={chroniclePinned}
+                onJumpToLatest={jumpToLatest}
+              />
             </div>
           </div>
         </div>

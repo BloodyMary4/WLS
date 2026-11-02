@@ -102,7 +102,7 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
           </button>
         ))}
       </div>
-      <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-1.5">
+      <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-1.5 overflow-y-auto min-h-0">
         {history.length === 0 ? (
           <p className="text-gray-400 italic text-sm text-center py-4">Жизнь только начинается...</p>
         ) : shownHistory.length === 0 ? (
