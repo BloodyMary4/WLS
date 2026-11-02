@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CharacterStats } from '../game/types';
 import { findAugmetic } from '../game/augmetics';
 import { HiddenStat } from './HiddenStat';
@@ -37,21 +38,38 @@ interface SidebarProps {
   activeQuests: any[];
   history: string[];
   logRef: React.RefObject<HTMLDivElement>;
-  open: boolean;
 }
 
-/** Левая колонка: скрытые параметры, расовые особенности, снаряжение, NPC, квесты, хроника. */
-export function Sidebar({ character, raceInfo, activeQuests, history, logRef, open }: SidebarProps) {
+/** Левая колонка: скрытые параметры, расовые особенности, снаряжение, NPC, квесты, хроника.
+ *  Сайдбар всегда виден — панель «Характеристики» сворачивается кнопкой-заголовком
+ *  в стиле остальных панелей (единый интерфейс без отдельной кнопки «Скрыть»). */
+export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: SidebarProps) {
+  const [statsOpen, setStatsOpen] = useState(true);
   return (
-    <aside className={`fit-col lg:col-span-3 space-y-4 animate-slide-in-left ${open ? 'block' : 'hidden lg:block'}`}>
+    <aside className="fit-col lg:col-span-3 space-y-4 animate-slide-in-left">
       {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
       <div className="fit-scroll flex-1 space-y-4 pr-1">
       <div className="wh-panel wh-side-panel p-4 xl:p-5">
-        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
-          <span className="text-xl">📊</span>
-          Характеристики
-        </h3>
-        <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => setStatsOpen((v) => !v)}
+          aria-expanded={statsOpen}
+          className="w-full flex items-center justify-between gap-2 text-left group"
+        >
+          <span className="wh-panel-title wh-side-title font-bold pb-0 flex items-center gap-2">
+            <span className="text-xl" aria-hidden="true">📊</span>
+            Характеристики
+          </span>
+          <span
+            className={`text-xs text-[#c9a227]/60 group-hover:text-[#c9a227] transition-transform ${statsOpen ? 'rotate-180' : ''}`}
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </button>
+        {statsOpen && (
+        <>
+        <div className="space-y-3 mt-2.5 pt-2 border-t border-[#c9a227]/15">
           <HiddenStat label="Вера" value={character.hiddenParams.faith} icon="✝️" color="bg-amber-500" hint={HIDDEN_HINTS.faith} />
           <HiddenStat label="Хитрость" value={character.hiddenParams.cunning} icon="🗡️" color="bg-emerald-500" hint={HIDDEN_HINTS.cunning} />
           <HiddenStat label="Сила" value={character.hiddenParams.strength} icon="💪" color="bg-red-500" hint={HIDDEN_HINTS.strength} />
@@ -115,6 +133,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
               </p>
             )}
           </div>
+        )}
+        </>
         )}
       </div>
 

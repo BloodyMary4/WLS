@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { GAME_CONFIG } from './game/config';
 import { getAmbience } from './game/audio';
 import { useGameStore } from './hooks/useGameStore';
@@ -15,7 +15,6 @@ import { GameScreen } from './components/GameScreen';
 function App() {
   const store = useGameStore();
   const { uiState } = store;
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const game = uiState.game;
   const inGame = !!game && !isInvalidEvent(game.currentEvent);
@@ -75,8 +74,6 @@ function App() {
   return (
     <GameScreen
       uiState={uiState}
-      sidebarOpen={sidebarOpen}
-      onToggleSidebar={() => setSidebarOpen((v) => !v)}
       onChoice={store.handleChoice}
       onProceed={store.proceedToNextYear}
       onNewGame={() => store.startNewGame()}

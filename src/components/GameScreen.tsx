@@ -13,15 +13,15 @@ import { DeathScreen } from './DeathScreen';
 
 interface GameScreenProps {
   uiState: GameUiState;
-  sidebarOpen: boolean;
-  onToggleSidebar: () => void;
   onChoice: (choice: Choice) => void;
   onProceed: () => void;
   onNewGame: () => void;
 }
 
-/** Игровой экран: шапка + сайдбар + карточка события/смерти + футер. */
-export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, onProceed, onNewGame }: GameScreenProps) {
+/** Игровой экран: шапка + сайдбар + карточка события/смерти + футер.
+ *  Сайдбар всегда видим (единый стиль «всё на экране»): панель характеристик
+ *  сворачивается внутри сайдара кнопкой-заголовком, а не кнопкой «Скрыть». */
+export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScreenProps) {
   const logRef = useRef<HTMLDivElement>(null);
   const game = uiState.game!;
   const { character, currentEvent, history, gameOver, deathMessage } = game;
@@ -59,15 +59,6 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
 
       <main>
         <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6">
-          <button
-            onClick={onToggleSidebar}
-            aria-expanded={sidebarOpen}
-            className="lg:hidden mb-4 w-full min-h-[48px] bg-[#1c1913] hover:bg-[#2a2517] text-[#c9a227] border border-[#c9a227]/40 font-gothic py-2 px-4 rounded-sm transition-colors flex items-center justify-center gap-2"
-          >
-            <span>{sidebarOpen ? '✕ Скрыть характеристики' : '📜 Характеристики и хроника'}</span>
-            <span className="text-xs text-gray-500">({sidebarOpen ? 'скрыть' : 'открыть'})</span>
-          </button>
-
           <div className="fit-grid grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             <Sidebar
               character={character}
@@ -75,7 +66,6 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
               activeQuests={game.activeQuests}
               history={history}
               logRef={logRef}
-              open={sidebarOpen}
             />
 
             <div className="fit-col lg:col-span-9 animate-slide-in-right">
