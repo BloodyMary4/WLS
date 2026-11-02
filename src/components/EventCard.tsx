@@ -119,37 +119,39 @@ function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number
   );
 }
 
-/** Центральная карточка события: текст года или результат выбора. */
+/** Центральная карточка события: текст года или результат выбора.
+ *  Компактная раскладка «всё на экране»: заголовок-строка, плотный пергамент,
+ *  решения без лишних отступов — карточка умещается во вьюпорт без прокрутки. */
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   return (
-    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame wh-event-card p-8 animate-parchment">
-      <div className="event-head mb-6">
-        <div className="event-label-row flex items-center gap-3 mb-4">
-          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
-          <span className="font-gothic text-lg font-bold text-[#e07a7a] uppercase tracking-[0.2em] animate-candle">
+    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame wh-event-card p-5 xl:p-6 animate-parchment">
+      <div className="event-head mb-3">
+        <div className="event-label-row flex items-center gap-2.5 mb-2">
+          <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
+          <span className="font-gothic text-base font-bold text-[#e07a7a] uppercase tracking-[0.18em] animate-candle">
             Событие &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
-        <div className="event-parchment wh-parchment rounded-sm p-6 pt-7">
-          <p className="font-event text-lg leading-relaxed text-[#d8c9a3]">
+        <div className="event-parchment wh-parchment rounded-sm p-4">
+          <p className="font-event text-[17px] leading-relaxed text-[#d8c9a3]">
             {richText(event.text)}
           </p>
         </div>
       </div>
 
       {phase === 'result' && lastChoice ? (
-        <div className="result-block space-y-4 animate-fade-in" aria-live="polite">
-          <div className={`result-parchment wh-parchment rounded-sm p-6 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
+        <div className="result-block space-y-3 animate-fade-in" aria-live="polite">
+          <div className={`result-parchment wh-parchment rounded-sm p-4 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
-              <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
-              <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
+              <span className="text-2xl leading-none pt-0.5">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
+              <p className="font-event text-[17px] leading-relaxed text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
             </div>
             {/* Фактический итог хода: точные дельты характеристик после выбора */}
             <DeltaSummary deltas={lastDeltas} />
           </div>
           <button
             onClick={onProceed}
-            className="btn-wh-primary btn-modern w-full font-bold py-4 rounded-sm text-xl transition-all hover:scale-[1.02]"
+            className="btn-wh-primary btn-modern w-full font-bold py-3 rounded-sm text-lg transition-all hover:scale-[1.02]"
           >
             Продолжить → Год {age}
             <span className="hidden md:inline text-sm font-normal opacity-70 ml-2">(Пробел)</span>
@@ -164,8 +166,8 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </button>
         </div>
       ) : (
-        <div className="choices-block space-y-3">
-          <p className="font-gothic text-lg font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4 flex items-center gap-3">
+        <div className="choices-block space-y-2.5">
+          <p className="font-gothic text-base font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2.5 flex items-center gap-3">
             Твоё решение:
             <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–4 / A–D</span>
           </p>
@@ -177,17 +179,17 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
             <button
               key={choice.letter}
               onClick={() => onChoice(choice)}
-              className="choice-btn btn-modern w-full min-h-[56px] text-left p-4 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] active:scale-[0.99] animate-slide-in-left"
+              className="choice-btn btn-modern w-full min-h-[52px] text-left p-3.5 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] active:scale-[0.99] animate-slide-in-left"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="flex items-start gap-4">
-                <div className="wh-choice-letter flex-shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center shadow-lg">
-                  <span className="font-bold text-lg md:text-xl tabular-nums">
+              <div className="flex items-start gap-3">
+                <div className="wh-choice-letter flex-shrink-0 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center shadow-lg">
+                  <span className="font-bold text-base md:text-lg tabular-nums">
                     {index + 1}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="choice-text font-event text-lg text-[#d8c9a3] block leading-relaxed">{choice.text}</span>
+                  <span className="choice-text font-event text-[17px] text-[#d8c9a3] block leading-snug">{choice.text}</span>
                   {/* Заранее понятные последствия выбора (компактно, максимум 3 метки) */}
                   <EffectChipRow chips={chips} compact />
                 </div>

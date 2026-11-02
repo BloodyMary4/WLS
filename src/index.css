@@ -813,4 +813,9 @@ p {
   .game-fit .wh-event-card .result-parchment {
     padding: 0.9rem 1rem;
   }
+  /* Свёрнутая секция сайдбара — тонкая плашка-заголовок, экономит вертикаль */
+  .game-fit .wh-side-collapsed {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
 }

@@ -92,12 +92,13 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             />
 
             <div className="fit-col lg:col-span-9 animate-slide-in-right">
-              {/* Прогресс жизни — компактная строка */}
-              <div className="wh-panel px-4 py-2.5 mb-3 shrink-0">
+              {/* Прогресс жизни — компактная строка-подпись (всё понятно без догадок) */}
+              <div className="wh-panel px-4 py-2 mb-3 shrink-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-lg shrink-0" aria-hidden="true">⏳</span>
+                  <span className="text-base shrink-0" aria-hidden="true">⏳</span>
                   <span className="sr-only">Прогресс жизни</span>
-                  <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }}>
+                  <span className="text-xs font-gothic uppercase tracking-wider text-[#b8a878]/90 whitespace-nowrap hidden sm:inline">Пройден путь</span>
+                  <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет`}>
                     <div
                       className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
                       style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%', transition: 'width 0.6s ease-out' }}

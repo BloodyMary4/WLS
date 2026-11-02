@@ -1,9 +1,10 @@
-import { useState } from 'react';
 import { CharacterStats } from '../game/types';
 import { findAugmetic } from '../game/augmetics';
 import { isCritical } from '../game/critical';
 import { HiddenStat } from './HiddenStat';
 import { RaceEmblem } from './RaceEmblem';
+// Универсальная сворачиваемая панель — единый паттерн для всех секций сайдбара (v0.3.24).
+import { CollapsibleSection } from './CollapsibleSection';
 // Хроника — самостоятельный обновляемый модуль интерфейса (v0.3.24).
 // Реэкспорт утилит сохраняет публичный API Sidebar (тесты и старые импорты не ломаются).
 import { ChroniclePanel } from './ChroniclePanel';
@@ -51,35 +52,17 @@ interface SidebarProps {
 }
 
 /** Левая колонка: скрытые параметры, расовые особенности, снаряжение, NPC, квесты, хроника.
- *  Сайдбар всегда виден — панель «Характеристики» сворачивается кнопкой-заголовком
- *  в стиле остальных панелей (единый интерфейс без отдельной кнопки «Скрыть»). */
+ *  Каждая секция — сворачиваемая панель (единый паттерн CollapsibleSection):
+ *  игрок сам управляет плотностью экрана, ничего не теряя. */
 export function Sidebar({ character, raceInfo, activeQuests, history, logRef, chroniclePinned = true, onJumpToLatest }: SidebarProps) {
-  const [statsOpen, setStatsOpen] = useState(true);
   return (
     <aside className="fit-col lg:col-span-3 space-y-4 animate-slide-in-left">
       {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
       <div className="fit-scroll flex-1 space-y-4 pr-1">
-      <div className="wh-panel wh-side-panel p-4 xl:p-5">
-        <button
-          type="button"
-          onClick={() => setStatsOpen((v) => !v)}
-          aria-expanded={statsOpen}
-          className="w-full flex items-center justify-between gap-2 text-left group"
-        >
-          <span className="wh-panel-title wh-side-title font-bold pb-0 flex items-center gap-2">
-            <span className="text-xl" aria-hidden="true">📊</span>
-            Характеристики
-          </span>
-          <span
-            className={`text-xs text-[#c9a227]/60 group-hover:text-[#c9a227] transition-transform ${statsOpen ? 'rotate-180' : ''}`}
-            aria-hidden="true"
-          >
-            ▾
-          </span>
-        </button>
-        {statsOpen && (
-        <>
-        <div className="space-y-3 mt-2.5 pt-2 border-t border-[#c9a227]/15">
+      <CollapsibleSection
+        title={<><span className="text-xl" aria-hidden="true">📊</span>Характеристики</>}
+      >
+        <div className="space-y-3">
           <HiddenStat label="Вера" value={character.hiddenParams.faith} icon="✝️" color="bg-amber-500" hint={HIDDEN_HINTS.faith} />
           <HiddenStat label="Хитрость" value={character.hiddenParams.cunning} icon="🗡️" color="bg-emerald-500" hint={HIDDEN_HINTS.cunning} />
           <HiddenStat label="Сила" value={character.hiddenParams.strength} icon="💪" color="bg-red-500" hint={HIDDEN_HINTS.strength} />
@@ -144,15 +127,11 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
             )}
           </div>
         )}
-        </>
-        )}
-      </div>
+      </CollapsibleSection>
 
-      <div className="wh-panel wh-side-panel p-4 xl:p-5">
-        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
-          <RaceEmblem race={character.race} className="w-7 h-7" />
-          Расовые особенности: {raceInfo.name}
-        </h3>
+      <CollapsibleSection
+        title={<><RaceEmblem race={character.race} className="w-7 h-7" />Расовые особенности: {raceInfo.name}</>}
+      >
         <div className="space-y-3">
           {character.race === 'ork' && <HiddenStat label="WAAAGH!" value={character.hiddenParams.waaagh || 0} icon="⚔️" color="bg-green-500" hint={HIDDEN_HINTS.waaagh} />}
           {character.race === 'eldar' && <HiddenStat label="Пси-сила" value={character.hiddenParams.psi || 0} icon="🔮" color="bg-purple-500" hint={HIDDEN_HINTS.psi} />}
@@ -162,13 +141,11 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
           {character.race === 'tau' && <HiddenStat label="Технологии" value={character.hiddenParams.techSkill || 0} icon="⚙️" color="bg-blue-400" hint={HIDDEN_HINTS.techSkill} />}
           {character.race === 'gretchin' && <HiddenStat label="Скрытность" value={character.hiddenParams.sneakiness || 0} icon="🐀" color="bg-yellow-600" hint={HIDDEN_HINTS.sneakiness} />}
         </div>
-      </div>
+      </CollapsibleSection>
 
-      <div className="wh-panel wh-side-panel p-4 xl:p-5">
-        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
-          <span className="text-xl">🎒</span>
-          Снаряжение
-        </h3>
+      <CollapsibleSection
+        title={<><span className="text-xl">🎒</span>Снаряжение</>}
+      >
         <div className="space-y-3 text-base">
           <div>
             <div className="text-sm text-gray-400 mb-2 font-semibold">Инвентарь</div>
@@ -194,15 +171,14 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
             <div className="text-blue-400">{character.traits.length > 0 ? character.traits.join(', ') : 'нет'}</div>
           </div>
         </div>
-      </div>
+      </CollapsibleSection>
 
-      {/* Встреченные души (NPC) */}
+      {/* Встреченные души (NPC) — сворачиваемая панель со счётчиком */}
       {character.npcs.length > 0 && (
-        <div className="wh-panel wh-side-panel p-4 xl:p-5">
-          <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
-            <span className="text-xl">⚔️</span>
-            Встреченные души ({character.npcs.length})
-          </h3>
+        <CollapsibleSection
+          title={<><span className="text-xl">⚔️</span>Встреченные души</>}
+          badge={<span className="text-[11px] font-normal text-gray-400 tabular-nums">{character.npcs.length}</span>}
+        >
           <div className="space-y-3">
             {character.npcs.slice(0, 5).map((npc) => (
               <div key={npc.id} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-yellow-600/30 transition-all">
@@ -246,16 +222,15 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
               </div>
             )}
           </div>
-        </div>
+        </CollapsibleSection>
       )}
 
-      {/* Испытания судьбы (квесты) */}
+      {/* Испытания судьбы (квесты) — сворачиваемая панель со счётчиком */}
       {activeQuests.length > 0 && (
-        <div className="wh-panel wh-side-panel p-4 xl:p-5">
-          <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
-            <span className="text-xl">📜</span>
-            Испытания судьбы ({activeQuests.length})
-          </h3>
+        <CollapsibleSection
+          title={<><span className="text-xl">📜</span>Испытания судьбы</>}
+          badge={<span className="text-[11px] font-normal text-gray-400 tabular-nums">{activeQuests.length}</span>}
+        >
           <div className="space-y-3">
             {activeQuests.map((quest) => (
               <div key={quest.id} className="p-4 bg-gray-800/50 rounded-lg border border-yellow-600/30 hover:border-yellow-500/50 transition-all">
@@ -301,20 +276,18 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
               </div>
             ))}
           </div>
-        </div>
+        </CollapsibleSection>
       )}
 
       {character.worldEvent && (
-        <div className="wh-panel wh-side-panel p-4 xl:p-5 border-l-4 border-l-blue-500/70">
-          <h3 className="wh-panel-title font-bold text-lg mb-3 pb-3 flex items-center gap-3">
-            <span className="text-xl">🌍</span>
-            Состояние Галактики
-          </h3>
+        <CollapsibleSection
+          title={<><span className="text-xl">🌍</span>Состояние Галактики</>}
+        >
           <p className="text-sm text-blue-200/90 italic leading-relaxed">{character.worldEvent}</p>
           {(character.worldEventsSeen?.length ?? 0) > 1 && (
             <p className="text-xs text-gray-400 mt-2">Запомнено великих событий: {character.worldEventsSeen!.length}</p>
           )}
-        </div>
+        </CollapsibleSection>
       )}
 
       {/* Хроника жизни — вынесена в самостоятельный обновляемый модуль ChroniclePanel */}

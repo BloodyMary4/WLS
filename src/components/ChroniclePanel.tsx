@@ -59,7 +59,7 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
 
   return (
     <div className="wh-panel wh-side-panel p-4 xl:p-5">
-      <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center justify-between gap-2">
+      <h3 className="wh-panel-title wh-side-title font-bold pb-0 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2">
           <span className="text-xl" aria-hidden="true">📜</span>
           Хроника
