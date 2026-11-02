@@ -62,7 +62,7 @@ export type GameAction =
 
 export type GameEffect =
   | { kind: 'unlockAudio' }
-  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' | 'wound' }
+  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' | 'wound'; tone?: 'neutral' | 'grave' | 'bright' }
   | { kind: 'save' }
   | { kind: 'achievementToast'; durationMs: number };
 
@@ -300,13 +300,19 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
   const effects: GameEffect[] = [
     { kind: 'unlockAudio' },
     { kind: 'playSound', sound: 'choice' },
-    { kind: 'playSound', sound: 'event' },
   ];
 
   // Звуковой акцент исхода выбора (чистая эвристика, без RNG — детерминизм не затрагивается)
   const outcomeTone = classifyChoiceOutcome(choice.effects);
-  if (outcomeTone === 'wound') effects.push({ kind: 'playSound', sound: 'wound' });
-  else if (outcomeTone === 'fortune') effects.push({ kind: 'playSound', sound: 'miracle' });
+  if (outcomeTone === 'wound') {
+    effects.push({ kind: 'playSound', sound: 'wound' });
+    effects.push({ kind: 'playSound', sound: 'event', tone: 'grave' });
+  } else if (outcomeTone === 'fortune') {
+    effects.push({ kind: 'playSound', sound: 'miracle' });
+    effects.push({ kind: 'playSound', sound: 'event', tone: 'bright' });
+  } else {
+    effects.push({ kind: 'playSound', sound: 'event' });
+  }
 
   let newChar = applyChoiceEffects(game.character, choice.effects);
   const aged = updateAgeStatus(newChar);

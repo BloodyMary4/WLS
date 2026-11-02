@@ -99,8 +99,25 @@ describe('reducer: CHOOSE', () => {
     expect(outcome.effects).toHaveLength(0);
   });
 
-  it('«Император защищает»: высокая Верность спасает от смерти (статистически)', () => {
-    let saved = 0;
+  it('лейтмотив года: ранящий выбор — удар раны + низкий набат, удачный — чудо + светлый звон', () => {
+    const woundChoice: Choice = { letter: 'А', text: 'Принять удар', effects: { health: -30, description: 'Больно.' } };
+    const fortuneChoice: Choice = { letter: 'Б', text: 'Найти клад', effects: { credits: 50, description: 'Повезло!' } };
+
+    const woundFx = computeChoose(stateWithGame(), woundChoice).effects.filter((e) => e.kind === 'playSound');
+    expect(woundFx.some((e) => e.sound === 'wound')).toBe(true);
+    expect(woundFx.some((e) => e.sound === 'event' && (e as { tone?: string }).tone === 'grave')).toBe(true);
+
+    const fortuneFx = computeChoose(stateWithGame(), fortuneChoice).effects.filter((e) => e.kind === 'playSound');
+    expect(fortuneFx.some((e) => e.sound === 'miracle')).toBe(true);
+    expect(fortuneFx.some((e) => e.sound === 'event' && (e as { tone?: string }).tone === 'bright')).toBe(true);
+
+    const neutralFx = computeChoose(stateWithGame(), harmlessChoice).effects.filter((e) => e.kind === 'playSound');
+    expect(neutralFx.some((e) => e.sound === 'choice')).toBe(true);
+    expect(neutralFx.some((e) => e.sound === 'event' && !(e as { tone?: string }).tone)).toBe(true);
+    expect(neutralFx.some((e) => e.sound === 'wound' || e.sound === 'miracle')).toBe(false);
+  });
+
+  it('«Император защищает»: высокая Верность спасает от смерти (статистически)', () => {    let saved = 0;
     for (let seed = 0; seed < 60; seed++) {
       setGlobalSeed(seed);
       const game = makeGameState({ imperialCreed: 10, health: 50 });

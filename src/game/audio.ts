@@ -1030,14 +1030,18 @@ export class GrimdarkAmbience {
    * с экспоненциальным спадом + мягкая верхняя парциальная нота и
    * короткая шумовая атака (молоток по металлу).
    */
-  playEventSound() {
+  playEventSound(tone: 'neutral' | 'grave' | 'bright' = 'neutral') {
     if (!this.audioContext || !this.masterGain) return;
 
     const ctx = this.audioContext;
     const master = this.masterGain;
     const now = ctx.currentTime;
 
-    const fundamental = 138.59; // C#3 — «колокольный» пражский тон
+    // Лейтмотив года меняется по исходу выбора: нейтральный набат,
+    // тревожно-нижний (рана) или светлый мажорный (удача/чудо).
+    const fundamentals = { neutral: 138.59, grave: 110.0, bright: 174.61 } as const;
+    const decayScale = tone === 'bright' ? 0.72 : tone === 'grave' ? 1.15 : 1;
+    const fundamental = fundamentals[tone];
     const partials = [
       { ratio: 1, gain: 0.26, type: 'sine' as OscillatorType },
       { ratio: 2.0, gain: 0.12, type: 'sine' as OscillatorType },
@@ -1059,14 +1063,14 @@ export class GrimdarkAmbience {
 
       gain.gain.setValueAtTime(0, now);
       gain.gain.linearRampToValueAtTime(p.gain, now + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.35 - i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + (1.35 - i * 0.15) * decayScale);
 
       osc.connect(gain);
       gain.connect(panner);
       panner.connect(master);
 
       osc.start(now);
-      osc.stop(now + 1.4);
+      osc.stop(now + 1.4 * decayScale + 0.1);
     });
 
     // Шумовая атака — звон молотка/цепи
