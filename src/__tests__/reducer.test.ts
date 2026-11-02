@@ -32,6 +32,12 @@ const harmlessChoice: Choice = {
   effects: { description: 'Ты просто стоял и смотрел на звёзды.' },
 };
 
+const fateChoice: Choice = {
+  letter: 'В',
+  text: 'Спрятать артефакт',
+  effects: { keyChoice: 'found_artifact', description: 'По ночам он шепчет.' },
+};
+
 const lethalChoice: Choice = {
   letter: 'Б',
   text: 'Прыгнуть в жерло реактора',
@@ -313,5 +319,25 @@ describe('computeAmbienceMood: маршрутизация состояния ж�
     const fx = outcome.effects.find((e) => e.kind === 'setMood');
     expect(fx).toBeDefined();
     expect(fx!.kind === 'setMood' && fx!.mood).toBe(computeAmbienceMood(outcome.state.game!.character));
+  });
+});
+
+describe('Летопись жизни на экране смерти (v0.3.4)', () => {
+  beforeEach(() => setGlobalSeed(7));
+
+  it('выбор с keyChoice помечает запись хроники меткой «судьба»', () => {
+    const game = makeGameState();
+    const state: GameUiState = { ...initialUiState, game, phase: 'event' };
+    const outcome = computeChoose(state, fateChoice);
+    const last = outcome.state.game!.history[outcome.state.game!.history.length - 1];
+    expect(last).toContain('**судьба**');
+  });
+
+  it('обычный выбор не получает метку «судьба»', () => {
+    const game = makeGameState();
+    const state: GameUiState = { ...initialUiState, game, phase: 'event' };
+    const outcome = computeChoose(state, harmlessChoice);
+    const last = outcome.state.game!.history[outcome.state.game!.history.length - 1];
+    expect(last).not.toContain('**судьба**');
   });
 });

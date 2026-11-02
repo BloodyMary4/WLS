@@ -7,12 +7,34 @@ interface DeathScreenProps {
   character: CharacterStats;
   raceInfo: RaceInfo;
   deathMessage: string;
+  history: string[];
   onNewLife: () => void;
 }
 
+/** Хроника-запись о выборе в событии (формат reducer.handleChoice). */
+const CHOICE_ENTRY_RE = /^\[Год \d+\]/;
+/** Метка судьбоносного выбора (событие с effects.keyChoice). */
+const FATE_MARK = '**судьба**';
+
+/**
+ * Выборка итоговой летописи жизни: судьбоносные выборы
+ * (записи с меткой «судьба») + последние события жизни.
+ */
+export function buildLifeChronicle(
+  history: string[],
+  maxEntries = 8,
+): string[] {
+  const choiceEntries = history.filter((h) => CHOICE_ENTRY_RE.test(h));
+  const fateEntries = choiceEntries.filter((h) => h.includes(FATE_MARK));
+  const tail = choiceEntries.slice(-4);
+  const merged = [...new Set([...fateEntries, ...tail])];
+  return merged.slice(-maxEntries);
+}
+
 /** Эпитафия: итоги жизни и кнопка новой реинкарнации. */
-export function DeathScreen({ character, raceInfo, deathMessage, onNewLife }: DeathScreenProps) {
+export function DeathScreen({ character, raceInfo, deathMessage, history, onNewLife }: DeathScreenProps) {
   const miracles = character.intercessionCount ?? 0;
+  const chronicle = buildLifeChronicle(history);
   return (
     <div className="text-center py-16 animate-fade-in">
       <div className="relative inline-block mb-8">
@@ -72,6 +94,33 @@ export function DeathScreen({ character, raceInfo, deathMessage, onNewLife }: De
           </div>
         </div>
       </div>
+      {chronicle.length > 0 && (
+        <div className="wh-parchment rounded-sm p-6 mb-10 max-w-2xl mx-auto text-left">
+          <h3 className="font-gothic text-xl font-bold text-[#c9a227] mb-4 uppercase tracking-[0.15em] flex items-center gap-3">
+            <span className="text-2xl">🕯️</span>
+            Летопись жизни
+          </h3>
+          <ul className="space-y-2">
+            {chronicle.map((entry, i) => {
+              const isFate = entry.includes('**судьба**');
+              const clean = entry.replace('**судьба**', '').trim();
+              return (
+                <li
+                  key={i}
+                  className={`font-event text-sm leading-relaxed border-l-2 pl-3 ${
+                    isFate
+                      ? 'border-[#c9a227] text-[#e8d9b0] italic'
+                      : 'border-gray-500 text-gray-400'
+                  }`}
+                >
+                  {isFate && <span className="not-italic font-gothic text-[10px] uppercase tracking-[0.2em] text-[#c9a227] mr-2">Судьба</span>}
+                  {clean}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       <button
         onClick={onNewLife}
         className="btn-wh-primary btn-modern font-bold py-4 px-14 rounded-sm text-xl transition-all hover:scale-105"

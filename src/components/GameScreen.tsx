@@ -100,6 +100,7 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
                     character={character}
                     raceInfo={raceInfo}
                     deathMessage={deathMessage}
+                    history={history}
                     onNewLife={onNewGame}
                   />
                 </div>

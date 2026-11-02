@@ -366,7 +366,9 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
     effects.push({ kind: 'achievementToast', durationMs: GAME_CONFIG.ACHIEVEMENTS.DISPLAY_DURATION });
   }
 
-  const historyEntry = `[Год ${newChar.age - 1}] ${game.currentEvent.text.substring(0, 60)}... → ${choice.text}`;
+  // Записи с меткой **судьба** — ключевые выборы жизни (попадают в летопись на экране смерти).
+  const fateMark = choice.effects.keyChoice ? ' **судьба**' : '';
+  const historyEntry = `[Год ${newChar.age - 1}]${fateMark} ${game.currentEvent.text.substring(0, 60)}... → ${choice.text}`;
   const newHistory = [...game.history, historyEntry];
 
   const intermediate: GameUiState = {
