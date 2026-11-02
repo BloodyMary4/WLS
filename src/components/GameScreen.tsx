@@ -31,10 +31,17 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
   const maxExpectedAge = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED_BY_RACE[character.race]
     ?? GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
 
-  // Автоскролл хроники к последней записи
+  // Автоскролл хроники к последней записи.
+  // Уважение prefers-reduced-motion: без плавной анимации прокрутки, сразу в конец.
   useEffect(() => {
     if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
+      const reduceMotion = typeof window !== 'undefined'
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) {
+        logRef.current.scrollTop = logRef.current.scrollHeight;
+      } else {
+        logRef.current.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' });
+      }
     }
   }, [history]);
 

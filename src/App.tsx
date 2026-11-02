@@ -43,18 +43,20 @@ function App() {
 
     if (healthPercent < CRITICAL_PERCENT ||
         hiddenParams.mutation >= MUTATION_DAMAGE ||
-        hiddenParams.suspicion >= SUSPICION_CRITICAL) {
+        hiddenParams.suspicion >= SUSPICION_CRITICAL ||
+        game.character.sanity < 30) {
       ambience.setMood('danger');
     } else if (healthPercent < LOW_PERCENT ||
                hiddenParams.mutation >= MUTATION_DAMAGE - 2 ||
-               hiddenParams.suspicion >= SUSPICION_CRITICAL - 2) {
+               hiddenParams.suspicion >= SUSPICION_CRITICAL - 2 ||
+               game.character.sanity < 55) {
       ambience.setMood('tense');
     } else if (age > GAME_CONFIG.AGE_THRESHOLDS.ADULT * 2.5) {
       ambience.setMood('epic');
     } else {
       ambience.setMood('normal');
     }
-  }, [game?.character.health, game?.character.hiddenParams.mutation, game?.character.hiddenParams.suspicion, game?.character.age]);
+  }, [game?.character.health, game?.character.sanity, game?.character.hiddenParams.mutation, game?.character.hiddenParams.suspicion, game?.character.age]);
 
   if (!game) {
     return (

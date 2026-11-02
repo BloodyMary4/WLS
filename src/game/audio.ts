@@ -7,6 +7,9 @@ export class GrimdarkAmbience {
   private lfoGain: GainNode | null = null;
   private noiseNode: AudioBufferSourceNode | null = null;
   private noiseGain: GainNode | null = null;
+  // Ссылка на bandpass-фильтр шумового слоя — чтобы mood-переходы могли
+  // сдвигать тембр «гула улья» (danger = выше и резче, normal = ниже и мягче).
+  private noiseFilter: BiquadFilterNode | null = null;
   private isPlaying = false;
   private volume = 0.55;
   private intervalId: ReturnType<typeof setTimeout> | null = null;
@@ -305,6 +308,7 @@ export class GrimdarkAmbience {
     noiseFilter.type = 'bandpass';
     noiseFilter.frequency.value = 250;
     noiseFilter.Q.value = 0.8;
+    this.noiseFilter = noiseFilter;
 
     const noiseLfo = this.audioContext.createOscillator();
     const noiseLfoGain = this.audioContext.createGain();
@@ -1564,6 +1568,11 @@ export class GrimdarkAmbience {
         if (this.lfoGain) {
           this.lfoGain.gain.linearRampToValueAtTime(0.035, now + transitionTime);
         }
+        // Тембр тревоги: гул чуть выше и резче обычного
+        if (this.noiseFilter) {
+          this.noiseFilter.frequency.linearRampToValueAtTime(320, now + transitionTime);
+          this.noiseFilter.Q.linearRampToValueAtTime(1.1, now + transitionTime);
+        }
         this.gains.forEach((gain, i) => {
           if (i < 3) {
             gain.gain.linearRampToValueAtTime(0.035 / (i + 1), now + transitionTime);
@@ -1581,6 +1590,12 @@ export class GrimdarkAmbience {
         if (this.noiseGain) {
           this.noiseGain.gain.linearRampToValueAtTime(0.04, now + transitionTime);
         }
+        // «Гул улья»: при опасности шумовой слой поднимается вверх по спектру
+        // и становится звонче — подсознательный сигнал надвигающейся беды.
+        if (this.noiseFilter) {
+          this.noiseFilter.frequency.linearRampToValueAtTime(560, now + transitionTime);
+          this.noiseFilter.Q.linearRampToValueAtTime(2.2, now + transitionTime);
+        }
         this.gains.forEach((gain, i) => {
           gain.gain.linearRampToValueAtTime(0.04 / (i + 1), now + transitionTime);
         });
@@ -1592,6 +1607,10 @@ export class GrimdarkAmbience {
         }
         if (this.lfoGain) {
           this.lfoGain.gain.linearRampToValueAtTime(0.04, now + transitionTime);
+        }
+        if (this.noiseFilter) {
+          this.noiseFilter.frequency.linearRampToValueAtTime(210, now + transitionTime);
+          this.noiseFilter.Q.linearRampToValueAtTime(0.7, now + transitionTime);
         }
         this.gains.forEach((gain, i) => {
           gain.gain.linearRampToValueAtTime(0.035 / (i + 1), now + transitionTime);
@@ -1608,6 +1627,10 @@ export class GrimdarkAmbience {
         }
         if (this.noiseGain) {
           this.noiseGain.gain.linearRampToValueAtTime(0.02, now + transitionTime);
+        }
+        if (this.noiseFilter) {
+          this.noiseFilter.frequency.linearRampToValueAtTime(250, now + transitionTime);
+          this.noiseFilter.Q.linearRampToValueAtTime(0.8, now + transitionTime);
         }
         this.gains.forEach((gain, i) => {
           gain.gain.linearRampToValueAtTime(0.025 / (i + 1), now + transitionTime);
