@@ -19,6 +19,7 @@ import {
   computeChoose,
   computeProceedToNextYear,
   computeLoadSavedGame,
+  computeAmbienceMood,
   GameUiState,
 } from '../game/reducer';
 import { makeCharacter, makeGameState } from '../game/testHelpers';
@@ -266,5 +267,51 @@ describe('«Император защищает» — расширяемые п�
       expect(outcome.state.phase).toBe('dead');
       expect(outcome.state.game?.deathMessage).toContain('Безумие');
     }
+  });
+});
+
+describe('computeAmbienceMood: маршрутизация состояния жизни в настроение звука', () => {
+  const hp = (percent: number) => ({ health: Math.round(percent * 100), maxHealth: 100 });
+
+  it('спокойная жизнь — normal', () => {
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.8), sanity: 70, age: 25 }))).toBe('normal');
+  });
+
+  it('критическое здоровье (<25%) — danger', () => {
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.2), sanity: 70 }))).toBe('danger');
+  });
+
+  it('высокая порча (>=7) и подозрение (>=10) — danger', () => {
+    const base = makeCharacter(hp(0.8));
+    expect(computeAmbienceMood({ ...base, hiddenParams: { ...base.hiddenParams, mutation: 7 } })).toBe('danger');
+    expect(computeAmbienceMood({ ...base, hiddenParams: { ...base.hiddenParams, suspicion: 10 } })).toBe('danger');
+  });
+
+  it('рассудок <30 — danger, 30..54 — tense, >=55 не тревожит', () => {
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.8), sanity: 29 }))).toBe('danger');
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.8), sanity: 30 }))).toBe('tense');
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.8), sanity: 54 }))).toBe('tense');
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.8), sanity: 55 }))).toBe('normal');
+  });
+
+  it('умеренно раненый (<50% здоровья) — tense', () => {
+    expect(computeAmbienceMood(makeCharacter(hp(0.4)))).toBe('tense');
+  });
+
+  it('долгая жизнь (возраст > 2.5× совершеннолетия при прочих показателях в норме) — epic', () => {
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.8), sanity: 70, age: 60 }))).toBe('epic');
+  });
+
+  it('danger приоритетнее epic: старый, но критически раненый персонаж звучит тревожно', () => {
+    expect(computeAmbienceMood(makeCharacter({ ...hp(0.1), sanity: 70, age: 60 }))).toBe('danger');
+  });
+
+  it('переход к следующему году выдаёт эффект setMood по итоговому состоянию', () => {
+    vi.stubGlobal('localStorage', new MemoryStorage());
+    const state = dispatchGameAction(initialUiState, { type: 'START_NEW_GAME', seedStr: 'mood-test' }).state;
+    const outcome = dispatchGameAction(state, { type: 'PROCEED_TO_NEXT_YEAR' });
+    const fx = outcome.effects.find((e) => e.kind === 'setMood');
+    expect(fx).toBeDefined();
+    expect(fx!.kind === 'setMood' && fx!.mood).toBe(computeAmbienceMood(outcome.state.game!.character));
   });
 });
