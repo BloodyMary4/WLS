@@ -3,11 +3,11 @@ import { getOrkEvent } from '../game/events/orkEvents';
 import { makeCharacter } from '../game/testHelpers';
 import { findAugmetic } from '../game/augmetics';
 
-describe('Лор: Горг и Морк — боги орков', () => {
+describe('Лор: Горк и Морк — боги орков', () => {
   it('событие Горка и Морка выдаётся орку 14–49 лет без keyChoice gork_mork', () => {
     const c = makeCharacter({ race: 'ork', keyChoices: [] });
     const ev = getOrkEvent(14, c);
-    expect(ev.text).toContain('Горг');
+    expect(ev.text).toContain('Горк');
     expect(ev.text).toContain('Морк');
     expect(ev.choices).toHaveLength(4);
     // все выборы помечены как судьбоносные и закрывают ветку повтором
@@ -25,7 +25,7 @@ describe('Лор: Горг и Морк — боги орков', () => {
   it('до 14 лет события о богах нет', () => {
     const c = makeCharacter({ race: 'ork', keyChoices: [] });
     const ev = getOrkEvent(13, c);
-    expect(ev.text).not.toContain('Горг и Морк');
+    expect(ev.text).not.toContain('Горк и Морк');
   });
 
   it('выбор А — чемпион Морка (сила), выбор Б — хитрован Горка (хитрость)', () => {
