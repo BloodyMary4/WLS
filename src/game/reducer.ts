@@ -553,7 +553,7 @@ export function gameReducer(state: GameUiState, action: GameAction): GameUiState
 export function dispatchGameAction(state: GameUiState, action: GameAction): GameOutcome {
   switch (action.type) {
     case 'START_NEW_GAME':
-      return computeStartNewGame(state, action.seedStr);
+      return computeStartNewGame(state, action.seedStr, action.race);
     case 'LOAD_SAVED_GAME':
       return computeLoadSavedGame(state, action.game, action.unlockedAchievements);
     case 'CHOOSE':

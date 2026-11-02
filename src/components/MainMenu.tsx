@@ -1,16 +1,18 @@
-import { RACE_INFO } from '../game/data';
+import { useState } from 'react';
 import type { Race } from '../game/types';
 import { AudioController } from './AudioController';
 import { RaceEmblem } from './RaceEmblem';
+import { RacePicker } from './RacePicker';
 
 interface MainMenuProps {
   hasSave: boolean;
-  onStartNewGame: () => void;
+  onStartNewGame: (race?: Race) => void;
   onLoadSavedGame: () => void;
 }
 
-/** Экран заглавия: описание вселенной, расы, кнопки старта. */
+/** Экран заглавия: описание вселенной, выбор расы, кнопки старта. */
 export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuProps) {
+  const [selectedRace, setSelectedRace] = useState<Race | null>(null);
   return (
     <div className="wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
@@ -58,24 +60,10 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
             </div>
           </div>
 
-          {/* Расы */}
+          {/* Расы: интерактивный выбор */}
           <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <h2 className="font-gothic text-3xl font-bold text-center mb-8 uppercase tracking-[0.15em] text-[#e8c85a]">Выбери свою судьбу</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(RACE_INFO).map(([key, info], index) => (
-                <div
-                  key={key}
-                  className="wh-panel hover-lift p-6 animate-scale-in cursor-pointer"
-                  style={{ animationDelay: `${0.5 + index * 0.1}s` }}
-                >
-                  <div className="mb-3 w-10 h-10 mx-auto">
-                    <RaceEmblem race={key as Race} className="w-full h-full opacity-90" />
-                  </div>
-                  <h3 className="font-gothic text-xl font-bold text-[#e8c85a] mb-2 uppercase tracking-wide">{info.name}</h3>
-                  <p className="font-event text-base text-[#a89870] leading-relaxed">{info.description}</p>
-                </div>
-              ))}
-            </div>
+            <RacePicker race={selectedRace} onSelect={setSelectedRace} />
           </div>
 
           {/* Кнопки */}
@@ -90,10 +78,10 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
             )}
 
             <button
-              onClick={onStartNewGame}
+              onClick={() => onStartNewGame(selectedRace ?? undefined)}
               className="btn-wh-primary btn-modern font-bold py-5 px-16 rounded-sm text-2xl hover:scale-105"
             >
-              ⚔️&nbsp;&nbsp;Начать новую игру
+              ⚔️&nbsp;&nbsp;{selectedRace ? `Начать жизнь за ${selectedRace === 'dark_eldar' ? 'друкхаари' : selectedRace === 'tau' ? 'тау' : selectedRace === 'gretchin' ? 'гретчина' : { human: 'человека', ork: 'орка', eldar: 'эльдар' }[selectedRace]}` : 'Начать новую игру'}
             </button>
           </div>
 

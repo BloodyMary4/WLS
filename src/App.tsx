@@ -62,7 +62,7 @@ function App() {
     return (
       <MainMenu
         hasSave={store.hasSave}
-        onStartNewGame={() => store.startNewGame()}
+        onStartNewGame={(race) => store.startNewGame(undefined, race)}
         onLoadSavedGame={store.loadSavedGame}
       />
     );
