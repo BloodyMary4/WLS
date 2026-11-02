@@ -658,8 +658,16 @@ p {
 /* Уважение к пользователям с reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-parchment, .wh-miracle, .wh-bar-fill-danger, .animate-gold-sheen, .animate-candle,
-  .wh-bar-flash-up, .wh-bar-flash-down {
+  .wh-bar-flash-up, .wh-bar-flash-down,
+  .animate-fade-in, .animate-slide-in-left, .animate-slide-in-right, .shimmer {
     animation: none !important;
+  }
+  /* Отключаем «прыгающие» hover/active-масштабы и плавные переходы по всему интерфейсу */
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
 
