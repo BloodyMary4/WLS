@@ -1554,89 +1554,120 @@ export class GrimdarkAmbience {
     delayFilter.connect(this.masterGain);
   }
 
+  /**
+   * Параметры звуковой среды для одного настроения. Чистая таблица —
+   * сама маршрутизация состояния жизни в настроение вынесена в reducer.ts
+   * (computeAmbienceMood) и покрыта тестами без Web Audio API.
+   */
+  private static readonly MOOD_SETTINGS = {
+    normal: { lfoFreq: 0.05, lfoDepth: 0.02,  noiseGain: 0.02,  filterFreq: 250, filterQ: 0.8, padScale: 0.025, transition: 2.5 },
+    tense:  { lfoFreq: 0.18, lfoDepth: 0.035, noiseGain: 0.025, filterFreq: 320, filterQ: 1.1, padScale: 0.035, transition: 2.5 },
+    danger: { lfoFreq: 0.3,  lfoDepth: 0.05,  noiseGain: 0.04,  filterFreq: 560, filterQ: 2.2, padScale: 0.04,  transition: 1.5 },
+    epic:   { lfoFreq: 0.1,  lfoDepth: 0.04,  noiseGain: 0.025, filterFreq: 210, filterQ: 0.7, padScale: 0.035, transition: 2.5 },
+  } as const;
+
   setMood(mood: 'normal' | 'tense' | 'danger' | 'epic') {
     if (!this.audioContext || !this.masterGain) return;
 
     const now = this.audioContext.currentTime;
-    const transitionTime = mood === 'danger' ? 1.5 : 2.5;
+    const s = GrimdarkAmbience.MOOD_SETTINGS[mood];
+    const transitionTime = s.transition;
+    this.currentMood = mood;
 
-    switch (mood) {
-      case 'tense':
-        if (this.lfo) {
-          this.lfo.frequency.linearRampToValueAtTime(0.18, now + transitionTime);
-        }
-        if (this.lfoGain) {
-          this.lfoGain.gain.linearRampToValueAtTime(0.035, now + transitionTime);
-        }
-        // Тембр тревоги: гул чуть выше и резче обычного
-        if (this.noiseFilter) {
-          this.noiseFilter.frequency.linearRampToValueAtTime(320, now + transitionTime);
-          this.noiseFilter.Q.linearRampToValueAtTime(1.1, now + transitionTime);
-        }
-        this.gains.forEach((gain, i) => {
-          if (i < 3) {
-            gain.gain.linearRampToValueAtTime(0.035 / (i + 1), now + transitionTime);
-          }
-        });
-        break;
-      
-      case 'danger':
-        if (this.lfo) {
-          this.lfo.frequency.linearRampToValueAtTime(0.3, now + transitionTime);
-        }
-        if (this.lfoGain) {
-          this.lfoGain.gain.linearRampToValueAtTime(0.05, now + transitionTime);
-        }
-        if (this.noiseGain) {
-          this.noiseGain.gain.linearRampToValueAtTime(0.04, now + transitionTime);
-        }
-        // «Гул улья»: при опасности шумовой слой поднимается вверх по спектру
-        // и становится звонче — подсознательный сигнал надвигающейся беды.
-        if (this.noiseFilter) {
-          this.noiseFilter.frequency.linearRampToValueAtTime(560, now + transitionTime);
-          this.noiseFilter.Q.linearRampToValueAtTime(2.2, now + transitionTime);
-        }
-        this.gains.forEach((gain, i) => {
-          gain.gain.linearRampToValueAtTime(0.04 / (i + 1), now + transitionTime);
-        });
-        break;
-      
-      case 'epic':
-        if (this.lfo) {
-          this.lfo.frequency.linearRampToValueAtTime(0.1, now + transitionTime);
-        }
-        if (this.lfoGain) {
-          this.lfoGain.gain.linearRampToValueAtTime(0.04, now + transitionTime);
-        }
-        if (this.noiseFilter) {
-          this.noiseFilter.frequency.linearRampToValueAtTime(210, now + transitionTime);
-          this.noiseFilter.Q.linearRampToValueAtTime(0.7, now + transitionTime);
-        }
-        this.gains.forEach((gain, i) => {
-          gain.gain.linearRampToValueAtTime(0.035 / (i + 1), now + transitionTime);
-        });
-        break;
-      
-      case 'normal':
-      default:
-        if (this.lfo) {
-          this.lfo.frequency.linearRampToValueAtTime(0.05, now + transitionTime);
-        }
-        if (this.lfoGain) {
-          this.lfoGain.gain.linearRampToValueAtTime(0.02, now + transitionTime);
-        }
-        if (this.noiseGain) {
-          this.noiseGain.gain.linearRampToValueAtTime(0.02, now + transitionTime);
-        }
-        if (this.noiseFilter) {
-          this.noiseFilter.frequency.linearRampToValueAtTime(250, now + transitionTime);
-          this.noiseFilter.Q.linearRampToValueAtTime(0.8, now + transitionTime);
-        }
-        this.gains.forEach((gain, i) => {
-          gain.gain.linearRampToValueAtTime(0.025 / (i + 1), now + transitionTime);
-        });
-        break;
+    // Смена настроения перезапускает цикл далёких взрывов: он живёт
+    // только в danger (см. scheduleArtillery / playDistantBlast).
+    if (this.artilleryTimer) {
+      clearTimeout(this.artilleryTimer);
+      this.artilleryTimer = null;
     }
+
+    if (this.lfo) {
+      this.lfo.frequency.linearRampToValueAtTime(s.lfoFreq, now + transitionTime);
+    }
+    if (this.lfoGain) {
+      this.lfoGain.gain.linearRampToValueAtTime(s.lfoDepth, now + transitionTime);
+    }
+    if (this.noiseGain) {
+      this.noiseGain.gain.linearRampToValueAtTime(s.noiseGain, now + transitionTime);
+    }
+    // «Гул улья»: тембр шумового слоя по настроению — danger поднимает гул
+    // вверх по спектру и делает звонче, epic — ниже и мягче.
+    if (this.noiseFilter) {
+      this.noiseFilter.frequency.linearRampToValueAtTime(s.filterFreq, now + transitionTime);
+      this.noiseFilter.Q.linearRampToValueAtTime(s.filterQ, now + transitionTime);
+    }
+    this.gains.forEach((gain, i) => {
+      // В tense трогаем только первые три подушечных слоя (как раньше)
+      if (mood !== 'tense' || i < 3) {
+        gain.gain.linearRampToValueAtTime(s.padScale / (i + 1), now + transitionTime);
+      }
+    });
+
+    if (mood === 'danger') this.scheduleArtillery();
+  }
+
+  // ---------- Danger-слой: далёкая артиллерия ----------
+  private currentMood: 'normal' | 'tense' | 'danger' | 'epic' = 'normal';
+  private artilleryTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Далёкий взрыв (артиллерийский залп / орбитальная бомбардировка):
+   * низкий «бум» с проседающей частотой + шумовой треск через lowpass,
+   * слегка расведённый по стерео. Звучит только пока mood = danger.
+   */
+  private playDistantBlast(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime + 0.05;
+
+    const osc = ctx.createOscillator();
+    const oscGain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(90, now);
+    osc.frequency.exponentialRampToValueAtTime(32, now + 0.5);
+    oscGain.gain.setValueAtTime(0, now);
+    oscGain.gain.linearRampToValueAtTime(0.16, now + 0.015);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    osc.connect(oscGain);
+    oscGain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 1.0);
+
+    const dur = 0.35 + Math.random() * 0.25;
+    const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (data.length * 0.12));
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.setValueAtTime(500, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(120, now + dur);
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.09;
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = (Math.random() - 0.5) * 1.2;
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(panner);
+    panner.connect(this.masterGain);
+    noise.start(now);
+  }
+
+  private scheduleArtillery(): void {
+    if (!this.audioContext) return;
+    const delay = 2000 + Math.random() * 4000;
+    this.artilleryTimer = setTimeout(() => {
+      this.artilleryTimer = null;
+      // Удары звучат, только пока опасность активна и музыка играет
+      if (this.currentMood === 'danger' && this.isPlaying) {
+        this.playDistantBlast();
+        this.scheduleArtillery();
+      }
+    }, delay);
   }
 
   setVolume(value: number) {
@@ -1662,6 +1693,12 @@ export class GrimdarkAmbience {
     if (this.intervalId) {
       clearTimeout(this.intervalId);
       this.intervalId = null;
+    }
+
+    // Далёкие взрывы — тоже таймерный слой: гасим при остановке музыки
+    if (this.artilleryTimer) {
+      clearTimeout(this.artilleryTimer);
+      this.artilleryTimer = null;
     }
 
     this.oscillators.forEach(osc => {

@@ -63,6 +63,7 @@ export type GameAction =
 export type GameEffect =
   | { kind: 'unlockAudio' }
   | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' | 'wound'; tone?: 'neutral' | 'grave' | 'bright' }
+  | { kind: 'setMood'; mood: AmbienceMood }
   | { kind: 'save' }
   | { kind: 'achievementToast'; durationMs: number };
 
@@ -78,6 +79,37 @@ export function classifyChoiceOutcome(effects: ChoiceEffects): 'wound' | 'fortun
   const fortuneGain = (effects.credits ?? 0) + (effects.luck ?? 0) * 30 + (effects.faith ?? 0) * 20;
   if (fortuneGain >= 40) return 'fortune';
   return null;
+}
+
+export type AmbienceMood = 'normal' | 'tense' | 'danger' | 'epic';
+
+/**
+ * Маршрутизация состояния жизни в настроение амбиент-звука (чистая функция,
+ * без Web Audio — покрыта тестами). Пороги те же, что использовал App.tsx:
+ * критическое здоровье / высокая порча / подозрение / низкий рассудок — danger;
+ * умеренные отклонения или рассудок < 55 — tense; долгая жизнь — epic.
+ */
+export function computeAmbienceMood(c: CharacterStats): AmbienceMood {
+  const healthPercent = c.health / c.maxHealth;
+  const { CRITICAL_PERCENT, LOW_PERCENT } = GAME_CONFIG.HEALTH;
+  const { MUTATION_DAMAGE, SUSPICION_CRITICAL } = GAME_CONFIG.STAT_THRESHOLDS;
+
+  if (healthPercent < CRITICAL_PERCENT ||
+      c.hiddenParams.mutation >= MUTATION_DAMAGE ||
+      c.hiddenParams.suspicion >= SUSPICION_CRITICAL ||
+      c.sanity < 30) {
+    return 'danger';
+  }
+  if (healthPercent < LOW_PERCENT ||
+      c.hiddenParams.mutation >= MUTATION_DAMAGE - 2 ||
+      c.hiddenParams.suspicion >= SUSPICION_CRITICAL - 2 ||
+      c.sanity < 55) {
+    return 'tense';
+  }
+  if (c.age > GAME_CONFIG.AGE_THRESHOLDS.ADULT * 2.5) {
+    return 'epic';
+  }
+  return 'normal';
 }
 
 export interface GameOutcome {
@@ -276,6 +308,8 @@ export function computeStartNewGame(state: GameUiState, seedStr?: string): GameO
     phase: 'event',
   };
   effects.push({ kind: 'save' });
+  // Звуковая среда подхватывает состояние нового персонажа сразу
+  effects.push({ kind: 'setMood', mood: computeAmbienceMood(character) });
   return { state: next, effects };
 }
 
@@ -290,7 +324,11 @@ export function computeLoadSavedGame(
     phase: game.gameOver ? 'dead' : 'event',
     unlockedAchievements,
   };
-  return { state: next, effects: [{ kind: 'unlockAudio' }] };
+  const loadEffects: GameEffect[] = [{ kind: 'unlockAudio' }];
+  if (!game.gameOver) {
+    loadEffects.push({ kind: 'setMood', mood: computeAmbienceMood(game.character) });
+  }
+  return { state: next, effects: loadEffects };
 }
 
 export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
@@ -350,6 +388,9 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
       afterDeath.game = { ...afterDeath.game!, currentEvent: nextEvent };
     }
     effects.push({ kind: 'save' });
+    if (!afterDeath.game?.gameOver) {
+      effects.push({ kind: 'setMood', mood: computeAmbienceMood(afterDeath.game!.character) });
+    }
     return { state: afterDeath, effects };
   }
 
@@ -368,6 +409,7 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
     },
   };
   effects.push({ kind: 'save' });
+  effects.push({ kind: 'setMood', mood: computeAmbienceMood(newChar) });
   return { state: next, effects };
 }
 
@@ -479,6 +521,9 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
   const afterDeath = resolveDeathOrIntercession(intermediate, finalChar, newHistory, effects);
   if (afterDeath) {
     effects.push({ kind: 'save' });
+    if (!afterDeath.game?.gameOver) {
+      effects.push({ kind: 'setMood', mood: computeAmbienceMood(afterDeath.game!.character) });
+    }
     return { state: afterDeath, effects };
   }
 
@@ -489,6 +534,7 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
     lastChoice: null,
   };
   effects.push({ kind: 'save' });
+  effects.push({ kind: 'setMood', mood: computeAmbienceMood(finalChar) });
   return { state: next, effects };
 }
 

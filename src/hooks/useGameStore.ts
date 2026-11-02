@@ -18,6 +18,9 @@ function runEffects(effects: GameEffect[], stateRef: React.MutableRefObject<Game
       case 'unlockAudio':
         ambience.unlockOnUserGesture();
         break;
+      case 'setMood':
+        ambience.setMood(fx.mood);
+        break;
       case 'playSound':
         if (fx.sound === 'event') ambience.playEventSound(fx.tone ?? 'neutral');
         else if (fx.sound === 'death') ambience.playDeathSound();
