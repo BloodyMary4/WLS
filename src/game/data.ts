@@ -166,6 +166,12 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
     const branch = getInquisitionBranchEvent(age, character);
     if (branch) return branch;
   }
+  // Ордо Малипус: вызов к проявившемуся псайкеру-человеку важнее предложения
+  // импланта — дар нельзя «заапгрейдить»: его скрывают, регистрируют или сжигают.
+  if (character.race === 'human' && (character.hiddenParams.psi || 0) >= 5) {
+    const psykerCall = getHumanEvent(age, character);
+    if (psykerCall.text.includes('Ордо Малипус')) return psykerCall;
+  }
   // Аугметика: на «пятых» годах после зрелости — предложение импланта
   // из лорного каталога своей фракции (если подходящий ещё не установлен).
   if (age >= 15 && age % 5 === 0) {

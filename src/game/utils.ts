@@ -230,6 +230,20 @@ export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
     newChar.warpAttention = Math.min(10, newChar.warpAttention + 1);
   }
 
+  // Лор Warhammer 40K: псайкеры — «маяки для нечестивых» (Ордо Малипус).
+  // Сильный пси-потенциал сам по себе привлекает внимание Варпа и Империума:
+  // каждый год с psi >= 5 существо понемногу «светится» в Имматериуме.
+  const psiLevel = newChar.hiddenParams.psi || 0;
+  if (psiLevel >= GAME_CONFIG.STAT_THRESHOLDS.PSI_BEACON) {
+    newChar.warpAttention = Math.min(10, newChar.warpAttention + 1);
+    // Неприкрытый псайкер-человек неизбежно попадает в поле зрения Ордо Малипус:
+    // чем сильнее дар, тем быстрее растёт подозрение (тестирование, допросы, чистка).
+    if (newChar.race === 'human') {
+      const suspicionGain = psiLevel >= GAME_CONFIG.STAT_THRESHOLDS.PSI_OVERLOAD ? 2 : 1;
+      newChar.hiddenParams.suspicion = Math.min(10, newChar.hiddenParams.suspicion + suspicionGain);
+    }
+  }
+
   if (newChar.influence > 60) {
     newChar.hiddenParams.suspicion = Math.min(10, newChar.hiddenParams.suspicion + 1);
   }

@@ -26,6 +26,8 @@ export const GAME_CONFIG = {
     MUTATION_DAMAGE: 7,
     PSI_OVERLOAD: 10,
     SUSPICION_CRITICAL: 10,
+    // Порог «маяка»: psi >= 5 — псайкер светится в Имматериуме (Ордо Малипус)
+    PSI_BEACON: 5,
     CRUELTY_MINIMUM: 0,
   },
   HEALTH: {
