@@ -40,10 +40,10 @@ export function EventWindow({ event, age, phase, resultText, lastChoice, lastDel
       icon={phase === 'result' ? '⚖️' : '📜'}
       extra={
         <span
-          className="text-[10px] text-[#b8a878]/70 tabular-nums whitespace-nowrap"
-          title={`М41.${String(age).padStart(3, '0')} · ${lines ?? '?'} стр.`}
+          className="wh-event-age-badge tabular-nums"
+          title={`М41.${String(age).padStart(3, '0')} — год твоей жизни${lines ? ` · текст на ${lines} стр.` : ''}`}
         >
-          М41.{String(age).padStart(3, '0')} · {lines ?? '?'} стр.
+          {age} лет · М41.{String(age).padStart(3, '0')}
         </span>
       }
       scroll={fit}

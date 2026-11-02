@@ -11,6 +11,7 @@ import { useFit } from '../game/useFit';
 import { CodexPanel } from './CodexPanel';
 import { ChroniclePanel } from './ChroniclePanel';
 import { EventWindow } from './EventWindow';
+import { WindowPane } from './Dashboard';
 import { DeathScreen } from './DeathScreen';
 
 interface GameScreenProps {
@@ -77,13 +78,16 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
         <main className="flex-1 min-h-0 py-1.5">
           <div className="mx-auto w-full max-w-[1700px] h-full px-2 xl:px-3">
             <div className="fit-grid grid grid-cols-12 gap-2 h-full min-h-0">
-              {/* Левый отсек: «Кодекс» — стопка окон-карточек, умещается без скролла */}
+              {/* Левый отсек: «Кодекс» — единое окно со стопкой секций;
+                  если содержимое не влезает — скролл только внутри окна */}
               <div className="col-span-3 fit-col animate-slide-in-left min-h-0">
-                <CodexPanel
-                  character={character}
-                  raceInfo={raceInfo}
-                  activeQuests={game.activeQuests}
-                />
+                <WindowPane title="Кодекс" icon="⚜️" stretch scroll className="wh-codex-wrap">
+                  <CodexPanel
+                    character={character}
+                    raceInfo={raceInfo}
+                    activeQuests={game.activeQuests}
+                  />
+                </WindowPane>
               </div>
 
               {/* Центр: главное окно события занимает всю высоту — решения всегда на экране */}

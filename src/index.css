@@ -920,9 +920,26 @@ p {
 /* ===== v0.3.29: «Кодекс» — плотная стопка окон-карточек левого отсека ===== */
 .wh-window-closed { border-bottom-width: 1px; }
 .wh-window-closed .wh-window-head { border-bottom: none; }
+
+/* Слот заголовка окна события: крупные, читаемые — возраст и год М41 */
+.wh-event-age-badge {
+  font-size: 13px;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  background: rgba(201, 162, 39, 0.12);
+  color: #e8c85a;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 @media (min-width: 1024px) and (min-height: 640px) {
-  /* Левый отсек: окна прижаты друг к другу, скролла колонки нет —
-     всё умещается за счёт свёрнутых второстепенных окон */
+  /* Левый отсек: секции прижаты друг к другу; окно «Кодекс» тянется
+     на всю высоту колонки, скролл — только внутри него */
   .game-fit .wh-codex { gap: 4px; flex: 0 0 auto; }
-  .game-fit .fit-col > .wh-codex { overflow: hidden; }
+  .game-fit .fit-col > .wh-codex-wrap { flex: 1 1 auto; min-height: 0; height: 100%; }
+  .game-fit .wh-codex-wrap .wh-codex { min-height: 0; }
+  /* Внутренние карточки не плодят двойные рамки внутри окна-кодекса */
+  .game-fit .wh-codex-wrap .wh-window { border-color: rgba(201, 162, 39, 0.22); box-shadow: none; }
 }
