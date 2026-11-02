@@ -61,9 +61,11 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
         <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6">
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden mb-4 w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded transition-colors"
+            aria-expanded={sidebarOpen}
+            className="lg:hidden mb-4 w-full min-h-[48px] bg-[#1c1913] hover:bg-[#2a2517] text-[#c9a227] border border-[#c9a227]/40 font-gothic py-2 px-4 rounded-sm transition-colors flex items-center justify-center gap-2"
           >
-            {sidebarOpen ? 'Скрыть характеристики' : 'Показать характеристики'}
+            <span>{sidebarOpen ? '✕ Скрыть характеристики' : '📜 Характеристики и хроника'}</span>
+            <span className="text-xs text-gray-500">({sidebarOpen ? 'скрыть' : 'открыть'})</span>
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">

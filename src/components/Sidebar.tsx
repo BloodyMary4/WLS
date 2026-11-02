@@ -290,7 +290,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
           <span className="text-2xl">📜</span>
           Хроника
         </h3>
-        <div ref={logRef} className="wh-chronicle max-h-[30vh] lg:max-h-64 overflow-y-auto space-y-2">
+        <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle max-h-[30vh] lg:max-h-64 overflow-y-auto space-y-2">
           {history.length === 0 ? (
             <p className="text-gray-500 italic text-sm text-center py-4">Жизнь только начинается...</p>
           ) : (

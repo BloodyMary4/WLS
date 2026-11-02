@@ -64,7 +64,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
       </div>
 
       {phase === 'result' && lastChoice ? (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4 animate-fade-in" aria-live="polite">
           <div className={`wh-parchment rounded-sm p-6 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
               <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
@@ -76,27 +76,37 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
             className="btn-wh-primary btn-modern w-full font-bold py-4 rounded-sm text-xl transition-all hover:scale-[1.02]"
           >
             Продолжить → Год {age}
+            <span className="hidden md:inline text-sm font-normal opacity-70 ml-2">(Пробел)</span>
+          </button>
+          {/* Мобильный липкий HUD-экшен: большая тач-кнопка всегда под пальцем */}
+          <button
+            onClick={onProceed}
+            className="lg:hidden sticky bottom-2 z-30 w-full mt-2 font-gothic font-bold py-4 rounded-sm text-lg shadow-[0_-4px_20px_rgba(0,0,0,0.6)]"
+            style={{ background: 'linear-gradient(180deg, #c9a227 0%, #8a6d15 100%)', color: '#14110a' }}
+          >
+            ⏭ Дальше → Год {age}
           </button>
         </div>
       ) : (
         <div className="space-y-3">
           <p className="font-gothic text-lg font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4 flex items-center gap-3">
             Твоё решение:
+            <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-500">клавиши 1–4 / A–D</span>
           </p>
           {event.choices.map((choice, index) => (
             <button
               key={choice.letter}
               onClick={() => onChoice(choice)}
-              className="btn-modern w-full text-left p-4 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] animate-slide-in-left"
+              className="btn-modern w-full min-h-[56px] text-left p-4 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] active:scale-[0.99] animate-slide-in-left"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-4">
-                <div className="wh-choice-letter flex-shrink-0 w-10 h-10 flex items-center justify-center shadow-lg">
-                  <span className="font-bold text-lg">
-                    {choice.letter}
+                <div className="wh-choice-letter flex-shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center shadow-lg">
+                  <span className="font-bold text-lg md:text-xl tabular-nums">
+                    {index + 1}
                   </span>
                 </div>
-                <span className="font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1">{choice.text}</span>
+                <span className="font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1 md:pt-2">{choice.text}</span>
               </div>
             </button>
           ))}
