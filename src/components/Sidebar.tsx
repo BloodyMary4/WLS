@@ -251,7 +251,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
                       {npc.relationship > 0 ? 'Союзник' :
                        npc.relationship >= 0 ? 'Нейтрал' : 'Враг'}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-400">
                       {npc.lastInteraction} лет назад
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
               </div>
             ))}
             {character.npcs.length > 5 && (
-              <div className="text-center text-xs text-gray-500 pt-2 italic">
+              <div className="text-center text-xs text-gray-400 pt-2 italic">
                 ...и ещё {character.npcs.length - 5} душ на твоём пути
               </div>
             )}
@@ -295,7 +295,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
                 <div className="space-y-2 mb-3">
                   {quest.objectives.map((obj: any) => (
                     <div key={obj.id} className="flex items-start gap-2 text-xs">
-                      <span className={`text-sm ${obj.completed ? 'text-green-400' : 'text-gray-600'}`}>
+                      <span className={`text-sm ${obj.completed ? 'text-green-400' : 'text-gray-400'}`}>
                         {obj.completed ? '☠' : '○'}
                       </span>
                       <span className={`flex-1 ${obj.completed ? 'text-green-300 line-through' : 'text-gray-400'}`}>
@@ -343,7 +343,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
           </h3>
           <p className="text-sm text-blue-200/90 italic leading-relaxed">{character.worldEvent}</p>
           {(character.worldEventsSeen?.length ?? 0) > 1 && (
-            <p className="text-xs text-gray-500 mt-2">Запомнено великих событий: {character.worldEventsSeen!.length}</p>
+            <p className="text-xs text-gray-400 mt-2">Запомнено великих событий: {character.worldEventsSeen!.length}</p>
           )}
         </div>
       )}
@@ -354,7 +354,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
             <span className="text-xl" aria-hidden="true">📜</span>
             Хроника
           </span>
-          <span className="text-[11px] font-normal text-gray-500 tabular-nums whitespace-nowrap">
+          <span className="text-[11px] font-normal text-gray-400 tabular-nums whitespace-nowrap">
             {shownHistory.length} из {history.length}
           </span>
         </h3>
@@ -379,9 +379,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
         </div>
         <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-2">
           {history.length === 0 ? (
-            <p className="text-gray-500 italic text-sm text-center py-4">Жизнь только начинается...</p>
+            <p className="text-gray-400 italic text-sm text-center py-4">Жизнь только начинается...</p>
           ) : shownHistory.length === 0 ? (
-            <p className="text-gray-500 italic text-sm text-center py-4">
+            <p className="text-gray-400 italic text-sm text-center py-4">
               {chronicleFilter === 'fate'
                 ? 'Судьба пока молчит — великих решений ещё не было.'
                 : chronicleFilter === 'world'

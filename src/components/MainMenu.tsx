@@ -39,7 +39,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
             <p className="font-event text-xl text-[#b8a878] mb-3 italic">
               Симулятор жизни в вселенной Warhammer 40,000
             </p>
-            <p className="font-event text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">
+            <p className="font-event text-sm text-gray-400 uppercase tracking-[0.3em] mb-4">
               Во тьме далёкого будущего есть только война
             </p>
             <div className="wh-divider max-w-md mx-auto mt-4"></div>
@@ -76,7 +76,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
           {legacy.totalGamesPlayed > 0 && (
             <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <div className="wh-panel p-4 max-w-3xl mx-auto flex flex-wrap justify-center gap-x-8 gap-y-2 text-center">
-                <span className="text-sm uppercase tracking-[0.2em] text-gray-500 font-gothic">Прошлые жизни</span>
+                <span className="text-sm uppercase tracking-[0.2em] text-gray-400 font-gothic">Прошлые жизни</span>
                 <span className="text-[#d8c9a3]">Жизней прожито: <b className="text-[#e8c85a]">{legacy.totalGamesPlayed}</b></span>
                 {legacy.bestLifeText && (
                   <span className="text-[#d8c9a3]">Рекорд: <b className="text-[#e8c85a]">{legacy.bestLifeText}</b></span>
@@ -129,7 +129,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
                 <li>Псайкеры с высоким психическим даром привлекают внимание Имматериума — и Инквизиции.</li>
                 <li>Судьбоносные выборы помечаются золотом в хронике и попадают в летопись на экране смерти.</li>
               </ul>
-              <p className="mt-4 text-sm text-gray-500 italic font-event">
+              <p className="mt-4 text-sm text-gray-400 italic font-event">
                 Пример: «Человек в сером плаще предлагает вам жетон Ордо…» → выбор A может изменить всю жизнь.
               </p>
             </div>
@@ -137,7 +137,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
 
           {/* Подсказка */}
           <div className="text-center animate-fade-in" style={{ animationDelay: '1.2s' }}>
-            <p className="text-base text-gray-500 mb-3">
+            <p className="text-base text-gray-400 mb-3">
               Каждый ход = 1 год жизни • 6 рас • Клавиши A-D для выбора
             </p>
             <div className="flex justify-center gap-3 mt-4">

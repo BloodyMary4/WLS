@@ -124,7 +124,7 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
           <p className="text-sm text-gray-400 mb-2">
             Warhammer Life Simulator • Warhammer 40,000 • 6 рас
           </p>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-gray-500">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
             <span className="flex items-center gap-2">
               <kbd className="px-2.5 py-1 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">A-D</kbd>
               выбор

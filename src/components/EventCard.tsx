@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
 import { GameEvent, Choice, ChoiceEffects } from '../game/types';
 
+/** Маркер «веса» решения для кнопки выбора: судьба ⚡ или опасность 💀. */
+const RISK_BADGE: Record<'fate' | 'danger', { icon: string; label: string; cls: string }> = {
+  fate: { icon: '⚡', label: 'Судьбоносный выбор', cls: 'text-[#e8c85a] border-[#e8c85a]/60 bg-[#e8c85a]/10' },
+  danger: { icon: '💀', label: 'Опасно для жизни', cls: 'text-[#e07a7a] border-[#e07a7a]/60 bg-[#e07a7a]/10' },
+};
+
 interface EventCardProps {
   event: GameEvent;
   age: number;
@@ -62,7 +68,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
       <div className="event-head mb-6">
         <div className="event-label-row flex items-center gap-3 mb-4">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
-          <span className="font-gothic text-lg font-bold text-[#c0392b] uppercase tracking-[0.2em] animate-candle">
+          <span className="font-gothic text-lg font-bold text-[#e07a7a] uppercase tracking-[0.2em] animate-candle">
             Событие &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
@@ -101,9 +107,12 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
         <div className="choices-block space-y-3">
           <p className="font-gothic text-lg font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4 flex items-center gap-3">
             Твоё решение:
-            <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-500">клавиши 1–4 / A–D</span>
+            <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–4 / A–D</span>
           </p>
-          {event.choices.map((choice, index) => (
+          {event.choices.map((choice, index) => {
+            const mark = choiceRiskMark(choice.effects);
+            const badge = mark ? RISK_BADGE[mark] : null;
+            return (
             <button
               key={choice.letter}
               onClick={() => onChoice(choice)}
@@ -117,9 +126,19 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
                   </span>
                 </div>
                 <span className="choice-text font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1 md:pt-2">{choice.text}</span>
+                {badge && (
+                  <span
+                    title={badge.label}
+                    aria-label={badge.label}
+                    className={`flex-shrink-0 mt-1 px-2 py-0.5 rounded-sm border text-sm leading-none ${badge.cls}`}
+                  >
+                    {badge.icon}
+                  </span>
+                )}
               </div>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

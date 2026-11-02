@@ -108,7 +108,7 @@ export function RacePicker({ race, onSelect }: RacePickerProps) {
               <span className="font-gothic text-base font-bold text-[#e8c85a] uppercase tracking-wide">
                 {RACE_INFO[active].name}
               </span>
-              <span className="font-event text-xs italic text-gray-500">{RACE_DANGERS[active]}</span>
+              <span className="font-event text-xs italic text-gray-400">{RACE_DANGERS[active]}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {RACE_BONUSES[active].map((b) => (
@@ -122,7 +122,7 @@ export function RacePicker({ race, onSelect }: RacePickerProps) {
             </div>
           </div>
         ) : (
-          <p className="font-event text-sm text-gray-500 italic self-center">
+          <p className="font-event text-sm text-gray-400 italic self-center">
             Выбери расу — или доверься случайности. Происхождение определит события, ветки и саму твою смерть.
           </p>
         )}
