@@ -124,15 +124,17 @@ function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number
 
 /** Центральная карточка события: текст года или результат выбора.
  *  Компактная раскладка «всё на экране»: заголовок-строка, плотный пергамент,
- *  решения без лишних отступов — карточка умещается во вьюпорт без прокрутки. */
+ *  решения без лишних отступов — карточка умещается во вьюпорт без прокрутки.
+ *  v0.3.27: карточка тянется на всю высоту окна (текст сверху, решения прижаты
+ *  к низу) — пустоты между пергаментом и кнопками больше нет. */
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   return (
-    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame wh-event-card p-4 xl:p-5 animate-parchment">
+    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col min-h-full animate-parchment">
       <div className="event-head mb-2">
         <div className="event-label-row flex items-center gap-2 mb-1.5">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
           <span className="font-gothic text-sm font-bold text-[#e07a7a] uppercase tracking-[0.18em] animate-candle">
-            Событие &bull; М41.{String(age).padStart(3, '0')}
+            Судьба &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
         <div className="event-parchment wh-parchment-simple rounded-sm px-4 py-3">
@@ -143,7 +145,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
       </div>
 
       {phase === 'result' && lastChoice ? (
-        <div className="result-block space-y-2.5 animate-fade-in" aria-live="polite">
+        <div className="result-block space-y-2.5 animate-fade-in mt-auto" aria-live="polite">
           <div className={`result-parchment wh-parchment-simple rounded-sm px-4 py-3 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
               <span className="text-xl leading-none pt-0.5">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
@@ -169,7 +171,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </button>
         </div>
       ) : (
-        <div className="choices-block space-y-2">
+        <div className="choices-block space-y-2 mt-auto">
           <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3">
             Твоё решение:
             <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–4 / A–D</span>

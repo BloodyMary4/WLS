@@ -9,7 +9,7 @@ import { AchievementToast } from './AchievementToast';
 import { GameHeader } from './GameHeader';
 import { Sidebar } from './Sidebar';
 import { ChroniclePanel } from './ChroniclePanel';
-import { EventCard } from './EventCard';
+import { EventWindow } from './EventWindow';
 import { DeathScreen } from './DeathScreen';
 
 interface GameScreenProps {
@@ -129,8 +129,8 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
                   </div>
                 </div>
               ) : (
-                <div className="fit-scroll flex-1 pr-1">
-                  <EventCard
+                <div className="flex-1 min-h-0 flex">
+                  <EventWindow
                     event={currentEvent}
                     age={character.age}
                     phase={uiState.phase === 'result' ? 'result' : 'event'}

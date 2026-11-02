@@ -890,4 +890,10 @@ p {
   .game-fit .wh-chronicle { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
   /* Левый отсек: окна прижаты друг к другу без «воздуха», скролл только у ленты */
   .game-fit .wh-window { margin-bottom: 0; }
+  /* v0.3.27: карточка события живёт ВНУТРИ окна — двойные рамки и отступы убраны,
+     решения прижаты к низу, пустоты между пергаментом и кнопками нет */
+  .game-fit .wh-event-card { padding: 0; border: none; box-shadow: none; background: transparent; }
 }
+
+/* Карточка события внутри окна (все ширины): растягивается на всю высоту контента */
+.wh-event-card.min-h-full { height: 100%; }
