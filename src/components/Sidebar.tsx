@@ -244,13 +244,21 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
           <span className="text-2xl">📜</span>
           Хроника
         </h3>
-        <div ref={logRef} className="max-h-[30vh] lg:max-h-64 overflow-y-auto space-y-2">
+        <div ref={logRef} className="wh-chronicle max-h-[30vh] lg:max-h-64 overflow-y-auto space-y-2">
           {history.length === 0 ? (
             <p className="text-gray-500 italic text-sm text-center py-4">Жизнь только начинается...</p>
           ) : (
             history.map((entry, i) => (
-              <p key={i} className="text-sm text-gray-400 border-l-2 border-yellow-600/50 pl-3 py-1 hover:border-yellow-500 transition-colors">
-                {entry}
+              <p
+                key={i}
+                title={entry}
+                className={`text-sm text-gray-400 border-l-2 pl-3 py-1 transition-colors ${
+                  entry.includes('**судьба**')
+                    ? 'border-l-[#d4af37] text-[#e8d9a0] italic'
+                    : 'border-yellow-600/50 hover:border-yellow-500'
+                }`}
+              >
+                {entry.replace('**судьба** ', '')}
               </p>
             ))
           )}
