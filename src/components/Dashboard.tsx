@@ -33,7 +33,10 @@ export function WindowPane({ title, icon, extra, children, className = '', scrol
         <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] truncate">{title}</h3>
         <span className="ml-auto flex items-center gap-1.5 shrink-0">{extra}</span>
       </header>
-      <div className={`flex-1 min-h-0 p-2 ${scroll ? 'overflow-y-auto wh-scroll' : ''}`}>{children}</div>
+      {/* Базовая высота контента (v0.3.32): даже без растянутого родителя
+          (схлопнутый flex-контейнер, странный вьюпорт) в окне всегда видна
+          содержательная часть — экран физически не может стать «пустым». */}
+      <div className={`flex-1 min-h-[160px] p-2 ${scroll ? 'overflow-y-auto wh-scroll' : ''}`}>{children}</div>
     </section>
   );
 }

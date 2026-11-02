@@ -57,7 +57,7 @@ describe('GameScreen layout smoke (v0.3.30)', () => {
       <GameScreen uiState={uiState} onChoice={(_: Choice) => {}} onProceed={() => {}} onNewGame={() => {}} />
     );
     // Три окна-отсека на месте (aria-label уникальны для секций)
-    expect(screen.getAllByRole('region', { name: 'Кодекс' })).toHaveLength(1);
+    expect(screen.getAllByRole('region', { name: 'Досье' })).toHaveLength(1);
     expect(screen.getAllByRole('region', { name: 'Хроника жизни' })).toHaveLength(1);
     expect(screen.getAllByRole('region', { name: /Событие года/ })).toHaveLength(1);
     // Досье видно сразу, без сворачиваний
@@ -81,7 +81,7 @@ describe('GameScreen layout smoke (v0.3.30)', () => {
     );
     // Регрессия v0.3.31: раньше вне fit-режима колонки схлопывались — игрок
     // видел пустой экран. Теперь остов окон рендерится при любом размере.
-    expect(screen.getAllByRole('region', { name: 'Кодекс' })).toHaveLength(1);
+    expect(screen.getAllByRole('region', { name: 'Досье' })).toHaveLength(1);
     expect(screen.getAllByRole('region', { name: 'Хроника жизни' })).toHaveLength(1);
     expect(screen.getByText(/открыл глаза/)).toBeTruthy();
     expect(screen.getByText('Плакать')).toBeTruthy();

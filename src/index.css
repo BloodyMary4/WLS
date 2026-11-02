@@ -958,3 +958,13 @@ p {
 .game-container:not(.game-fit) .wh-chronicle-wrap,
 .game-container:not(.game-fit) section[aria-label="Хроника жизни"] { min-height: 0; }
 .game-container:not(.game-fit) .wh-chronicle { max-height: none; flex: 1 1 auto; overflow-y: auto; }
+
+/* ===== v0.3.32: левый отсек — сетка самостоятельных окон-модулей =====
+   Каждое окно имеет адекватный размер: верхние (Досье/Снабжение) — по
+   содержимому, «Скрытые свойства» занимает остаток высоты и скроллится
+   внутри себя; дополнительные окна (души/квесты/снаряжение/галактика)
+   делят нижнюю зону. Ничего не растягивается контентом и не схлопывается. */
+.codex-grid { display: grid; grid-template-columns: 1fr; gap: 8px; min-height: 0; }
+.game-fit .codex-grid { grid-template-rows: auto auto minmax(150px, 1fr); height: 100%; overflow: hidden; }
+.game-container:not(.game-fit) .codex-grid { grid-auto-rows: min-content; }
+.game-container:not(.game-fit) .codex-grid > .wh-window { min-height: 120px; }

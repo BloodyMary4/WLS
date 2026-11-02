@@ -8,11 +8,18 @@ import { AudioController } from './AudioController';
 import { AchievementToast } from './AchievementToast';
 import { GameHeader } from './GameHeader';
 import { useFit } from '../game/useFit';
-import { CodexPanel } from './CodexPanel';
 import { ChroniclePanel } from './ChroniclePanel';
 import { EventWindow } from './EventWindow';
-import { WindowPane } from './Dashboard';
 import { DeathScreen } from './DeathScreen';
+/* Модули информационных окон экрана (v0.3.32): каждое окно — самостоятельный
+   обновляемый компонент со своим адекватным размером в сетке. */
+import { DossierWindow } from './windows/DossierWindow';
+import { HiddenStatsWindow } from './windows/HiddenStatsWindow';
+import { SuppliesWindow } from './windows/SuppliesWindow';
+import { GalaxyWindow } from './windows/GalaxyWindow';
+import { CompanionsWindow } from './windows/CompanionsWindow';
+import { QuestsWindow } from './windows/QuestsWindow';
+import { InventoryWindow } from './windows/InventoryWindow';
 
 interface GameScreenProps {
   uiState: GameUiState;
@@ -66,6 +73,9 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
 
   const fit = useFit();
 
+  /** Активные испытания судьбы (квесты) — для отдельного окна левого отсека. */
+  const activeQuests = game.activeQuests ?? [];
+
   /* Единая оконная сетка (v0.3.31): один и тот же остов экрана и в fit-режиме,
      и в обычном потоке. Вне lg+ колонки складываются стеком, а .game-fit
      перестаёт ограничивать высоту (CSS), так что ничего не схлопывается и
@@ -74,16 +84,21 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
     <main className={`flex-1 ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
       <div className={`mx-auto w-full max-w-[1700px] px-2 xl:px-3 ${fit ? 'h-full' : ''}`}>
         <div className={`fit-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
-          {/* Левый отсек: «Кодекс» — единое окно со стопкой секций;
-              если содержимое не влезает — скролл только внутри окна */}
+          {/* Левый отсек (v0.3.32): сетка самостоятельных окон-приборов.
+              Каждое окно — отдельный модуль с адекватным размером; длинные
+              списки скроллятся только внутри своего окна. */}
           <div className="lg:col-span-3 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
-            <WindowPane title="Кодекс" icon="⚜️" stretch scroll className="wh-codex-wrap">
-              <CodexPanel
-                character={character}
-                raceInfo={raceInfo}
-                activeQuests={game.activeQuests}
-              />
-            </WindowPane>
+            <div className="codex-grid flex-1 min-h-0">
+              <DossierWindow character={character} raceInfo={raceInfo} />
+              <SuppliesWindow character={character} />
+              <HiddenStatsWindow character={character} />
+              {character.worldEvent && <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />}
+              {character.npcs.length > 0 && <CompanionsWindow npcs={character.npcs} />}
+              {activeQuests.length > 0 && <QuestsWindow quests={activeQuests} />}
+              {(character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
+                <InventoryWindow character={character} />
+              )}
+            </div>
           </div>
 
           {/* Центр: главное окно события — решения всегда на экране */}
