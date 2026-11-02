@@ -19,7 +19,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
   // Сводка прошлых жизней из localStorage — только для отображения.
   const legacy = useMemo(() => buildLegacySummary(getLegacy()), []);
   return (
-    <div className="wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
+    <div className="game-container game-fit wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
 
       {/* Фоновые эффекты */}
@@ -28,7 +28,8 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-900/15 rounded-full blur-3xl animate-candle" style={{ animationDelay: '1.3s' }}></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 py-12">
+      <main className="fit-scroll relative z-10 container mx-auto px-6 py-12">
+      <div className="flex-1">
         <div className="max-w-[1600px] mx-auto">
           {/* Заголовок */}
           <div className="text-center mb-16 animate-fade-in">
@@ -148,6 +149,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

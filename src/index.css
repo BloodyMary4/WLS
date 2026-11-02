@@ -335,6 +335,65 @@ p {
   background: #0a0a0a;
 }
 
+/* Экран «без скроллинга»: вся игра умещается во вьюпорте (lg+).
+   Внутренние панели прокручиваются сами, страница — нет. */
+@media (min-width: 1024px) and (min-height: 640px) {
+  .game-fit {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .game-fit > main {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  .game-fit > main > div {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+  }
+  .game-fit .fit-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .game-fit .fit-col {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .game-fit .fit-scroll {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #8b6914 rgba(10, 10, 10, 0.6);
+  }
+  .game-fit .fit-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .game-fit .fit-scroll::-webkit-scrollbar-track {
+    background: rgba(10, 10, 10, 0.6);
+    border-radius: 4px;
+  }
+  .game-fit .fit-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #d4af37 0%, #8b6914 100%);
+    border-radius: 4px;
+  }
+  /* Компактный футер-строка вместо блока с эмодзи */
+  .game-fit .wh-footer {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    margin-top: 0;
+  }
+  .game-fit .wh-footer .footer-decor {
+    display: none;
+  }
+}
+
 .game-header {
   background: #0f0f0f;
   border-bottom: 1px solid #333;
@@ -693,4 +752,58 @@ p {
 
 .wh-chronicle::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #ffd700 0%, #d4af37 100%);
+}
+
+/* ===== Компактный режим в «fit»-экране: всё умещается без скролла страницы ===== */
+.game-fit .wh-side-title {
+  font-size: 0.95rem;
+}
+@media (min-width: 1024px) and (min-height: 640px) {
+  .game-fit .wh-side-panel {
+    padding: 0.85rem 1rem;
+  }
+  .game-fit .wh-side-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+  }
+  /* Шапка: одна компактная строка вместо двух ярусов */
+  .game-fit .wh-header-compact {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+  .game-fit .wh-header-compact .header-row {
+    margin-bottom: 0.5rem;
+  }
+  /* Карточка события: плотнее, чтобы решения были на экране */
+  .game-fit .wh-event-card {
+    padding: 1.25rem 1.5rem;
+  }
+  .game-fit .wh-event-card .event-head {
+    margin-bottom: 0.75rem;
+  }
+  .game-fit .wh-event-card .event-head .event-label-row {
+    margin-bottom: 0.5rem;
+  }
+  .game-fit .wh-event-card .event-parchment {
+    padding: 0.9rem 1rem;
+  }
+  .game-fit .wh-event-card .choices-block {
+    margin-top: 0.25rem;
+  }
+  .game-fit .wh-event-card .choice-btn {
+    min-height: 44px;
+    padding: 0.55rem 0.9rem;
+  }
+  .game-fit .wh-event-card .choice-text {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    padding-top: 0.1rem;
+  }
+  .game-fit .wh-event-card .result-block {
+    margin-top: 0.25rem;
+  }
+  .game-fit .wh-event-card .result-parchment {
+    padding: 0.9rem 1rem;
+  }
 }

@@ -18,8 +18,8 @@ interface GameHeaderProps {
 export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-[#c9a227]/30 shadow-lg" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)', backdropFilter: 'blur(8px)' }}>
-      <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
-        <div className="flex items-center justify-between mb-3 animate-slide-in-left">
+      <div className="wh-header-compact mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
+        <div className="header-row flex items-center justify-between mb-3 animate-slide-in-left">
           <div className="flex items-center gap-3 min-w-0">
             <RaceEmblem race={character.race} className="w-9 h-9 xl:w-10 xl:h-10 shrink-0 drop-shadow-[0_0_6px_rgba(201,162,39,0.35)]" />
             <div className="min-w-0">

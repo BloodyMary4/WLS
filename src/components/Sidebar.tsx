@@ -43,10 +43,12 @@ interface SidebarProps {
 /** Левая колонка: скрытые параметры, расовые особенности, снаряжение, NPC, квесты, хроника. */
 export function Sidebar({ character, raceInfo, activeQuests, history, logRef, open }: SidebarProps) {
   return (
-    <aside className={`lg:col-span-3 space-y-4 animate-slide-in-left ${open ? 'block' : 'hidden lg:block'}`}>
-      <div className="wh-panel p-6">
-        <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
-          <span className="text-2xl">📊</span>
+    <aside className={`fit-col lg:col-span-3 space-y-4 animate-slide-in-left ${open ? 'block' : 'hidden lg:block'}`}>
+      {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
+      <div className="fit-scroll flex-1 space-y-4 pr-1">
+      <div className="wh-panel wh-side-panel p-4 xl:p-5">
+        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
+          <span className="text-xl">📊</span>
           Характеристики
         </h3>
         <div className="space-y-3">
@@ -116,8 +118,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
         )}
       </div>
 
-      <div className="wh-panel p-6">
-        <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
+      <div className="wh-panel wh-side-panel p-4 xl:p-5">
+        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
           <RaceEmblem race={character.race} className="w-7 h-7" />
           Расовые особенности: {raceInfo.name}
         </h3>
@@ -132,9 +134,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
         </div>
       </div>
 
-      <div className="wh-panel p-6">
-        <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
-          <span className="text-2xl">🎒</span>
+      <div className="wh-panel wh-side-panel p-4 xl:p-5">
+        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
+          <span className="text-xl">🎒</span>
           Снаряжение
         </h3>
         <div className="space-y-3 text-base">
@@ -166,12 +168,12 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
 
       {/* Встреченные души (NPC) */}
       {character.npcs.length > 0 && (
-        <div className="wh-panel p-6">
-          <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
-            <span className="text-2xl">⚔️</span>
+        <div className="wh-panel wh-side-panel p-4 xl:p-5">
+          <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
+            <span className="text-xl">⚔️</span>
             Встреченные души ({character.npcs.length})
           </h3>
-          <div className="space-y-3 max-h-64 overflow-y-auto">
+          <div className="space-y-3">
             {character.npcs.slice(0, 5).map((npc) => (
               <div key={npc.id} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-yellow-600/30 transition-all">
                 <div className="flex items-start justify-between mb-2">
@@ -219,12 +221,12 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
 
       {/* Испытания судьбы (квесты) */}
       {activeQuests.length > 0 && (
-        <div className="wh-panel p-6">
-          <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
-            <span className="text-2xl">📜</span>
+        <div className="wh-panel wh-side-panel p-4 xl:p-5">
+          <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
+            <span className="text-xl">📜</span>
             Испытания судьбы ({activeQuests.length})
           </h3>
-          <div className="space-y-3 max-h-64 overflow-y-auto">
+          <div className="space-y-3">
             {activeQuests.map((quest) => (
               <div key={quest.id} className="p-4 bg-gray-800/50 rounded-lg border border-yellow-600/30 hover:border-yellow-500/50 transition-all">
                 <div className="text-base font-bold text-yellow-400 mb-2">{quest.name}</div>
@@ -273,9 +275,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
       )}
 
       {character.worldEvent && (
-        <div className="wh-panel p-6 border-l-4 border-l-blue-500/70">
+        <div className="wh-panel wh-side-panel p-4 xl:p-5 border-l-4 border-l-blue-500/70">
           <h3 className="wh-panel-title font-bold text-lg mb-3 pb-3 flex items-center gap-3">
-            <span className="text-2xl">🌍</span>
+            <span className="text-xl">🌍</span>
             Состояние Галактики
           </h3>
           <p className="text-sm text-blue-200/90 italic leading-relaxed">{character.worldEvent}</p>
@@ -285,12 +287,12 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
         </div>
       )}
 
-      <div className="wh-panel p-6">
-        <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
-          <span className="text-2xl">📜</span>
+      <div className="wh-panel wh-side-panel p-4 xl:p-5">
+        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
+          <span className="text-xl">📜</span>
           Хроника
         </h3>
-        <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle max-h-[30vh] lg:max-h-64 overflow-y-auto space-y-2">
+        <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-2">
           {history.length === 0 ? (
             <p className="text-gray-500 italic text-sm text-center py-4">Жизнь только начинается...</p>
           ) : (
@@ -309,6 +311,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
             ))
           )}
         </div>
+      </div>
       </div>
     </aside>
   );

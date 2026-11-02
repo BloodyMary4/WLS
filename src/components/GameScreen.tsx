@@ -50,14 +50,14 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
   }
 
   return (
-    <div className="game-container wh-grain wh-vignette" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
+    <div className="game-container game-fit wh-grain wh-vignette" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
 
       <AchievementToast achievementId={uiState.newAchievement} />
 
       <GameHeader character={character} raceInfo={raceInfo} onNewGame={onNewGame} />
 
-      <main className="py-6">
+      <main>
         <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6">
           <button
             onClick={onToggleSidebar}
@@ -68,7 +68,7 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
             <span className="text-xs text-gray-500">({sidebarOpen ? 'скрыть' : 'открыть'})</span>
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          <div className="fit-grid grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             <Sidebar
               character={character}
               raceInfo={raceInfo}
@@ -78,53 +78,55 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
               open={sidebarOpen}
             />
 
-            <div className="lg:col-span-9 animate-slide-in-right">
-              {/* Прогресс жизни */}
-              <div className="wh-panel p-6 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-base text-gray-400 font-semibold flex items-center gap-2">
-                    <span className="text-2xl">⏳</span>
-                    Прогресс жизни
-                  </span>
-                  <span className="text-base text-gray-400 font-bold">{character.age} / ~{maxExpectedAge} лет</span>
-                </div>
-                <div className="wh-bar w-full overflow-hidden" style={{ height: '10px' }}>
-                  <div
-                    className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
-                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%', transition: 'width 0.6s ease-out' }}
-                  ></div>
+            <div className="fit-col lg:col-span-9 animate-slide-in-right">
+              {/* Прогресс жизни — компактная строка */}
+              <div className="wh-panel px-4 py-2.5 mb-3 shrink-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg shrink-0" aria-hidden="true">⏳</span>
+                  <span className="sr-only">Прогресс жизни</span>
+                  <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }}>
+                    <div
+                      className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
+                      style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%', transition: 'width 0.6s ease-out' }}
+                    ></div>
+                  </div>
+                  <span className="text-sm text-gray-400 font-bold whitespace-nowrap tabular-nums">{character.age} / ~{maxExpectedAge} лет</span>
                 </div>
               </div>
 
               {gameOver ? (
-                <div className="wh-panel wh-frame p-8">
-                  <DeathScreen
-                    character={character}
-                    raceInfo={raceInfo}
-                    deathMessage={deathMessage}
-                    history={history}
-                    onNewLife={onNewGame}
-                  />
+                <div className="fit-scroll flex-1 pr-1">
+                  <div className="wh-panel wh-frame p-8">
+                    <DeathScreen
+                      character={character}
+                      raceInfo={raceInfo}
+                      deathMessage={deathMessage}
+                      history={history}
+                      onNewLife={onNewGame}
+                    />
+                  </div>
                 </div>
               ) : (
-                <EventCard
-                  event={currentEvent}
-                  age={character.age}
-                  phase={uiState.phase === 'result' ? 'result' : 'event'}
-                  resultText={uiState.resultText}
-                  lastChoice={uiState.lastChoice}
-                  onChoice={onChoice}
-                  onProceed={onProceed}
-                />
+                <div className="fit-scroll flex-1 pr-1">
+                  <EventCard
+                    event={currentEvent}
+                    age={character.age}
+                    phase={uiState.phase === 'result' ? 'result' : 'event'}
+                    resultText={uiState.resultText}
+                    lastChoice={uiState.lastChoice}
+                    onChoice={onChoice}
+                    onProceed={onProceed}
+                  />
+                </div>
               )}
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="border-t border-[#c9a227]/30 py-4 mt-8" style={{ background: 'rgba(11,10,8,0.9)' }}>
+      <footer className="wh-footer border-t border-[#c9a227]/30 py-4 mt-8" style={{ background: 'rgba(11,10,8,0.9)' }}>
         <div className="mx-auto w-full max-w-[1700px] px-6 text-center">
-          <div className="flex justify-center gap-3 mb-3">
+          <div className="footer-decor flex justify-center gap-3 mb-3">
             <span className="text-xl animate-pulse">⚔️</span>
             <span className="text-xl animate-pulse" style={{ animationDelay: '0.2s' }}>☠️</span>
             <span className="text-xl animate-pulse" style={{ animationDelay: '0.4s' }}>⚜️</span>

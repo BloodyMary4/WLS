@@ -48,15 +48,15 @@ function richText(text: string): ReactNode[] {
 /** Центральная карточка события: текст года или результат выбора. */
 export function EventCard({ event, age, phase, resultText, lastChoice, onChoice, onProceed }: EventCardProps) {
   return (
-    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame p-8 animate-parchment">
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4">
+    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame wh-event-card p-8 animate-parchment">
+      <div className="event-head mb-6">
+        <div className="event-label-row flex items-center gap-3 mb-4">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
           <span className="font-gothic text-lg font-bold text-[#c0392b] uppercase tracking-[0.2em] animate-candle">
             Событие &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
-        <div className="wh-parchment rounded-sm p-6 pt-7">
+        <div className="event-parchment wh-parchment rounded-sm p-6 pt-7">
           <p className="font-event text-lg leading-relaxed text-[#d8c9a3]">
             {richText(event.text)}
           </p>
@@ -64,8 +64,8 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
       </div>
 
       {phase === 'result' && lastChoice ? (
-        <div className="space-y-4 animate-fade-in" aria-live="polite">
-          <div className={`wh-parchment rounded-sm p-6 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
+        <div className="result-block space-y-4 animate-fade-in" aria-live="polite">
+          <div className={`result-parchment wh-parchment rounded-sm p-6 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
               <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
               <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
@@ -88,7 +88,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="choices-block space-y-3">
           <p className="font-gothic text-lg font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4 flex items-center gap-3">
             Твоё решение:
             <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-500">клавиши 1–4 / A–D</span>
@@ -97,7 +97,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
             <button
               key={choice.letter}
               onClick={() => onChoice(choice)}
-              className="btn-modern w-full min-h-[56px] text-left p-4 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] active:scale-[0.99] animate-slide-in-left"
+              className="choice-btn btn-modern w-full min-h-[56px] text-left p-4 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] active:scale-[0.99] animate-slide-in-left"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-4">
@@ -106,7 +106,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
                     {index + 1}
                   </span>
                 </div>
-                <span className="font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1 md:pt-2">{choice.text}</span>
+                <span className="choice-text font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1 md:pt-2">{choice.text}</span>
               </div>
             </button>
           ))}
