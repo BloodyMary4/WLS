@@ -17,7 +17,7 @@ function EffectChipRow({ chips, compact }: { chips: EffectChip[]; compact?: bool
   const shown = compact ? chips.slice(0, 3) : chips;
   const rest = chips.length - shown.length;
   return (
-    <div className={`flex flex-wrap gap-1.5 ${compact ? 'mt-2' : 'mt-3'}`} aria-hidden="true">
+    <div className={`flex flex-wrap gap-1.5 ${compact ? 'mt-1.5' : 'mt-3'}`} aria-hidden="true">
       {shown.map((chip, i) => (
         <span
           key={i}
@@ -109,7 +109,10 @@ function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number
   if (lines.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Итог выбора">
-      <span className="text-xs font-gothic uppercase tracking-wider text-[#b8a878]/80 mr-1">Итог:</span>
+      <span
+        className="text-xs font-gothic uppercase tracking-wider text-[#b8a878]/80 mr-1 cursor-help"
+        title="Точный результат твоего выбора: как изменились показатели. Зелёное — приобретение, красное — потеря."
+      >Итог:</span>
       {lines.map((line) => (
         <span key={line.key} className={`inline-flex items-center px-2 py-0.5 rounded-sm border text-xs font-semibold tabular-nums ${DELTA_TONE_CLS[line.tone]}`}>
           {line.text}
@@ -183,10 +186,9 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-2.5">
-                <div className="wh-choice-letter flex-shrink-0 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center shadow-lg text-sm">
-                  <span className="font-bold tabular-nums">
-                    {index + 1}
-                  </span>
+                <div className="wh-choice-letter flex-shrink-0 w-8 h-8 flex flex-col items-center justify-center shadow-lg leading-none" title={`Клавиши выбора: ${index + 1} или ${choice.letter}`}>
+                  <span className="font-bold tabular-nums text-sm">{index + 1}</span>
+                  <span className="text-[9px] opacity-70 font-gothic">{choice.letter}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="choice-text font-event text-[15px] text-[#d8c9a3] block leading-snug">{choice.text}</span>

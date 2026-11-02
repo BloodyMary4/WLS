@@ -1,11 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+
+/** Сохранение состояния панелей между сессиями — «обновляемые модули» интерфейса:
+ *  игрок один раз настроил плотность экрана, и его выбор живёт до сброса игры. */
+const STORAGE_PREFIX = 'wh-panel:';
+
+function loadOpenState(id: string, fallback: boolean): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + id);
+    if (raw === '1') return true;
+    if (raw === '0') return false;
+  } catch {
+    /* storage недоступен (SSR/приватный режим) — работаем по умолчанию */
+  }
+  return fallback;
+}
+
+function saveOpenState(id: string, open: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_PREFIX + id, open ? '1' : '0');
+  } catch {
+    /* молча: настройка плотности — не критичные данные */
+  }
+}
 
 interface CollapsibleSectionProps {
   /** Заголовок панели (с эмодзи/геральдикой внутри). */
   title: ReactNode;
   /** По умолчанию свёрнута? Для длинных второстепенных секций. */
   defaultOpen?: boolean;
+  /** Стабильный id: состояние сворачивания запоминается между сессиями. */
+  persistId?: string;
   /** Дочерний контент. */
   children: ReactNode;
   /** Дополнительный правый элемент в шапке (счётчик и т.п.). */
@@ -19,8 +44,12 @@ interface CollapsibleSectionProps {
  * содержимое, стрелка ▾ поворачивается, состояние доступно скринридерам.
  * Игрок управляет плотностью экрана сам, ничего не теряя.
  */
-export function CollapsibleSection({ title, defaultOpen = true, badge, children }: CollapsibleSectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
+export function CollapsibleSection({ title, defaultOpen = true, persistId, badge, children }: CollapsibleSectionProps) {
+  const [open, setOpen] = useState(() => (persistId ? loadOpenState(persistId, defaultOpen) : defaultOpen));
+  // Вторичная синхронизация: если секция сменила дефолт/id — не теряем запись
+  useEffect(() => {
+    if (persistId) saveOpenState(persistId, open);
+  }, [persistId, open]);
   return (
     <div className={`wh-panel wh-side-panel p-3 xl:p-3.5 ${open ? '' : 'wh-side-collapsed'}`}>
       <button

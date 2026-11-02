@@ -843,4 +843,19 @@ p {
   .game-fit .wh-side-title { font-size: 0.85rem; margin-bottom: 0.4rem; padding-bottom: 0.3rem; }
   /* Хроника: плотная лента текста мелкого кегля */
   .game-fit .wh-chronicle { line-height: 1.35; }
+  /* Панель «Путь жизни»: тоньше, чтобы не отъедать вертикаль карточки события */
+  .game-fit .wh-lifebar { padding-top: 0.3rem; padding-bottom: 0.3rem; }
+  /* Карточка события: заполняет всю колонку — никакого мёртвого воздуха снизу */
+  .game-fit .wh-event-card { height: 100%; display: flex; flex-direction: column; }
+  .game-fit .wh-event-card .choices-block,
+  .game-fit .wh-event-card .result-block { margin-top: auto; }
+  /* Сайдбар: единый «кодекс» с внутренними бордюрами вместо отдельных панелей */
+  .game-fit .wh-side-group { gap: 0; border-radius: 2px; overflow: hidden; }
+  .game-fit .wh-side-group .wh-panel { border: none; border-bottom: 1px solid rgba(201, 162, 39, 0.28); box-shadow: none; border-radius: 0; background: linear-gradient(180deg, rgba(24, 21, 14, 0.92) 0%, rgba(13, 11, 8, 0.95) 100%); }
+  .game-fit .wh-side-group .wh-panel:last-child { border-bottom: none; }
+  .game-fit .wh-side-group .wh-side-panel { padding: 0.5rem 0.7rem; }
+  /* Хроника — финальная секция кодекса: растягивается на всю оставшуюся
+     высоту колонки и прокручивается сама (страница — нет). */
+  .game-fit .wh-side-group .wh-chronicle-wrap { flex: 1 1 auto; min-height: 0; }
+  .game-fit .wh-side-group .wh-chronicle { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 }

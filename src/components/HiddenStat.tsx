@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { clampStat } from '../game/statMeta';
 interface HiddenStatProps {
   label: string;
   value: number;
@@ -33,7 +34,7 @@ export function HiddenStat({ label, value, icon, color, hint }: HiddenStatProps)
           className={`wh-bar-fill ${color} ${
             delta === 'up' ? 'wh-bar-flash-up' : delta === 'down' ? 'wh-bar-flash-down' : ''
           }`}
-          style={{ width: `${value * 10}%`, height: '100%' }}
+          style={{ width: `${clampStat(value) * 10}%`, height: '100%' }}
         ></div>
       </div>
       {/* Число всегда в контрастном бейдже — читается на любом цвете полосы */}

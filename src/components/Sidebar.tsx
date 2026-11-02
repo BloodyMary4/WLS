@@ -58,8 +58,11 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
   return (
     <aside className="fit-col lg:col-span-3 space-y-4 animate-slide-in-left">
       {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
-      <div className="fit-scroll flex-1 space-y-2.5 pr-1">
+      {/* Единая «книга кодекса»: секции идут сплошным блоком с тонкими бордюрами,
+          без зазоров-«воздуха» между отдельными панелями (v0.3.25). */}
+      <div className="fit-scroll flex-1 space-y-2.5 lg:space-y-0 pr-1 wh-side-group flex flex-col min-h-0">
       <CollapsibleSection
+        persistId="stats"
         title={<><span className="text-xl" aria-hidden="true">📊</span>Характеристики</>}
       >
         <div className="space-y-2">
@@ -130,6 +133,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
       </CollapsibleSection>
 
       <CollapsibleSection
+        persistId="race"
+        defaultOpen={false}
         title={<><RaceEmblem race={character.race} className="w-7 h-7" />Расовые особенности: {raceInfo.name}</>}
       >
         <div className="space-y-2">
@@ -144,6 +149,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
       </CollapsibleSection>
 
       <CollapsibleSection
+        persistId="gear"
+        defaultOpen={false}
         title={<><span className="text-xl">🎒</span>Снаряжение</>}
       >
         <div className="space-y-2.5 text-sm">
@@ -176,7 +183,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
       {/* Встреченные души (NPC) — сворачиваемая панель со счётчиком */}
       {character.npcs.length > 0 && (
         <CollapsibleSection
-          title={<><span className="text-xl">⚔️</span>Встреченные души</>}
+          persistId="npcs"
+        defaultOpen={false}
+        title={<><span className="text-xl">⚔️</span>Встреченные души</>}
           badge={<span className="text-[11px] font-normal text-gray-400 tabular-nums">{character.npcs.length}</span>}
         >
           <div className="space-y-2">
@@ -228,7 +237,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
       {/* Испытания судьбы (квесты) — сворачиваемая панель со счётчиком */}
       {activeQuests.length > 0 && (
         <CollapsibleSection
-          title={<><span className="text-xl">📜</span>Испытания судьбы</>}
+          persistId="quests"
+        title={<><span className="text-xl">📜</span>Испытания судьбы</>}
           badge={<span className="text-[11px] font-normal text-gray-400 tabular-nums">{activeQuests.length}</span>}
         >
           <div className="space-y-2">
@@ -281,7 +291,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
 
       {character.worldEvent && (
         <CollapsibleSection
-          title={<><span className="text-xl">🌍</span>Состояние Галактики</>}
+          persistId="world"
+        defaultOpen={false}
+        title={<><span className="text-xl">🌍</span>Состояние Галактики</>}
         >
           <p className="text-sm text-blue-200/90 italic leading-relaxed">{character.worldEvent}</p>
           {(character.worldEventsSeen?.length ?? 0) > 1 && (

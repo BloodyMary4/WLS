@@ -58,14 +58,27 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
   const fateCount = filterChronicle(history, 'fate').length;
 
   return (
-    <div className="wh-panel wh-side-panel p-3 xl:p-3.5 flex flex-col min-h-0">
+    <div className="wh-panel wh-side-panel p-3 xl:p-3.5 flex flex-col min-h-0 wh-chronicle-wrap">
       <h3 className="wh-panel-title wh-side-title font-bold pb-0 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2">
           <span className="text-lg" aria-hidden="true">📜</span>
           Хроника
         </span>
-        <span className="text-[11px] font-normal text-gray-400 tabular-nums whitespace-nowrap">
-          {shownHistory.length} из {history.length}
+        <span className="flex items-center gap-2 shrink-0">
+          <span className="text-[11px] font-normal text-gray-400 tabular-nums whitespace-nowrap">
+            {shownHistory.length} из {history.length}
+          </span>
+          {/* Игрок отлистал вверх — подсказка вернуться к последнему году */}
+          {!chroniclePinned && history.length > 0 && (
+            <button
+              type="button"
+              onClick={onJumpToLatest}
+              title="Вернуть прокрутку к последней записи"
+              className="px-1.5 py-0.5 rounded-sm border border-[#c9a227]/60 bg-[#c9a227]/15 text-[#e8c85a] text-xs font-gothic leading-none hover:bg-[#c9a227]/25 transition-colors"
+            >
+              ↓
+            </button>
+          )}
         </span>
       </h3>
       {/* Фильтр записей: судьбоносные выделены золотом, но их легко найти и отдельно */}
@@ -87,16 +100,6 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
           </button>
         ))}
       </div>
-      {/* Игрок отлистал вверх — подсказка вернуться к последнему году */}
-      {!chroniclePinned && shownHistory.length > 0 && (
-        <button
-          type="button"
-          onClick={onJumpToLatest}
-          className="mb-1.5 w-full px-2 py-1 rounded-sm border border-[#c9a227]/50 bg-[#c9a227]/10 text-[#e8c85a] text-xs font-gothic uppercase tracking-wider hover:bg-[#c9a227]/20 transition-colors"
-        >
-          ↓ К последнему году
-        </button>
-      )}
       <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-1.5">
         {history.length === 0 ? (
           <p className="text-gray-400 italic text-sm text-center py-4">Жизнь только начинается...</p>

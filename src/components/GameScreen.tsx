@@ -93,7 +93,7 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
 
             <div className="fit-col lg:col-span-9 animate-slide-in-right">
               {/* Прогресс жизни и достижения — одна плотная строка-прибор (v0.3.25) */}
-              <div className="wh-panel px-3 py-1.5 mb-2 shrink-0">
+              <div className="wh-panel wh-lifebar px-3 py-1.5 mb-2 shrink-0">
                 <div className="flex items-center gap-3">
                   <span className="text-sm shrink-0" aria-hidden="true">⏳</span>
                   <span className="sr-only">Прогресс жизни</span>

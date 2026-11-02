@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { STAT_HINTS, FOOD_CRITICAL, isStarving, foodCaption } from '../game/statMeta';
+import { STAT_HINTS, STATUS_HINTS, FOOD_CRITICAL, isStarving, foodCaption, clampStat } from '../game/statMeta';
 
 describe('statMeta — пояснения к показателям шапки', () => {
   it('каждый показатель шапки имеет понятное пояснение', () => {
@@ -31,5 +31,22 @@ describe('statMeta — пояснения к показателям шапки',
     expect(foodCaption(5)).toBe('хватит на 5 лет');
     expect(foodCaption(11)).toBe('хватит на 11 лет');
     expect(foodCaption(21)).toBe('хватит на 21 год');
+  });
+});
+
+describe('STATUS_HINTS — статус «кто ты сейчас» не бывает загадкой', () => {
+  it('базовые возрастные статусы объяснены', () => {
+    for (const st of ['Младенец', 'Малыш', 'Ребёнок', 'Подросток', 'Взрослый']) {
+      expect(STATUS_HINTS[st]?.length).toBeGreaterThan(20);
+    }
+  });
+});
+
+describe('clampStat — полоса скрытых характеристик всегда в шкале 0–10', () => {
+  it('режет выбросы и спасает NaN', () => {
+    expect(clampStat(-3)).toBe(0);
+    expect(clampStat(14)).toBe(10);
+    expect(clampStat(7)).toBe(7);
+    expect(clampStat(NaN)).toBe(0);
   });
 });

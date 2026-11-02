@@ -2,7 +2,7 @@ import { CharacterStats } from '../game/types';
 import { StatCard } from './StatCard';
 import { RaceEmblem } from './RaceEmblem';
 import { listCriticalStats } from '../game/critical';
-import { STAT_HINTS, foodCaption } from '../game/statMeta';
+import { STAT_HINTS, STATUS_HINTS, foodCaption } from '../game/statMeta';
 import { significantDeltas } from '../game/deltaLabels';
 import { PublicStatKey } from '../game/utils';
 import {
@@ -137,6 +137,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
           />
           {/* Припасы: 4 ячейки 2×2 — голод и боезапас подсвечиваются, когда на исходе */}
           <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+            <span className="font-gothic uppercase tracking-wider text-[10px] text-[#b8a878]/70 col-span-2 leading-none" aria-hidden="true">Припасы</span>
             <span title={character.credits === 0 ? '💰 Кредиты: ни одного кредита — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}>
               <span className={`font-semibold tabular-nums ${character.credits === 0 ? 'text-[#e07a7a] font-bold' : 'text-yellow-400'}`}>
                 💰 {character.credits}₡{character.credits === 0 && <span aria-hidden="true" className="ml-0.5">⚠</span>}
@@ -153,12 +154,13 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
               caption={character.ammo <= 0 ? 'оружие молчит!' : 'заряды'}
               hint={`🔫 Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`}
             />
-            <span title={`Текущее положение персонажа: ${character.status}`}>
-              <span className="text-[#d8c9a3]">{character.status}</span>
-              <SupplyCaption text="положение" />
+            <span title={STATUS_HINTS[character.status] ?? `Твоё место в жизни: ${character.status}. Смена ремесла или положения приходит с судьбоносными выборами.`}>
+              <span className="text-[#d8c9a3] font-semibold">{character.status}</span>
+              <SupplyCaption text="кто ты сейчас" />
             </span>
           </div>
           <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 flex flex-col justify-center gap-1 text-xs">
+            <span className="font-gothic uppercase tracking-wider text-[10px] text-[#b8a878]/70 leading-none" aria-hidden="true">Положение</span>
             <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.influence}>
               <span className="text-[#b8a878]">⭐ Влияние</span>
               <span className="text-orange-400 font-bold tabular-nums">{character.influence}</span>
