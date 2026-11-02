@@ -7,6 +7,16 @@ import {
   dispatchGameAction,
 } from '../game/reducer';
 import { getAmbience } from '../game/audio';
+import { vibrate, type HapticEvent } from '../game/haptics';
+
+/** Звук → тактильный паттерн (Gamepad vibration actuator). */
+const SOUND_TO_HAPTIC: Partial<Record<string, HapticEvent>> = {
+  choice: 'choice',
+  fate: 'fate',
+  wound: 'wound',
+  miracle: 'miracle',
+  death: 'death',
+};
 import { saveGame, loadGame, hasSave as checkHasSave } from '../game/saveSystem';
 import { validateGameState } from '../game/validation';
 import { setGlobalSeed } from '../game/rng';
@@ -28,7 +38,12 @@ function runEffects(effects: GameEffect[], stateRef: React.MutableRefObject<Game
         else if (fx.sound === 'choice') ambience.playChoiceClick();
         else if (fx.sound === 'year') ambience.playYearTick();
         else if (fx.sound === 'wound') ambience.playWoundHit();
+        else if (fx.sound === 'fate') { /* судьбоносный выбор: только тактильный отклик, без нового звука */ }
         else ambience.playAchievementSound();
+        {
+          const haptic = SOUND_TO_HAPTIC[fx.sound];
+          if (haptic) vibrate(haptic);
+        }
         break;
       case 'save': {
         const s = stateRef.current;

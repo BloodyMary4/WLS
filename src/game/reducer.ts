@@ -62,7 +62,7 @@ export type GameAction =
 
 export type GameEffect =
   | { kind: 'unlockAudio' }
-  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' | 'wound'; tone?: 'neutral' | 'grave' | 'bright' }
+  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' | 'wound' | 'fate'; tone?: 'neutral' | 'grave' | 'bright' }
   | { kind: 'setMood'; mood: AmbienceMood }
   | { kind: 'save' }
   | { kind: 'achievementToast'; durationMs: number };
@@ -337,7 +337,7 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
 
   const effects: GameEffect[] = [
     { kind: 'unlockAudio' },
-    { kind: 'playSound', sound: 'choice' },
+    { kind: 'playSound', sound: choice.effects.keyChoice ? 'fate' : 'choice' },
   ];
 
   // Звуковой акцент исхода выбора (чистая эвристика, без RNG — детерминизм не затрагивается)

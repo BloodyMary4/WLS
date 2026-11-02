@@ -25,6 +25,7 @@ const REQUIRED_FILES = [
   'src/game/microEvents.ts',
   'src/game/legacy.ts',
   'src/game/saveSystem.ts',
+  'src/game/haptics.ts',
   'src/game/audio.ts',
   
   // События по расам

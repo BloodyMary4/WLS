@@ -340,4 +340,17 @@ describe('Летопись жизни на экране смерти (v0.3.4)', 
     const last = outcome.state.game!.history[outcome.state.game!.history.length - 1];
     expect(last).not.toContain('**судьба**');
   });
+
+  it('звук выбора зависит от судьбоносности: fate для keyChoice, choice для обычного', () => {
+    const game = makeGameState();
+    const state: GameUiState = { ...initialUiState, game, phase: 'event' };
+    const fateFx = computeChoose(state, fateChoice).effects;
+    const plainFx = computeChoose(state, harmlessChoice).effects;
+    const soundOf = (fxs: typeof fateFx) => {
+      const f = fxs.find((x) => x.kind === 'playSound' && (x.sound === 'fate' || x.sound === 'choice'));
+      return f && f.kind === 'playSound' ? f.sound : undefined;
+    };
+    expect(soundOf(fateFx)).toBe('fate');
+    expect(soundOf(plainFx)).toBe('choice');
+  });
 });
