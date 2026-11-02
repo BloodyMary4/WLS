@@ -1,7 +1,7 @@
 import { CharacterStats, GameEvent } from '../types';
 
 export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
-  if (age >= 12 && c.keyChoices && c.keyChoices.includes('gretchin_leader')) {
+  if (age >= 12 && c.keyChoices && c.keyChoices.includes('grot_uprising')) {
     return {
       text: 'Возраст ' + age + '. Ты стал лидером среди гретчинов. Другие слушают тебя. У тебя есть план... но орки начинают подозревать. "Что-то не так с этими мелкими уродами."',
       choices: [
@@ -65,9 +65,9 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты слышал слухи — ГРЕТЧИН, который сбежал от орков! Он живёт в канализации, свободный. Собирает других беглецов. Говорят, у него даже есть ТЕХНОЛОГИИ. Может, это путь?',
       choices: [
-        { letter: 'А', text: 'Найти его и присоединиться — свобода!', effects: { cunning: 2, willpower: 2, health: -5, newStatus: 'Беглец', keyChoice: 'gretchin_leader', description: 'Ты находишь его! "Добро пожаловать, брат." Впервые ты свободен. Но орки ищут...' } },
+        { letter: 'А', text: 'Найти его и присоединиться — свобода!', effects: { cunning: 2, willpower: 2, health: -5, newStatus: 'Беглец', keyChoice: 'grot_uprising', description: 'Ты находишь его! "Добро пожаловать, брат." Впервые ты свободен. Но орки ищут...' } },
         { letter: 'Б', text: 'Донести Кразу — может, наградит?', effects: { sneakiness: -1, health: 5, description: 'Краз доволен. "ХОРОШИЙ ГРЕТЧИН!" Он даёт тебе лишнюю кость. Но другие гретчины смотрят с презрением.' } },
-        { letter: 'В', text: 'Запомнить информацию — знать, что свобода возможна', effects: { willpower: 2, cunning: 1, keyChoice: 'gretchin_leader', description: 'Свобода существует. Ты запоминаешь. Однажды... ты тоже сбежишь.' } },
+        { letter: 'В', text: 'Запомнить информацию — знать, что свобода возможна', effects: { willpower: 2, cunning: 1, keyChoice: 'grot_uprising', description: 'Свобода существует. Ты запоминаешь. Однажды... ты тоже сбежишь.' } },
         { letter: 'Г', text: 'Начать свой план побега — тихо, один', effects: { sneakiness: 3, willpower: 1, description: 'Ты копишь ресурсы. Изучаешь маршруты. Побег — дело времени.' } },
       ]
     };

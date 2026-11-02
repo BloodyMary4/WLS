@@ -8,6 +8,7 @@ import {
   getTauEvent, 
   getGretchinEvent, 
   getInquisitionBranchEvent,
+  getGretchinBranchEvent,
   getAugmeticEvent 
 } from './events';
 import { generateWorldEvent } from './utils';
@@ -161,7 +162,7 @@ export const RACE_INFO: Record<Race, { name: string; emoji: string; description:
 // ============ ГЛАВНЫЙ МАРШРУТИЗАТОР ============
 
 export function getEventForAge(age: number, character: CharacterStats): GameEvent {
-  // Лорные ветвки: у человека с контактом Инквизиции каждый пятый год —
+  // Лорные ветки: у человека с контактом Инквизиции каждый пятый год —
   // события special-ветки (приоритет над обычными расовыми).
   if (character.race === 'human' && age >= 25 && age % 5 === 0) {
     const branch = getInquisitionBranchEvent(age, character);
@@ -172,6 +173,11 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
   if (character.race === 'human' && (character.hiddenParams.psi || 0) >= 5) {
     const psykerCall = getHumanEvent(age, character);
     if (psykerCall.text.includes('Ордо Малипус')) return psykerCall;
+  }
+  // Лорная ветка «Путь Гретчина»: восстание рабов -> племя грат -> испытание вожака.
+  if (character.race === 'gretchin') {
+    const grotBranch = getGretchinBranchEvent(age, character);
+    if (grotBranch) return grotBranch;
   }
   // Аугметика: на «пятых» годах после зрелости — предложение импланта
   // из лорного каталога своей фракции (если подходящий ещё не установлен).
