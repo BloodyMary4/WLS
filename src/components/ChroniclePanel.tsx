@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { WindowPane } from './Dashboard';
 
 /** Метка судьбоносного выбора в хронике (effects.keyChoice в reducer). */
 const FATE_MARK = '**судьба**';
@@ -48,9 +49,9 @@ interface ChroniclePanelProps {
 }
 
 /**
- * Панель «Хроника» — обновляемый модуль игрового интерфейса:
- * счётчик записей, фильтры, кнопка возврата к последнему году и лента событий.
- * Вынесен из Sidebar в собственный файл: секции экрана легко менять независимо.
+ * Окно «Хроника жизни» — самостоятельный обновляемый модуль правого отсека (v0.3.26):
+ * окно на всю высоту колонки, счётчик записей, фильтры, кнопка возврата
+ * к последнему году. Лента скроллится только внутри окна — страница не гуляет.
  */
 export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJumpToLatest }: ChroniclePanelProps) {
   const [chronicleFilter, setChronicleFilter] = useState<ChronicleFilter>('all');
@@ -58,15 +59,15 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
   const fateCount = filterChronicle(history, 'fate').length;
 
   return (
-    <div className="wh-panel wh-side-panel p-3 xl:p-3.5 flex flex-col min-h-0 wh-chronicle-wrap">
-      <h3 className="wh-panel-title wh-side-title font-bold pb-0 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-2">
-          <span className="text-lg" aria-hidden="true">📜</span>
-          Хроника
-        </span>
-        <span className="flex items-center gap-2 shrink-0">
-          <span className="text-[11px] font-normal text-gray-400 tabular-nums whitespace-nowrap">
-            {shownHistory.length} из {history.length}
+    <WindowPane
+      title="Хроника жизни"
+      icon="📜"
+      stretch
+      className="flex-1 min-h-[240px]"
+      extra={
+        <>
+          <span className="text-[10px] text-gray-400 tabular-nums whitespace-nowrap">
+            {shownHistory.length}/{history.length}
           </span>
           {/* Игрок отлистал вверх — подсказка вернуться к последнему году */}
           {!chroniclePinned && history.length > 0 && (
@@ -79,10 +80,11 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
               ↓
             </button>
           )}
-        </span>
-      </h3>
+        </>
+      }
+    >
       {/* Фильтр записей: судьбоносные выделены золотом, но их легко найти и отдельно */}
-      <div role="group" aria-label="Фильтр хроники" className="flex flex-wrap gap-1 mb-2">
+      <div role="group" aria-label="Фильтр хроники" className="flex flex-wrap gap-1 mb-2 shrink-0">
         {(Object.keys(FILTER_LABELS) as ChronicleFilter[]).map((f) => (
           <button
             key={f}
@@ -125,13 +127,7 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
                 }`}
               >
                 {isFate && (
-                  <span
-                    aria-hidden="true"
-                    className="mr-1 text-[#d4af37]"
-                    title="Судьбоносный выбор"
-                  >
-                    🏵
-                  </span>
+                  <span aria-hidden="true" className="mr-1 text-[#d4af37]" title="Судьбоносный выбор">🏵</span>
                 )}
                 {text}
               </p>
@@ -139,6 +135,6 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
           })
         )}
       </div>
-    </div>
+    </WindowPane>
   );
 }

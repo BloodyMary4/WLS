@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { filterChronicle } from '../components/Sidebar';
+import { filterChronicle } from '../components/ChroniclePanel';
 
 const fateEntry = '[Год 12] **судьба** Ты нашёл странный предмет... → Спрятать и оставить себе';
 const plainEntry = '[Год 3] Обычное событие... → Ничего не делать';

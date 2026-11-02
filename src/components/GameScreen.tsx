@@ -8,6 +8,7 @@ import { AudioController } from './AudioController';
 import { AchievementToast } from './AchievementToast';
 import { GameHeader } from './GameHeader';
 import { Sidebar } from './Sidebar';
+import { ChroniclePanel } from './ChroniclePanel';
 import { EventCard } from './EventCard';
 import { DeathScreen } from './DeathScreen';
 
@@ -18,9 +19,10 @@ interface GameScreenProps {
   onNewGame: () => void;
 }
 
-/** Игровой экран: шапка + сайдбар + карточка события/смерти + футер.
- *  Сайдбар всегда видим (единый стиль «всё на экране»): панель характеристик
- *  сворачивается внутри сайдара кнопкой-заголовком, а не кнопкой «Скрыть». */
+/** Игровой экран-«мостик» (v0.3.26): собран из окон-иллюминаторов.
+ *  Верх — приборная панель статов; ниже три колонки отсеков: бортовой журнал
+ *  слева, главное окно события в центре, хроника жизни справа. Страница не
+ *  прокручивается целиком — длинные ленты скроллятся только внутри своих окон. */
 export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScreenProps) {
   const logRef = useRef<HTMLDivElement>(null);
   /** true — хроника «пришпилена» к последней записи; false — игрок читает старое. */
@@ -33,10 +35,7 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
   const maxExpectedAge = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED_BY_RACE[character.race]
     ?? GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
 
-  // Автоскролл хроники к последней записи.
-  // Уважение prefers-reduced-motion: без плавной анимации прокрутки, сразу в конец.
-  // Если игрок сам отлистал вверх («читаю старое») — не уводим взгляд с новой записи,
-  // вместо этого показываем кнопку-подсказку «к последнему году».
+  // Автоскролл хроники к последней записи (уважает prefers-reduced-motion).
   useEffect(() => {
     const el = logRef.current;
     if (!el) return;
@@ -47,15 +46,12 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
     }
     const reduceMotion = typeof window !== 'undefined'
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) {
-      el.scrollTop = el.scrollHeight;
-    } else {
-      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    }
+    if (reduceMotion) el.scrollTop = el.scrollHeight;
+    else el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     setChroniclePinned(true);
   }, [history]);
 
-  /** Вернуть хронику к последней записи (кнопка над скроллом). */
+  /** Вернуть хронику к последней записи (кнопка в шапке окна). */
   const jumpToLatest = () => {
     const el = logRef.current;
     if (!el) return;
@@ -79,21 +75,27 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
       <GameHeader character={character} raceInfo={raceInfo} lastDeltas={uiState.lastDeltas} onNewGame={onNewGame} />
 
       <main>
-        <div className="mx-auto w-full max-w-[1700px] px-3 xl:px-4">
-          <div className="fit-grid grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
-            <Sidebar
-              character={character}
-              raceInfo={raceInfo}
-              activeQuests={game.activeQuests}
-              history={history}
-              logRef={logRef}
-              chroniclePinned={chroniclePinned}
-              onJumpToLatest={jumpToLatest}
-            />
+        <div className="mx-auto w-full max-w-[1700px] px-2 xl:px-3">
+          <div className="fit-grid grid grid-cols-1 lg:grid-cols-12 gap-2 items-stretch">
+            {/* Левый отсек: окна досье, свойств, снаряжения, связей */}
+            <div className="fit-col lg:col-span-3 animate-slide-in-left">
+              <div className="fit-scroll flex-1 pr-1">
+                <Sidebar
+                  character={character}
+                  raceInfo={raceInfo}
+                  activeQuests={game.activeQuests}
+                  history={history}
+                  logRef={logRef}
+                  chroniclePinned={chroniclePinned}
+                  onJumpToLatest={jumpToLatest}
+                />
+              </div>
+            </div>
 
-            <div className="fit-col lg:col-span-9 animate-slide-in-right">
-              {/* Прогресс жизни и достижения — одна плотная строка-прибор (v0.3.25) */}
-              <div className="wh-panel wh-lifebar px-3 py-1.5 mb-2 shrink-0">
+            {/* Центральный иллюминатор: путь жизни + событие/смерть */}
+            <div className="fit-col lg:col-span-6 gap-2">
+              {/* Прогресс жизни и достижения — тонкая строка-прибор над главным окном */}
+              <div className="wh-panel wh-lifebar px-3 py-1.5 shrink-0">
                 <div className="flex items-center gap-3">
                   <span className="text-sm shrink-0" aria-hidden="true">⏳</span>
                   <span className="sr-only">Прогресс жизни</span>
@@ -116,7 +118,7 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
 
               {gameOver ? (
                 <div className="fit-scroll flex-1 pr-1">
-                  <div className="wh-panel wh-frame p-8">
+                  <div className="wh-panel wh-frame p-6 xl:p-8">
                     <DeathScreen
                       character={character}
                       raceInfo={raceInfo}
@@ -141,11 +143,25 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
                 </div>
               )}
             </div>
+
+            {/* Правый отсек: хроника жизни — отдельное окно на всю высоту */}
+            <div className="fit-col lg:col-span-3 animate-slide-in-right">
+              <div className="fit-scroll flex-1 pr-1 flex">
+                <div className="flex-1 min-h-0 flex flex-col">
+                  <ChroniclePanel
+                    history={history}
+                    logRef={logRef}
+                    chroniclePinned={chroniclePinned}
+                    onJumpToLatest={jumpToLatest}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
 
-      {/* Футер: тонкая строка-подсказка вместо блока с эмодзи (v0.3.25) */}
+      {/* Футер: тонкая строка-подсказка */}
       <footer className="wh-footer border-t border-[#c9a227]/30 py-1.5" style={{ background: 'rgba(11,10,8,0.9)' }}>
         <div className="mx-auto w-full max-w-[1700px] px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-[#b8a878]/80">
           <span className="font-gothic uppercase tracking-widest text-[#c9a227]/70">⚜ Warhammer Life Simulator</span>
