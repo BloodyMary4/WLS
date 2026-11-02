@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { GameEvent, Choice } from '../game/types';
+import { GameEvent, Choice, ChoiceEffects } from '../game/types';
 
 interface EventCardProps {
   event: GameEvent;
@@ -9,6 +9,16 @@ interface EventCardProps {
   lastChoice: Choice | null;
   onChoice: (choice: Choice) => void;
   onProceed: () => void;
+}
+
+/**
+ * «Вес» решения для визуального маркера на кнопке выбора (дорожная карта UI/UX):
+ * судьбоносный выбор с меткой ⚡, опасный (грозящий здоровью/рассудку) — с 💀.
+ */
+export function choiceRiskMark(effects: ChoiceEffects): 'fate' | 'danger' | null {
+  if (effects.keyChoice) return 'fate';
+  const harm = (effects.health ?? 0) + (effects.sanity ?? 0);
+  return harm <= -8 ? 'danger' : null;
 }
 
 /** Помечает карточку золотым чудом, если текст содержит запись о заступничестве. */

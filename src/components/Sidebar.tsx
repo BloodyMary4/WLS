@@ -9,19 +9,39 @@ type RaceInfo = { name: string; emoji: string; description: string };
 /** Метка судьбоносного выбора в хронике (effects.keyChoice в reducer). */
 const FATE_MARK = '**судьба**';
 
-/** Фильтры хроники: все записи / только великие события / только выборы игрока. */
-type ChronicleFilter = 'all' | 'fate' | 'choices';
+/**
+ * Отделяет служебную markdown-метку судьбы от текста записи хроники.
+ * Совместимо со старыми сейвами: строка без метки возвращается как есть.
+ */
+export function splitFateMark(entry: string): { isFate: boolean; text: string } {
+  const idx = entry.indexOf(FATE_MARK);
+  if (idx === -1) return { isFate: false, text: entry };
+  const text = (entry.slice(0, idx) + entry.slice(idx + FATE_MARK.length))
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return { isFate: true, text };
+}
+
+/** Фильтры хроники: все записи / только великие события / только выборы игрока / только мир. */
+type ChronicleFilter = 'all' | 'fate' | 'choices' | 'world';
 
 const FILTER_LABELS: Record<ChronicleFilter, string> = {
   all: 'Все',
   fate: 'Судьбоносные',
   choices: 'Выборы',
+  world: 'Мир',
 };
+
+/** Запись глобального мирового события в хронике помечается префиксом [МИР]. */
+export function isWorldEntry(entry: string): boolean {
+  return entry.startsWith('[МИР]') || /^\[Год \d+\] \[МИР\]/.test(entry);
+}
 
 export function filterChronicle(history: string[], filter: ChronicleFilter): string[] {
   if (filter === 'all') return history;
   if (filter === 'fate') return history.filter((h) => h.includes(FATE_MARK));
-  return history.filter((h) => /^\[Год \d+\]/.test(h));
+  if (filter === 'world') return history.filter(isWorldEntry);
+  return history.filter((h) => !isWorldEntry(h) && /^\[Год \d+\]/.test(h));
 }
 
 /** Русская плюрализация: 1 чудо / 2-4 чуда / 5+ чудес */
@@ -364,22 +384,36 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
             <p className="text-gray-500 italic text-sm text-center py-4">
               {chronicleFilter === 'fate'
                 ? 'Судьба пока молчит — великих решений ещё не было.'
-                : 'Выборов игрока пока нет.'}
+                : chronicleFilter === 'world'
+                  ? 'Мир вокруг пока без глобальных потрясений.'
+                  : 'Выборов игрока пока нет.'}
             </p>
           ) : (
-            shownHistory.map((entry, i) => (
-              <p
-                key={`${chronicleFilter}-${i}`}
-                title={entry}
-                className={`text-sm text-gray-400 border-l-2 pl-3 py-1 transition-colors animate-fade-in ${
-                  entry.includes('**судьба**')
-                    ? 'border-l-[#d4af37] text-[#e8d9a0] italic'
-                    : 'border-yellow-600/50 hover:border-yellow-500'
-                }`}
-              >
-                {entry.replace('**судьба** ', '')}
-              </p>
-            ))
+            shownHistory.map((entry, i) => {
+              const { isFate, text } = splitFateMark(entry);
+              return (
+                <p
+                  key={`${chronicleFilter}-${i}`}
+                  title={text}
+                  className={`text-sm border-l-2 pl-3 py-1 transition-colors animate-fade-in ${
+                    isFate
+                      ? 'border-l-[#d4af37] text-[#e8d9a0] italic'
+                      : 'border-yellow-600/50 text-gray-400 hover:border-yellow-500'
+                  }`}
+                >
+                  {isFate && (
+                    <span
+                      aria-hidden="true"
+                      className="mr-1 text-[#d4af37]"
+                      title="Судьбоносный выбор"
+                    >
+                      🏵
+                    </span>
+                  )}
+                  {text}
+                </p>
+              );
+            })
           )}
         </div>
       </div>
