@@ -5,3 +5,4 @@ export { getDarkEldarEvent } from './darkEldarEvents';
 export { getTauEvent } from './tauEvents';
 export { getGretchinEvent } from './gretchinEvents';
 export { getInquisitionBranchEvent } from './inquisitionBranch';
+export { getAugmeticEvent, pickAugmeticForEvent } from './augmeticEvents';

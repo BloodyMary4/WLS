@@ -1,6 +1,27 @@
 import { CharacterStats, ChoiceEffects } from './types';
 import { rng } from './rng';
 import { GAME_CONFIG } from './config';
+import { findAugmetic } from './augmetics';
+
+/**
+ * Установка импланта из лорного каталога (src/game/augmetics.ts):
+ * добавляет id в augmentics и один раз применяет пассивные бонусы
+ * (maxHealthBonus — расширение тела металлом, luck/influence).
+ * Чистая функция без RNG — детерминизм seed-партий сохраняется.
+ */
+export function installAugmetic(character: CharacterStats, id: string): CharacterStats {
+  const aug = findAugmetic(id);
+  if (!aug) return { ...character, augmentics: [...character.augmentics, id] };
+  const next: CharacterStats = { ...character, augmentics: [...character.augmentics, id] };
+  if (aug.passive?.maxHealthBonus) {
+    const bonus = aug.passive.maxHealthBonus;
+    next.maxHealth = character.maxHealth + bonus;
+    next.health = Math.min(next.maxHealth, character.health + bonus);
+  }
+  if (aug.passive?.luck) next.luck = Math.min(10, character.luck + aug.passive.luck);
+  if (aug.passive?.influence) next.influence = Math.min(100, character.influence + aug.passive.influence);
+  return next;
+}
 
 const { MAX_VALUE, MIN_VALUE } = GAME_CONFIG.STAT_THRESHOLDS;
 const { MAX_VALUE: FACTION_MAX_VALUE, MIN_VALUE: FACTION_MIN_VALUE } = GAME_CONFIG.FACTION_RELATIONS;
@@ -27,7 +48,7 @@ export function generateWorldEvent(): string {
 }
 
 export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEffects): CharacterStats {
-  const newChar = { ...character };
+  let newChar = { ...character };
   const hp = { ...newChar.hiddenParams };
 
   const paramConfigs: Record<string, { target: string; min: number; max: number }> = {
@@ -91,7 +112,9 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
     newChar.inventory = (newChar.inventory || []).filter(i => i !== effects.removeItem);
   }
   if (effects.addAugmentic && !newChar.augmentics.includes(effects.addAugmentic)) {
-    newChar.augmentics = [...newChar.augmentics, effects.addAugmentic];
+    // Лорная интеграция импланта: пассивные бонусы каталога применяются один раз
+    // при установке (чистая функция — без RNG, детерминизм seed не затрагивается).
+    newChar = installAugmetic(newChar, effects.addAugmentic);
   }
   if (effects.removeAugmentic) {
     newChar.augmentics = newChar.augmentics.filter(a => a !== effects.removeAugmentic);

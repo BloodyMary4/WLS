@@ -1,4 +1,5 @@
 import { CharacterStats } from '../game/types';
+import { findAugmetic } from '../game/augmetics';
 import { HiddenStat } from './HiddenStat';
 import { RaceEmblem } from './RaceEmblem';
 
@@ -111,6 +112,21 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
             <div className="text-sm text-gray-400 mb-2 font-semibold">Инвентарь</div>
             <div className="text-gray-200">{character.inventory.length > 0 ? character.inventory.join(', ') : 'пусто'}</div>
           </div>
+          {character.augmentics.length > 0 && (
+            <div>
+              <div className="text-sm text-gray-400 mb-2 font-semibold">⚙️ Аугметика ({character.augmentics.length})</div>
+              <ul className="space-y-1.5">
+                {character.augmentics.map(id => {
+                  const aug = findAugmetic(id);
+                  return (
+                    <li key={id} title={aug?.description ?? id} className="text-[#c9a227] cursor-help">
+                      ⚙️ {aug ? aug.name : id}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
           <div>
             <div className="text-sm text-gray-400 mb-2 font-semibold">Черты</div>
             <div className="text-blue-400">{character.traits.length > 0 ? character.traits.join(', ') : 'нет'}</div>

@@ -165,6 +165,12 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
     const branch = getInquisitionBranchEvent(age, character);
     if (branch) return branch;
   }
+  // Аугметика: на «пятых» годах после зрелости — предложение импланта
+  // из лорного каталога своей фракции (если подходящий ещё не установлен).
+  if (age >= 15 && age % 5 === 0) {
+    const augEvent = getAugmeticEvent(age, character);
+    if (augEvent) return augEvent;
+  }
   switch (character.race) {
     case 'human': return getHumanEvent(age, character);
     case 'ork': return getOrkEvent(age, character);
