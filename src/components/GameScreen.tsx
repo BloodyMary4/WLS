@@ -79,8 +79,8 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
       <GameHeader character={character} raceInfo={raceInfo} lastDeltas={uiState.lastDeltas} onNewGame={onNewGame} />
 
       <main>
-        <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6">
-          <div className="fit-grid grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        <div className="mx-auto w-full max-w-[1700px] px-3 xl:px-4">
+          <div className="fit-grid grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
             <Sidebar
               character={character}
               raceInfo={raceInfo}
@@ -92,19 +92,25 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             />
 
             <div className="fit-col lg:col-span-9 animate-slide-in-right">
-              {/* Прогресс жизни — компактная строка-подпись (всё понятно без догадок) */}
-              <div className="wh-panel px-4 py-2 mb-3 shrink-0">
+              {/* Прогресс жизни и достижения — одна плотная строка-прибор (v0.3.25) */}
+              <div className="wh-panel px-3 py-1.5 mb-2 shrink-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-base shrink-0" aria-hidden="true">⏳</span>
+                  <span className="text-sm shrink-0" aria-hidden="true">⏳</span>
                   <span className="sr-only">Прогресс жизни</span>
-                  <span className="text-xs font-gothic uppercase tracking-wider text-[#b8a878]/90 whitespace-nowrap hidden sm:inline">Пройден путь</span>
-                  <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет`}>
+                  <span className="text-xs font-gothic uppercase tracking-wider text-[#b8a878]/90 whitespace-nowrap hidden sm:inline">Путь жизни</span>
+                  <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет — за чертой начинается стариковская пора`}>
                     <div
                       className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
                       style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%', transition: 'width 0.6s ease-out' }}
                     ></div>
                   </div>
-                  <span className="text-sm text-gray-400 font-bold whitespace-nowrap tabular-nums">{character.age} / ~{maxExpectedAge} лет</span>
+                  <span className="text-sm text-gray-300 font-bold whitespace-nowrap tabular-nums">{character.age} / ~{maxExpectedAge} лет</span>
+                  <span
+                    className="hidden md:inline-block text-xs text-[#b8a878] whitespace-nowrap tabular-nums cursor-help"
+                    title={`Достижения: открыто ${uiState.unlockedAchievements.length} из ${ACHIEVEMENTS.length}`}
+                  >
+                    🏆 {uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}
+                  </span>
                 </div>
               </div>
 
@@ -139,31 +145,19 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
         </div>
       </main>
 
-      <footer className="wh-footer border-t border-[#c9a227]/30 py-4 mt-8" style={{ background: 'rgba(11,10,8,0.9)' }}>
-        <div className="mx-auto w-full max-w-[1700px] px-6 text-center">
-          <div className="footer-decor flex justify-center gap-3 mb-3">
-            <span className="text-xl animate-pulse">⚔️</span>
-            <span className="text-xl animate-pulse" style={{ animationDelay: '0.2s' }}>☠️</span>
-            <span className="text-xl animate-pulse" style={{ animationDelay: '0.4s' }}>⚜️</span>
-          </div>
-          <p className="text-sm text-gray-400 mb-2">
-            Warhammer Life Simulator • Warhammer 40,000 • 6 рас
-          </p>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
-            <span className="flex items-center gap-2">
-              <kbd className="px-2.5 py-1 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">A-D</kbd>
-              выбор
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-2">
-              <kbd className="px-2.5 py-1 bg-gray-800 border border-yellow-600/30 rounded text-yellow-400 font-mono">Space</kbd>
-              продолжение
-            </span>
-            <span>•</span>
-            <span className="text-yellow-500 font-bold">
-              🏆 Достижения: {uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}
-            </span>
-          </div>
+      {/* Футер: тонкая строка-подсказка вместо блока с эмодзи (v0.3.25) */}
+      <footer className="wh-footer border-t border-[#c9a227]/30 py-1.5" style={{ background: 'rgba(11,10,8,0.9)' }}>
+        <div className="mx-auto w-full max-w-[1700px] px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-[#b8a878]/80">
+          <span className="font-gothic uppercase tracking-widest text-[#c9a227]/70">⚜ Warhammer Life Simulator</span>
+          <span className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">1–4</kbd>
+            выбор
+          </span>
+          <span className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">Space</kbd>
+            дальше
+          </span>
+          <span className="md:hidden">🏆 {uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}</span>
         </div>
       </footer>
     </div>

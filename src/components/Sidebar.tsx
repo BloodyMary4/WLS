@@ -58,11 +58,11 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
   return (
     <aside className="fit-col lg:col-span-3 space-y-4 animate-slide-in-left">
       {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
-      <div className="fit-scroll flex-1 space-y-4 pr-1">
+      <div className="fit-scroll flex-1 space-y-2.5 pr-1">
       <CollapsibleSection
         title={<><span className="text-xl" aria-hidden="true">📊</span>Характеристики</>}
       >
-        <div className="space-y-3">
+        <div className="space-y-2">
           <HiddenStat label="Вера" value={character.hiddenParams.faith} icon="✝️" color="bg-amber-500" hint={HIDDEN_HINTS.faith} />
           <HiddenStat label="Хитрость" value={character.hiddenParams.cunning} icon="🗡️" color="bg-emerald-500" hint={HIDDEN_HINTS.cunning} />
           <HiddenStat label="Сила" value={character.hiddenParams.strength} icon="💪" color="bg-red-500" hint={HIDDEN_HINTS.strength} />
@@ -77,7 +77,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
 
         {/* Верность Императору — скрытая добродетель людей: при 10 смерть может быть отвращена чудом */}
         {character.race === 'human' && typeof character.imperialCreed === 'number' && (
-          <div className={`mt-4 pt-3 border-t ${character.imperialCreed >= 8 ? 'border-yellow-500/60 animate-candle' : 'border-[#c9a227]/20'}`}>
+          <div className={`mt-2.5 pt-2 border-t ${character.imperialCreed >= 8 ? 'border-yellow-500/60 animate-candle' : 'border-[#c9a227]/20'}`}>
             <div className="flex items-center justify-between text-xs mb-1">
               <span className="font-gothic text-[#b8a878] tracking-wide">🕊️ Верность Императору</span>
               <span className={`font-bold ${character.imperialCreed >= 8 ? 'text-yellow-300' : 'text-[#d8c9a3]'}`}>
@@ -102,7 +102,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
 
         {/* Внимание Имматериума — лорная шкала: псайкеры и безумцы «светятся» в Варпе */}
         {character.warpAttention > 0 && (
-          <div className={`mt-4 pt-3 border-t border-purple-500/20 ${character.warpAttention >= 5 ? 'animate-pulse' : ''}`}>
+          <div className={`mt-2.5 pt-2 border-t border-purple-500/20 ${character.warpAttention >= 5 ? 'animate-pulse' : ''}`}>
             <div className="flex items-center justify-between text-xs mb-1">
               <span
                 className="font-gothic text-[#b8a878] tracking-wide cursor-help"
@@ -132,7 +132,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
       <CollapsibleSection
         title={<><RaceEmblem race={character.race} className="w-7 h-7" />Расовые особенности: {raceInfo.name}</>}
       >
-        <div className="space-y-3">
+        <div className="space-y-2">
           {character.race === 'ork' && <HiddenStat label="WAAAGH!" value={character.hiddenParams.waaagh || 0} icon="⚔️" color="bg-green-500" hint={HIDDEN_HINTS.waaagh} />}
           {character.race === 'eldar' && <HiddenStat label="Пси-сила" value={character.hiddenParams.psi || 0} icon="🔮" color="bg-purple-500" hint={HIDDEN_HINTS.psi} />}
           {character.race === 'eldar' && <HiddenStat label="Благородство" value={character.hiddenParams.nobility || 0} icon="👑" color="bg-blue-400" hint={HIDDEN_HINTS.nobility} />}
@@ -146,7 +146,7 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
       <CollapsibleSection
         title={<><span className="text-xl">🎒</span>Снаряжение</>}
       >
-        <div className="space-y-3 text-base">
+        <div className="space-y-2.5 text-sm">
           <div>
             <div className="text-sm text-gray-400 mb-2 font-semibold">Инвентарь</div>
             <div className="text-gray-200">{character.inventory.length > 0 ? character.inventory.join(', ') : 'пусто'}</div>
@@ -179,9 +179,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
           title={<><span className="text-xl">⚔️</span>Встреченные души</>}
           badge={<span className="text-[11px] font-normal text-gray-400 tabular-nums">{character.npcs.length}</span>}
         >
-          <div className="space-y-3">
+          <div className="space-y-2">
             {character.npcs.slice(0, 5).map((npc) => (
-              <div key={npc.id} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-yellow-600/30 transition-all">
+              <div key={npc.id} className="p-2.5 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-yellow-600/30 transition-all">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <div className="text-sm font-bold text-gray-100">{npc.name}</div>
@@ -231,9 +231,9 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
           title={<><span className="text-xl">📜</span>Испытания судьбы</>}
           badge={<span className="text-[11px] font-normal text-gray-400 tabular-nums">{activeQuests.length}</span>}
         >
-          <div className="space-y-3">
+          <div className="space-y-2">
             {activeQuests.map((quest) => (
-              <div key={quest.id} className="p-4 bg-gray-800/50 rounded-lg border border-yellow-600/30 hover:border-yellow-500/50 transition-all">
+              <div key={quest.id} className="p-3 bg-gray-800/50 rounded-lg border border-yellow-600/30 hover:border-yellow-500/50 transition-all">
                 <div className="text-base font-bold text-yellow-400 mb-2">{quest.name}</div>
                 <div className="text-xs text-gray-400 italic mb-3 leading-relaxed">{quest.description}</div>
                 <div className="space-y-2 mb-3">

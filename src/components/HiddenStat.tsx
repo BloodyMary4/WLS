@@ -23,11 +23,11 @@ export function HiddenStat({ label, value, icon, color, hint }: HiddenStatProps)
 
   return (
     <div
-      className="relative flex items-center gap-3 group hover:bg-[#c9a227]/5 rounded-sm p-2 transition-all"
+      className="relative flex items-center gap-2 group hover:bg-[#c9a227]/5 rounded-sm px-2 py-1 transition-all"
       title={hint}
     >
-      <span className="text-xl w-8 text-center transform group-hover:scale-110 transition-transform">{icon}</span>
-      <span className="font-gothic text-sm text-[#b8a878] w-28 tracking-wide">{label}</span>
+      <span className="text-base w-6 text-center transform group-hover:scale-110 transition-transform">{icon}</span>
+      <span className="font-gothic text-xs text-[#b8a878] w-24 shrink-0 tracking-wide truncate">{label}</span>
       <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }}>
         <div
           className={`wh-bar-fill ${color} ${
@@ -36,7 +36,10 @@ export function HiddenStat({ label, value, icon, color, hint }: HiddenStatProps)
           style={{ width: `${value * 10}%`, height: '100%' }}
         ></div>
       </div>
-      <span className="text-base text-[#d8c9a3] w-10 text-right font-bold">{value}</span>
+      {/* Число всегда в контрастном бейдже — читается на любом цвете полосы */}
+      <span className="text-xs text-[#e8d9b0] font-bold tabular-nums min-w-[3.2rem] text-right whitespace-nowrap">
+        {value}/10
+      </span>
       {hint && (
         <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full z-30 mb-1 hidden group-hover:block">
           <div className="wh-parchment rounded-sm px-3 py-2 text-xs text-[#d8c9a3] font-event max-w-[240px] shadow-xl whitespace-normal">

@@ -43,7 +43,7 @@ export function StatCard({
   }, [barValue]);
 
   return (
-    <div className={`wh-panel p-2.5 xl:p-3${danger ? ' wh-stat-critical' : ''}`} title={hint} aria-label={hint ? `${label}: ${hint}` : undefined}>
+    <div className={`wh-panel wh-stat-card p-2.5 xl:p-3${danger ? ' wh-stat-critical' : ''}`} title={hint} aria-label={hint ? `${label}: ${hint}` : undefined}>
       <div className="flex items-center justify-between mb-1.5 gap-2">
         <span className="font-gothic text-xs xl:text-sm text-[#b8a878] tracking-wide truncate">
           {danger && <span aria-hidden="true" className="mr-1">⚠</span>}

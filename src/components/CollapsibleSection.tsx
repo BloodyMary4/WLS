@@ -22,7 +22,7 @@ interface CollapsibleSectionProps {
 export function CollapsibleSection({ title, defaultOpen = true, badge, children }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={`wh-panel wh-side-panel p-4 xl:p-5 ${open ? '' : 'wh-side-collapsed'}`}>
+    <div className={`wh-panel wh-side-panel p-3 xl:p-3.5 ${open ? '' : 'wh-side-collapsed'}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

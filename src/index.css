@@ -66,6 +66,19 @@
 .wh-parchment::before { left: 24px; content: '\2720'; }
 .wh-parchment::after { right: 24px; content: '\2720'; transform: scaleX(-1); }
 
+/* Простой пергамент без угловых глифов — для плотной раскладки карточки события (v0.3.25):
+   аквилы остаются только на больших «свитках» (главное меню, экран смерти). */
+.wh-parchment-simple {
+  background:
+    linear-gradient(rgba(11, 10, 8, 0.88), rgba(11, 10, 8, 0.88)),
+    repeating-linear-gradient(0deg, rgba(216, 201, 163, 0.06) 0px, rgba(216, 201, 163, 0.06) 1px, transparent 1px, transparent 3px),
+    #171309;
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(0, 0, 0, 0.6);
+}
+
 /* Двойная золотая рамка в стиле гравюр Кодексов */
 .wh-frame {
   border: 1px solid rgba(201, 162, 39, 0.7);
@@ -818,4 +831,16 @@ p {
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
   }
+}
+
+/* ===== v0.3.25: плотный «приборный» режим — всё умещается, воздуха меньше ===== */
+@media (min-width: 1024px) and (min-height: 640px) {
+  /* Плитки статов шапки: компактнее строки и полоска тоньше */
+  .game-fit .wh-stat-card { padding: 0.4rem 0.6rem; }
+  .game-fit .wh-stat-card .wh-bar { height: 5px; }
+  /* Секции сайдбара: меньше вертикальных отступов между секциями и внутри */
+  .game-fit .wh-side-panel { padding: 0.6rem 0.75rem; }
+  .game-fit .wh-side-title { font-size: 0.85rem; margin-bottom: 0.4rem; padding-bottom: 0.3rem; }
+  /* Хроника: плотная лента текста мелкого кегля */
+  .game-fit .wh-chronicle { line-height: 1.35; }
 }
