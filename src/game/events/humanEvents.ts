@@ -4,14 +4,18 @@ import { rng } from '../rng';
 export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
   const pt = c.planetType;
   
-  if (age >= 6 && c.keyChoices && c.keyChoices.includes('found_artifact')) {
+  const artifactEchoReady =
+    age >= 6 && c.keyChoices && c.keyChoices.includes('found_artifact')
+    && !c.keyChoices.includes('inquisition_contact')
+    && c.inventory.includes('Загадочный артефакт');
+  if (artifactEchoReady) {
     return {
       text: 'Возраст ' + age + '. Загадочный артефакт, который ты нашёл в детстве, начинает проявлять странные свойства. Он светится ночью, шепчет... Ты чувствуешь его зов.',
       choices: [
         { letter: 'А', text: 'Изучить артефакт глубже', effects: { psi: 2, mutation: 2, suspicion: 2, description: 'Ты изучаешь его. Артефакт открывает... знания. Запретные. Но мощные.' } },
         { letter: 'Б', text: 'Уничтожить его — это слишком опасно', effects: { faith: 2, willpower: 1, description: 'Ты ломаешь артефакт. Он взрывается... но ты жив. Опасность миновала.' } },
         { letter: 'В', text: 'Продать его — избавиться от проблемы', effects: { credits: 30, cunning: 1, description: 'Ты продаёшь артефакт торговцу. Деньги... но что он сделает с ним?' } },
-        { letter: 'Г', text: 'Показать Инквизиции', effects: { faith: 3, suspicion: -2, description: 'Инквизиция забирает артефакт. "Правильно, дитя." Ты в безопасности... пока.' } },
+        { letter: 'Г', text: 'Показать Инквизиции', effects: { faith: 3, suspicion: -2, keyChoice: 'inquisition_contact', description: 'Инквизиция забирает артефакт. "Правильно, дитя." Ты в безопасности... пока.' } },
       ]
     };
   }

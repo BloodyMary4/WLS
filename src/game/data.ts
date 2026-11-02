@@ -6,7 +6,8 @@ import {
   getEldarEvent, 
   getDarkEldarEvent, 
   getTauEvent, 
-  getGretchinEvent 
+  getGretchinEvent, 
+  getInquisitionBranchEvent 
 } from './events';
 import { generateWorldEvent } from './utils';
 
@@ -158,6 +159,12 @@ export const RACE_INFO: Record<Race, { name: string; emoji: string; description:
 // ============ ГЛАВНЫЙ МАРШРУТИЗАТОР ============
 
 export function getEventForAge(age: number, character: CharacterStats): GameEvent {
+  // Лорные ветвки: у человека с контактом Инквизиции каждый пятый год —
+  // события special-ветки (приоритет над обычными расовыми).
+  if (character.race === 'human' && age >= 25 && age % 5 === 0) {
+    const branch = getInquisitionBranchEvent(age, character);
+    if (branch) return branch;
+  }
   switch (character.race) {
     case 'human': return getHumanEvent(age, character);
     case 'ork': return getOrkEvent(age, character);
