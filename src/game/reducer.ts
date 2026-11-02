@@ -21,7 +21,8 @@ import {
   applyChoiceEffects,
   updateAgeStatus,
   applyMicroEventEffects,
-
+  computeStatDeltas,
+  PublicStatKey,
 } from './utils';
 import { GAME_CONFIG, DEATH_CAUSES } from './config';
 import { validateEvent, validateGameState, createDefaultEvent } from './validation';
@@ -38,6 +39,8 @@ export interface GameUiState {
   lastChoice: Choice | null;
   unlockedAchievements: string[];
   newAchievement: string | null;
+  /** Изменение витринных характеристик за последний ход — бейджи +/− в шапке. */
+  lastDeltas: Partial<Record<PublicStatKey, number>> | null;
 }
 
 export const initialUiState: GameUiState = {
@@ -47,6 +50,7 @@ export const initialUiState: GameUiState = {
   lastChoice: null,
   unlockedAchievements: [],
   newAchievement: null,
+  lastDeltas: null,
 };
 
 // ---------- Действия ----------
@@ -356,6 +360,9 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
   const aged = updateAgeStatus(newChar);
   newChar = aged.character;
 
+  // Визуальные дельты хода: бейджи +/− на плитках шапки в фазе исхода.
+  const turnDeltas: Partial<Record<PublicStatKey, number>> = computeStatDeltas(game.character, newChar);
+
   const newlyUnlocked = checkAchievements(newChar, state.unlockedAchievements);
   let unlockedList = state.unlockedAchievements;
   let newAchievement = state.newAchievement;
@@ -379,6 +386,7 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
     phase: 'result',
     resultText: choice.effects.description,
     lastChoice: choice,
+    lastDeltas: turnDeltas,
   };
 
   const afterDeath = resolveDeathOrIntercession(intermediate, newChar, newHistory, effects);
@@ -534,6 +542,7 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
     phase: 'event',
     resultText: '',
     lastChoice: null,
+    lastDeltas: null,
   };
   effects.push({ kind: 'save' });
   effects.push({ kind: 'setMood', mood: computeAmbienceMood(finalChar) });

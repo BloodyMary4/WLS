@@ -169,6 +169,30 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
  * Работает только для людей с высокой Верностью (creed >= 5).
  * Возвращает true, если смерть отвведена (персонаж выживает с 1 HP).
  */
+/** Публичные «витринные» параметры для визуальных дельт хода (шапка). */
+const DELTA_KEYS = [
+  'health', 'sanity', 'warpCorruption', 'luck', 'credits', 'food', 'ammo', 'influence',
+] as const;
+
+export type PublicStatKey = typeof DELTA_KEYS[number];
+
+/**
+ * Разница публичных характеристик между двумя состояниями персонажа.
+ * Используется для наглядных бейджей +/− в шапке после исхода события —
+ * игрок видит, чем именно обошёлся выбор, не сравнивая числа глазами.
+ */
+export function computeStatDeltas(
+  before: CharacterStats,
+  after: CharacterStats,
+): Partial<Record<PublicStatKey, number>> {
+  const out: Partial<Record<PublicStatKey, number>> = {};
+  for (const key of DELTA_KEYS) {
+    const d = after[key] - before[key];
+    if (d !== 0) out[key] = d;
+  }
+  return out;
+}
+
 export function rollImperialIntercession(character: CharacterStats): boolean {
   if (character.race !== 'human') return false;
   const creed = character.imperialCreed ?? 0;
