@@ -1,4 +1,5 @@
 import { CharacterStats } from '../game/types';
+import { RaceEmblem } from './RaceEmblem';
 
 type RaceInfo = { name: string; emoji: string; description: string };
 
@@ -42,7 +43,10 @@ export function DeathScreen({ character, raceInfo, deathMessage, onNewLife }: De
         <div className="space-y-4 text-lg">
           <div className="flex justify-between items-center py-3 border-b border-gray-700">
             <span className="text-gray-400">Раса:</span>
-            <span className="font-bold text-yellow-400 text-xl">{raceInfo.emoji} {character.raceName}</span>
+            <span className="flex items-center gap-2 font-bold text-yellow-400 text-xl">
+              <RaceEmblem race={character.race} className="w-7 h-7" />
+              {character.raceName}
+            </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-700">
             <span className="text-gray-400">Прожито лет:</span>

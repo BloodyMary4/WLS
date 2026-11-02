@@ -1,5 +1,6 @@
 import { CharacterStats } from '../game/types';
 import { HiddenStat } from './HiddenStat';
+import { RaceEmblem } from './RaceEmblem';
 
 type RaceInfo = { name: string; emoji: string; description: string };
 
@@ -9,6 +10,23 @@ function declineMiracles(n: number): string {
   if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'чуда';
   return 'чудес';
 }
+
+/** Пояснения к скрытым параметрам — тултипы в панели «Характеристики». */
+const HIDDEN_HINTS: Record<string, string> = {
+  faith: 'Вера в Императора или богов своего народа. Высокая вера смягчает ужасы войны и открывает чудеса заступничества для людей.',
+  cunning: 'Хитрость и умение выкрутиться. Влияет на побег, торг и обман сильнее, чем грубая сила.',
+  strength: 'Физическая мощь. Решает исход ближних боёв, работ и испытаний выносливости.',
+  willpower: 'Стойкость духа. Сопротивление психической порче Варпа, пыткам и безумию.',
+  mutation: 'Отметчина Хаоса в плоти. Растёт от порчи Варпа; выше 7 — Инквизиция обратит внимание, выше 9 — почти верная гибель.',
+  suspicion: 'Подозрение властей. Копится от ересей и странных слухов; на пределе грозит арест или приговор Инквизиции.',
+  waaagh: 'Дух орочьего культа силы: чем громче WAAAGH!, тем увереннее зелёная кожа держится в бою.',
+  psi: 'Пси-потенциал. Без контроля растущая сила сожжёт разум: перегруз наступает на пределе шкалы.',
+  nobility: 'Честь Дома и кровь аристократов Асул. Открывает пути при дворах Ковчегов.',
+  cruelty: 'Жестокость друкхаари — валюта Коморры. Она питает Рамотеп и бережёт свою хозяйку.',
+  unity: "Преданность Высшему Благу тау. Сплочённость каст и доверие манд'ва решают судьбу общины.",
+  techSkill: 'Мастерство обращения с машинным духом. Нужно пилотам, техникам и огранщикам света.',
+  sneakiness: 'Умение гретчина остаться незамеченным: под ногами вааagh-боссов и вождей выживает только ловкий.',
+};
 
 interface SidebarProps {
   character: CharacterStats;
@@ -29,14 +47,14 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
           Характеристики
         </h3>
         <div className="space-y-3">
-          <HiddenStat label="Вера" value={character.hiddenParams.faith} icon="✝️" color="bg-amber-500" />
-          <HiddenStat label="Хитрость" value={character.hiddenParams.cunning} icon="🗡️" color="bg-emerald-500" />
-          <HiddenStat label="Сила" value={character.hiddenParams.strength} icon="💪" color="bg-red-500" />
-          <HiddenStat label="Воля" value={character.hiddenParams.willpower} icon="🛡️" color="bg-blue-500" />
+          <HiddenStat label="Вера" value={character.hiddenParams.faith} icon="✝️" color="bg-amber-500" hint={HIDDEN_HINTS.faith} />
+          <HiddenStat label="Хитрость" value={character.hiddenParams.cunning} icon="🗡️" color="bg-emerald-500" hint={HIDDEN_HINTS.cunning} />
+          <HiddenStat label="Сила" value={character.hiddenParams.strength} icon="💪" color="bg-red-500" hint={HIDDEN_HINTS.strength} />
+          <HiddenStat label="Воля" value={character.hiddenParams.willpower} icon="🛡️" color="bg-blue-500" hint={HIDDEN_HINTS.willpower} />
           {character.race === 'human' && (
             <>
-              <HiddenStat label="Мутация" value={character.hiddenParams.mutation} icon="☣️" color="bg-purple-500" />
-              <HiddenStat label="Подозрение" value={character.hiddenParams.suspicion} icon="👁️" color="bg-orange-500" />
+              <HiddenStat label="Мутация" value={character.hiddenParams.mutation} icon="☣️" color="bg-purple-500" hint={HIDDEN_HINTS.mutation} />
+              <HiddenStat label="Подозрение" value={character.hiddenParams.suspicion} icon="👁️" color="bg-orange-500" hint={HIDDEN_HINTS.suspicion} />
             </>
           )}
         </div>
@@ -69,17 +87,17 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
 
       <div className="wh-panel p-6">
         <h3 className="wh-panel-title font-bold text-lg mb-4 pb-3 flex items-center gap-3">
-          <span className="text-2xl">{raceInfo.emoji}</span>
-          Расовые особенности
+          <RaceEmblem race={character.race} className="w-7 h-7" />
+          Расовые особенности: {raceInfo.name}
         </h3>
         <div className="space-y-3">
-          {character.race === 'ork' && <HiddenStat label="WAAAGH!" value={character.hiddenParams.waaagh || 0} icon="⚔️" color="bg-green-500" />}
-          {character.race === 'eldar' && <HiddenStat label="Пси-сила" value={character.hiddenParams.psi || 0} icon="🔮" color="bg-purple-500" />}
-          {character.race === 'eldar' && <HiddenStat label="Благородство" value={character.hiddenParams.nobility || 0} icon="👑" color="bg-blue-400" />}
-          {character.race === 'dark_eldar' && <HiddenStat label="Жестокость" value={character.hiddenParams.cruelty || 0} icon="🩸" color="bg-red-500" />}
-          {character.race === 'tau' && <HiddenStat label="Единство" value={character.hiddenParams.unity || 0} icon="🔷" color="bg-cyan-500" />}
-          {character.race === 'tau' && <HiddenStat label="Технологии" value={character.hiddenParams.techSkill || 0} icon="⚙️" color="bg-blue-400" />}
-          {character.race === 'gretchin' && <HiddenStat label="Скрытность" value={character.hiddenParams.sneakiness || 0} icon="🐀" color="bg-yellow-600" />}
+          {character.race === 'ork' && <HiddenStat label="WAAAGH!" value={character.hiddenParams.waaagh || 0} icon="⚔️" color="bg-green-500" hint={HIDDEN_HINTS.waaagh} />}
+          {character.race === 'eldar' && <HiddenStat label="Пси-сила" value={character.hiddenParams.psi || 0} icon="🔮" color="bg-purple-500" hint={HIDDEN_HINTS.psi} />}
+          {character.race === 'eldar' && <HiddenStat label="Благородство" value={character.hiddenParams.nobility || 0} icon="👑" color="bg-blue-400" hint={HIDDEN_HINTS.nobility} />}
+          {character.race === 'dark_eldar' && <HiddenStat label="Жестокость" value={character.hiddenParams.cruelty || 0} icon="🩸" color="bg-red-500" hint={HIDDEN_HINTS.cruelty} />}
+          {character.race === 'tau' && <HiddenStat label="Единство" value={character.hiddenParams.unity || 0} icon="🔷" color="bg-cyan-500" hint={HIDDEN_HINTS.unity} />}
+          {character.race === 'tau' && <HiddenStat label="Технологии" value={character.hiddenParams.techSkill || 0} icon="⚙️" color="bg-blue-400" hint={HIDDEN_HINTS.techSkill} />}
+          {character.race === 'gretchin' && <HiddenStat label="Скрытность" value={character.hiddenParams.sneakiness || 0} icon="🐀" color="bg-yellow-600" hint={HIDDEN_HINTS.sneakiness} />}
         </div>
       </div>
 

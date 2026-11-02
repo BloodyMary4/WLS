@@ -1,5 +1,6 @@
 import { CharacterStats } from '../game/types';
 import { StatCard } from './StatCard';
+import { RaceEmblem } from './RaceEmblem';
 import {
   getHealthColor, getHealthBarColor, getSanityColor, getSanityBarColor,
   getWarpCorruptionColor, getWarpCorruptionBarColor,
@@ -20,7 +21,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
       <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
         <div className="flex items-center justify-between mb-3 animate-slide-in-left">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="text-3xl shrink-0">{raceInfo.emoji}</div>
+            <RaceEmblem race={character.race} className="w-9 h-9 xl:w-10 xl:h-10 shrink-0 drop-shadow-[0_0_6px_rgba(201,162,39,0.35)]" />
             <div className="min-w-0">
               <div className="font-gothic text-xl font-bold uppercase tracking-wide bg-gradient-to-b from-[#f0d878] to-[#a8821a] bg-clip-text text-transparent truncate animate-gold-sheen">
                 {character.name}

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Choice } from '../game/types';
 import { GameUiState } from '../game/reducer';
 import { RACE_INFO } from '../game/data';
+import { GAME_CONFIG } from '../game/config';
 import { ACHIEVEMENTS } from '../game/achievements';
 import { AudioController } from './AudioController';
 import { AchievementToast } from './AchievementToast';
@@ -26,6 +27,9 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
   const { character, currentEvent, history, gameOver, deathMessage } = game;
 
   const raceInfo = RACE_INFO[character.race];
+  // Расовый предел ожидаемой жизни (эльдар — столетия, гретчин — полвека)
+  const maxExpectedAge = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED_BY_RACE[character.race]
+    ?? GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
 
   // Автоскролл хроники к последней записи
   useEffect(() => {
@@ -73,12 +77,12 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
                     <span className="text-2xl">⏳</span>
                     Прогресс жизни
                   </span>
-                  <span className="text-base text-gray-400 font-bold">{character.age} / ~80 лет</span>
+                  <span className="text-base text-gray-400 font-bold">{character.age} / ~{maxExpectedAge} лет</span>
                 </div>
                 <div className="wh-bar w-full overflow-hidden" style={{ height: '10px' }}>
                   <div
                     className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
-                    style={{ width: `${Math.min(100, (character.age / 80) * 100)}%`, height: '100%' }}
+                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%' }}
                   ></div>
                 </div>
               </div>

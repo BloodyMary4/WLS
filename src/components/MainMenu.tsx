@@ -1,5 +1,7 @@
 import { RACE_INFO } from '../game/data';
+import type { Race } from '../game/types';
 import { AudioController } from './AudioController';
+import { RaceEmblem } from './RaceEmblem';
 
 interface MainMenuProps {
   hasSave: boolean;
@@ -64,8 +66,8 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
                   className="wh-panel hover-lift p-6 animate-scale-in cursor-pointer"
                   style={{ animationDelay: `${0.5 + index * 0.1}s` }}
                 >
-                  <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">
-                    {info.emoji}
+                  <div className="mb-4 w-16 h-16 mx-auto transform hover:scale-110 transition-transform duration-300">
+                    <RaceEmblem race={key as Race} className="w-full h-full drop-shadow-[0_0_8px_rgba(201,162,39,0.3)]" />
                   </div>
                   <h3 className="font-gothic text-xl font-bold text-[#e8c85a] mb-2 uppercase tracking-wide">{info.name}</h3>
                   <p className="font-event text-base text-[#a89870] leading-relaxed">{info.description}</p>
