@@ -4,8 +4,11 @@
  * содержимым — пустой экран с одной иконкой невозможен незаметно.
  * @vitest-environment jsdom
  */
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
+
+// Ручной cleanup: после unmount в первом тесте экран мог остаться в DOM
+afterEach(cleanup);
 import { GameScreen } from '../components/GameScreen';
 import type { GameState, Choice } from '../game/types';
 
@@ -15,6 +18,11 @@ window.matchMedia = ((query: string) => ({
   addListener: () => {}, removeListener: () => {},
   addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
 })) as unknown as typeof window.matchMedia;
+
+// jsdom не реализует Element.scrollTo — заглушка (в браузере есть)
+if (!Element.prototype.scrollTo) {
+  (Element.prototype as any).scrollTo = function () {};
+}
 
 
 
@@ -60,4 +68,24 @@ describe('GameScreen layout smoke (v0.3.30)', () => {
     expect(screen.getByText('Плакать')).toBeTruthy();
     expect(screen.getByText('Молчать')).toBeTruthy();
   });
+  it('renders the same window bays on narrow screens (no fit mode)', () => {
+    // Симулируем узкий экран: matchMedia возвращает false — обычный поток
+    window.matchMedia = ((query: string) => ({
+      matches: false, media: query, onchange: null,
+      addListener: () => {}, removeListener: () => {},
+      addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+
+    const { unmount } = render(
+      <GameScreen uiState={uiState} onChoice={(_: Choice) => {}} onProceed={() => {}} onNewGame={() => {}} />
+    );
+    // Регрессия v0.3.31: раньше вне fit-режима колонки схлопывались — игрок
+    // видел пустой экран. Теперь остов окон рендерится при любом размере.
+    expect(screen.getAllByRole('region', { name: 'Кодекс' })).toHaveLength(1);
+    expect(screen.getAllByRole('region', { name: 'Хроника жизни' })).toHaveLength(1);
+    expect(screen.getByText(/открыл глаза/)).toBeTruthy();
+    expect(screen.getByText('Плакать')).toBeTruthy();
+    unmount();
+  });
 });
+

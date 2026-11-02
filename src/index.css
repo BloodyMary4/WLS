@@ -943,3 +943,18 @@ p {
   /* Внутренние карточки не плодят двойные рамки внутри окна-кодекса */
   .game-fit .wh-codex-wrap .wh-window { border-color: rgba(201, 162, 39, 0.22); box-shadow: none; }
 }
+
+/* ===== v0.3.31: единая оконная сетка для ВСЕХ размеров экрана =====
+   Раньше вне fit-режима (<1024px или низкое окно) остов из колонок оставался
+   без правил высоты — flex-колонки схлопывались в ноль, и игрок видел пустой
+   экран. Теперь: (1) колонки-окна имеют минимальную высоту всегда;
+   (2) скролл лент включён во всех режимах, не только в fit. */
+.fit-col { display: flex; flex-direction: column; min-height: 0; }
+.fit-col > .wh-window { flex: 1 1 auto; min-height: 0; }
+/* Минимальная высота окон в обычном потоке (страница скроллится целиком) */
+.game-container:not(.game-fit) .fit-col > .wh-window { min-height: 340px; }
+.game-container:not(.game-fit) .fit-col > .wh-event-card { min-height: 420px; }
+/* Хроника и кодекс скроллятся внутри своих окон и вне fit-режима */
+.game-container:not(.game-fit) .wh-chronicle-wrap,
+.game-container:not(.game-fit) section[aria-label="Хроника жизни"] { min-height: 0; }
+.game-container:not(.game-fit) .wh-chronicle { max-height: none; flex: 1 1 auto; overflow-y: auto; }
