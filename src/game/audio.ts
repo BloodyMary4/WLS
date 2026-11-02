@@ -7,6 +7,8 @@ export class GrimdarkAmbience {
   private lfoGain: GainNode | null = null;
   private noiseNode: AudioBufferSourceNode | null = null;
   private noiseGain: GainNode | null = null;
+  /** Слой «хор шёпотов» (см. createWhisperLayer) — громкость зависит от настроения */
+  private whisperGainNode: GainNode | null = null;
   // Ссылка на bandpass-фильтр шумового слоя — чтобы mood-переходы могли
   // сдвигать тембр «гула улья» (danger = выше и резче, normal = ниже и мягче).
   private noiseFilter: BiquadFilterNode | null = null;
@@ -434,6 +436,7 @@ export class GrimdarkAmbience {
     whisperNode.connect(whisperFilter);
     whisperFilter.connect(whisperGain);
     whisperGain.connect(this.masterGain);
+    this.whisperGainNode = whisperGain;
 
     whisperNode.start();
     this.oscillators.push(whisperLfo);
@@ -1560,10 +1563,10 @@ export class GrimdarkAmbience {
    * (computeAmbienceMood) и покрыта тестами без Web Audio API.
    */
   private static readonly MOOD_SETTINGS = {
-    normal: { lfoFreq: 0.05, lfoDepth: 0.02,  noiseGain: 0.02,  filterFreq: 250, filterQ: 0.8, padScale: 0.025, transition: 2.5 },
-    tense:  { lfoFreq: 0.18, lfoDepth: 0.035, noiseGain: 0.025, filterFreq: 320, filterQ: 1.1, padScale: 0.035, transition: 2.5 },
-    danger: { lfoFreq: 0.3,  lfoDepth: 0.05,  noiseGain: 0.04,  filterFreq: 560, filterQ: 2.2, padScale: 0.04,  transition: 1.5 },
-    epic:   { lfoFreq: 0.1,  lfoDepth: 0.04,  noiseGain: 0.025, filterFreq: 210, filterQ: 0.7, padScale: 0.035, transition: 2.5 },
+    normal: { lfoFreq: 0.05, lfoDepth: 0.02,  noiseGain: 0.02,  filterFreq: 250, filterQ: 0.8, padScale: 0.025, whisperGain: 0.004, transition: 2.5 },
+    tense:  { lfoFreq: 0.18, lfoDepth: 0.035, noiseGain: 0.025, filterFreq: 320, filterQ: 1.1, padScale: 0.035, whisperGain: 0.010, transition: 2.5 },
+    danger: { lfoFreq: 0.3,  lfoDepth: 0.05,  noiseGain: 0.04,  filterFreq: 560, filterQ: 2.2, padScale: 0.04,  whisperGain: 0.016, transition: 1.5 },
+    epic:   { lfoFreq: 0.1,  lfoDepth: 0.04,  noiseGain: 0.025, filterFreq: 210, filterQ: 0.7, padScale: 0.035, whisperGain: 0.006, transition: 2.5 },
   } as const;
 
   setMood(mood: 'normal' | 'tense' | 'danger' | 'epic') {
@@ -1595,6 +1598,11 @@ export class GrimdarkAmbience {
     if (this.noiseFilter) {
       this.noiseFilter.frequency.linearRampToValueAtTime(s.filterFreq, now + transitionTime);
       this.noiseFilter.Q.linearRampToValueAtTime(s.filterQ, now + transitionTime);
+    }
+    // «Хор шёпотов»: при опасности рассудок теряет хватку — шёпот проступает
+    // сквозь гул; в спокойные годы почти растворяется в тишине.
+    if (this.whisperGainNode) {
+      this.whisperGainNode.gain.linearRampToValueAtTime(s.whisperGain, now + transitionTime);
     }
     this.gains.forEach((gain, i) => {
       // В tense трогаем только первые три подушечных слоя (как раньше)
@@ -1718,6 +1726,8 @@ export class GrimdarkAmbience {
       this.noiseNode = null;
     }
     this.noiseGain = null;
+
+    this.whisperGainNode = null;
   }
 
   toggle(): boolean {
