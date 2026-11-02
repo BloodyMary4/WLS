@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CharacterStats } from '../game/types';
 import { RaceEmblem } from './RaceEmblem';
 
@@ -31,10 +32,60 @@ export function buildLifeChronicle(
   return merged.slice(-maxEntries);
 }
 
-/** Эпитафия: итоги жизни и кнопка новой реинкарнации. */
+/** Убирает служебную markdown-метку судьбы из строки хроники (с нормализацией пробелов). */
+export function cleanChronicleEntry(entry: string): string {
+  return entry.replace(FATE_MARK, '').replace(/\s{2,}/g, ' ').trim();
+}
+
+/**
+ * Текстовая версия летописи для экспорта в буфер обмена
+ * (дорожная карта UI/UX п.5): заголовок, итоги и отформатированные записи.
+ */
+export function buildChronicleExport(
+  character: Pick<CharacterStats, 'raceName' | 'age' | 'planet' | 'caste' | 'status'>,
+  deathMessage: string,
+  chronicle: string[],
+): string {
+  const lines = [
+    '⚔️ WARHAMMER LIFE SIMULATOR — ЛЕТОПИСЬ ЖИЗНИ',
+    `${character.raceName} • ${character.age} лет • ${character.planet} • ${character.caste} • ${character.status}`,
+    `Гибель: ${deathMessage}`,
+    '',
+    ...chronicle.map((entry) => {
+      const isFate = entry.includes(FATE_MARK);
+      return `- ${isFate ? '🏵 СУДЬБА: ' : ''}${cleanChronicleEntry(entry)}`;
+    }),
+    '',
+    '«Во тьме грядущего есть лишь война.» — Warhammer 40,000',
+  ];
+  return lines.join('\n');
+}
+
+/** Эпитафия: итоги жизни, экспорт летописи и кнопка новой реинкарнации. */
 export function DeathScreen({ character, raceInfo, deathMessage, history, onNewLife }: DeathScreenProps) {
   const miracles = character.intercessionCount ?? 0;
   const chronicle = buildLifeChronicle(history);
+  const [copied, setCopied] = useState(false);
+
+  /** Копирование полной летописи жизни в буфер обмена (дорожная карта п.5). */
+  const copyChronicle = async () => {
+    const text = buildChronicleExport(character, deathMessage, chronicle);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Фолбэк для Electron/старых окружений без Clipboard API
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2500);
+  };
   return (
     <div className="text-center py-16 animate-fade-in">
       <div className="relative inline-block mb-8">
@@ -96,10 +147,25 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
       </div>
       {chronicle.length > 0 && (
         <div className="wh-parchment rounded-sm p-6 mb-10 max-w-2xl mx-auto text-left">
-          <h3 className="font-gothic text-xl font-bold text-[#c9a227] mb-4 uppercase tracking-[0.15em] flex items-center gap-3">
-            <span className="text-2xl">🕯️</span>
-            Летопись жизни
-          </h3>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h3 className="font-gothic text-xl font-bold text-[#c9a227] uppercase tracking-[0.15em] flex items-center gap-3">
+              <span className="text-2xl" aria-hidden="true">🕯️</span>
+              Летопись жизни
+            </h3>
+            <button
+              type="button"
+              onClick={copyChronicle}
+              aria-live="polite"
+              title="Скопировать летопись в буфер обмена"
+              className={`shrink-0 px-3 py-1.5 rounded-sm text-xs font-gothic uppercase tracking-wider border transition-colors ${
+                copied
+                  ? 'border-green-500/70 text-green-300 bg-green-900/20'
+                  : 'border-[#c9a227]/50 text-[#e8c85a] hover:border-[#c9a227] hover:bg-[#c9a227]/10'
+              }`}
+            >
+              {copied ? '✓ Скопировано' : '📋 Скопировать'}
+            </button>
+          </div>
           <ul className="space-y-2">
             {chronicle.map((entry, i) => {
               const isFate = entry.includes('**судьба**');

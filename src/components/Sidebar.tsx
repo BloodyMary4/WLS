@@ -6,6 +6,24 @@ import { RaceEmblem } from './RaceEmblem';
 
 type RaceInfo = { name: string; emoji: string; description: string };
 
+/** Метка судьбоносного выбора в хронике (effects.keyChoice в reducer). */
+const FATE_MARK = '**судьба**';
+
+/** Фильтры хроники: все записи / только великие события / только выборы игрока. */
+type ChronicleFilter = 'all' | 'fate' | 'choices';
+
+const FILTER_LABELS: Record<ChronicleFilter, string> = {
+  all: 'Все',
+  fate: 'Судьбоносные',
+  choices: 'Выборы',
+};
+
+export function filterChronicle(history: string[], filter: ChronicleFilter): string[] {
+  if (filter === 'all') return history;
+  if (filter === 'fate') return history.filter((h) => h.includes(FATE_MARK));
+  return history.filter((h) => /^\[Год \d+\]/.test(h));
+}
+
 /** Русская плюрализация: 1 чудо / 2-4 чуда / 5+ чудес */
 function declineMiracles(n: number): string {
   if (n % 10 === 1 && n % 100 !== 11) return 'чудо';
@@ -45,6 +63,9 @@ interface SidebarProps {
  *  в стиле остальных панелей (единый интерфейс без отдельной кнопки «Скрыть»). */
 export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: SidebarProps) {
   const [statsOpen, setStatsOpen] = useState(true);
+  const [chronicleFilter, setChronicleFilter] = useState<ChronicleFilter>('all');
+  const shownHistory = filterChronicle(history, chronicleFilter);
+  const fateCount = filterChronicle(history, 'fate').length;
   return (
     <aside className="fit-col lg:col-span-3 space-y-4 animate-slide-in-left">
       {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
@@ -308,19 +329,49 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
       )}
 
       <div className="wh-panel wh-side-panel p-4 xl:p-5">
-        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center gap-2">
-          <span className="text-xl">📜</span>
-          Хроника
+        <h3 className="wh-panel-title wh-side-title font-bold mb-2.5 pb-2 flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2">
+            <span className="text-xl" aria-hidden="true">📜</span>
+            Хроника
+          </span>
+          <span className="text-[11px] font-normal text-gray-500 tabular-nums whitespace-nowrap">
+            {shownHistory.length} из {history.length}
+          </span>
         </h3>
+        {/* Фильтр записей: судьбоносные выделены золотом, но их легко найти и отдельно */}
+        <div role="group" aria-label="Фильтр хроники" className="flex flex-wrap gap-1.5 mb-3">
+          {(Object.keys(FILTER_LABELS) as ChronicleFilter[]).map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setChronicleFilter(f)}
+              aria-pressed={chronicleFilter === f}
+              className={`px-2 py-1 rounded-sm text-[11px] font-gothic uppercase tracking-wider border transition-colors ${
+                chronicleFilter === f
+                  ? 'border-[#c9a227] bg-[#c9a227]/15 text-[#e8c85a]'
+                  : 'border-[#c9a227]/25 text-[#b8a878]/70 hover:border-[#c9a227]/60 hover:text-[#d8c9a3]'
+              }`}
+            >
+              {FILTER_LABELS[f]}
+              {f === 'fate' && fateCount > 0 ? ` (${fateCount})` : ''}
+            </button>
+          ))}
+        </div>
         <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-2">
           {history.length === 0 ? (
             <p className="text-gray-500 italic text-sm text-center py-4">Жизнь только начинается...</p>
+          ) : shownHistory.length === 0 ? (
+            <p className="text-gray-500 italic text-sm text-center py-4">
+              {chronicleFilter === 'fate'
+                ? 'Судьба пока молчит — великих решений ещё не было.'
+                : 'Выборов игрока пока нет.'}
+            </p>
           ) : (
-            history.map((entry, i) => (
+            shownHistory.map((entry, i) => (
               <p
-                key={i}
+                key={`${chronicleFilter}-${i}`}
                 title={entry}
-                className={`text-sm text-gray-400 border-l-2 pl-3 py-1 transition-colors ${
+                className={`text-sm text-gray-400 border-l-2 pl-3 py-1 transition-colors animate-fade-in ${
                   entry.includes('**судьба**')
                     ? 'border-l-[#d4af37] text-[#e8d9a0] italic'
                     : 'border-yellow-600/50 hover:border-yellow-500'
