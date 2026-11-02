@@ -5,6 +5,8 @@ import { HiddenStat } from './HiddenStat';
 import { RaceEmblem } from './RaceEmblem';
 // Универсальная сворачиваемая панель — единый паттерн для всех секций сайдбара (v0.3.24).
 import { CollapsibleSection } from './CollapsibleSection';
+// Оконная раскладка отсеков (v0.3.26): WindowPane + ReadoutRow из модуля Dashboard.
+import { WindowPane, ReadoutRow } from './Dashboard';
 // Хроника — самостоятельный обновляемый модуль интерфейса (v0.3.24).
 // Реэкспорт утилит сохраняет публичный API Sidebar (тесты и старые импорты не ломаются).
 import { ChroniclePanel } from './ChroniclePanel';
