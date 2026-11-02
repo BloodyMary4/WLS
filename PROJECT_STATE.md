@@ -22,7 +22,7 @@
 2. Проверить: `npm run typecheck && npm test && npm run build`.
 3. Коммит (`feat:`/`fix:`/`docs:`/`style:`), затем push в main.
 4. Push настроен (2026-11-02): origin = https://github.com/BloodyMary4/WLS.git, токен пользователя в credential store (`~/.git-credentials` + копия в `.git/credentials`, helper=store глобально и локально, вне рабочего дерева и истории). Пуш проверен (`push --dry-run` → «Everything up-to-date»), API-запросы к репо работают. Если доступ потеряется — попросить у пользователя новый fine-grained токен (Contents: Read and write на BloodyMary4/WLS). ⚠️ Токен снова был засвечен пользователем в чате 2026-11-02 — напомнить об отзыве и перевыпуске.
-5. Веб обновляется автоматически после push в main (Pages, ~1–2 мин). Для новой .exe — создать тег `git tag vX.Y.Z && git push origin vX.Y.Z`, дождаться Desktop Build, артефакты появятся в Releases.
+5. Веб обновляется автоматически после push в main (Pages, ~1–2 мин). **Desktop-сборка по тегу запускается автоматически — при веб-релизах сразу отменять run «Desktop Build» через GitHub API (`POST /actions/runs/<id>/cancel`); .exe публикуется только по явной просьбе игрока.**
 
 ## Текущее состояние кода
 - Структура: src/game/ (events по расам, npcSystem, questSystem, saveSystem, achievements, audio, validation, rng.ts — детерминированный RNG с seed, **reducer.ts — единый чистый reducer игры**), src/components/ (MainMenu, GameScreen, Sidebar, GameHeader, EventCard, DeathScreen, AchievementToast, StatCard, HiddenStat, AudioController), src/hooks/ (useGameStore.ts — обёртка над reducer + исполнение эффектов; useKeyboardControls.ts), App.tsx (~90 строк, только роутинг фаз), electron/.
