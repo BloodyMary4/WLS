@@ -252,8 +252,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
                       {npc.relationship > 0 ? 'Союзник' :
                        npc.relationship >= 0 ? 'Нейтрал' : 'Враг'}
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {npc.lastInteraction} лет назад
+                    <div className="text-xs text-gray-400" title={`Вы пересеклись с этой душой, когда тебе было ${npc.lastInteraction} лет от роду`}>
+                      встречены в {npc.lastInteraction} лет
                     </div>
                   </div>
                 </div>

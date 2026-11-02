@@ -2,6 +2,7 @@ import { CharacterStats } from '../game/types';
 import { StatCard } from './StatCard';
 import { RaceEmblem } from './RaceEmblem';
 import { listCriticalStats } from '../game/critical';
+import { STAT_HINTS, foodCaption } from '../game/statMeta';
 import {
   getHealthColor, getHealthBarColor, getSanityColor, getSanityBarColor,
   getWarpCorruptionColor, getWarpCorruptionBarColor,
@@ -15,15 +16,26 @@ interface GameHeaderProps {
   onNewGame: () => void;
 }
 
-/** Плитка припасов: значение подсвечивается красным, когда ресурс на исходе. */
-function SupplyValue({ icon, value, unit, critical }: { icon: string; value: number; unit?: string; critical?: boolean }) {
+/** Подпись под числом запаса — понятный смысл цифры («хватит на 2 года»). */
+function SupplyCaption({ text, critical }: { text: string; critical?: boolean }) {
   return (
     <span
-      className={`font-semibold tabular-nums ${critical ? 'text-[#e07a7a] font-bold' : ''}`}
-      title={critical ? `${value}${unit ?? ''} — на исходе!` : undefined}
+      className={`block text-[10px] leading-tight ${critical ? 'text-[#e07a7a]' : 'text-[#b8a878]/80'}`}
     >
-      {icon} {value}{unit}
-      {critical && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+      {text}
+    </span>
+  );
+}
+
+/** Плитка припасов: значение + человекочитаемая подпись; краснеет, когда ресурс на исходе. */
+function SupplyValue({ icon, value, unit, caption, critical, hint }: { icon: string; value: number; unit?: string; caption: string; critical?: boolean; hint: string }) {
+  return (
+    <span title={hint}>
+      <span className={`font-semibold tabular-nums ${critical ? 'text-[#e07a7a] font-bold' : ''}`}>
+        {icon} {value}{unit}
+        {critical && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+      </span>
+      <SupplyCaption text={caption} critical={critical} />
     </span>
   );
 }
@@ -79,6 +91,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barMax={character.maxHealth}
             barColor={getHealthBarColor(character.health, character.maxHealth)}
             danger={character.health / character.maxHealth <= 0.25}
+            hint={STAT_HINTS.health}
           />
           <StatCard
             label="Рассудок"
@@ -89,6 +102,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barMax={100}
             barColor={getSanityBarColor(character.sanity)}
             danger={character.sanity <= 20}
+            hint={STAT_HINTS.sanity}
           />
           <StatCard
             label="Порча"
@@ -99,24 +113,38 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barMax={100}
             barColor={getWarpCorruptionBarColor(character.warpCorruption)}
             danger={character.warpCorruption >= 80}
+            hint={STAT_HINTS.warpCorruption}
           />
           {/* Припасы: 4 ячейки 2×2 — голод и боезапас подсвечиваются, когда на исходе */}
           <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-            <span className={`font-semibold tabular-nums ${character.credits === 0 ? 'text-[#e07a7a]' : 'text-yellow-400'}`}
-              title={character.credits === 0 ? 'Ни одного кредита — торг и взятки недоступны' : `${character.credits} кредитов`}>
-              💰 {character.credits}₡
+            <span title={character.credits === 0 ? '💰 Кредиты: ни одного кредита — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}>
+              <span className={`font-semibold tabular-nums ${character.credits === 0 ? 'text-[#e07a7a] font-bold' : 'text-yellow-400'}`}>
+                💰 {character.credits}₡{character.credits === 0 && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+              </span>
+              <SupplyCaption text={character.credits === 0 ? 'нет денег' : 'кредиты'} critical={character.credits === 0} />
             </span>
-            <SupplyValue icon="🍖" value={character.food} critical={character.food <= 1} />
-            <SupplyValue icon="🔫" value={character.ammo} critical={character.ammo <= 0} />
-            <span className="text-gray-400 truncate" title={`Статус: ${character.status}`}>{character.status}</span>
+            <SupplyValue
+              icon="🍖" value={character.food} critical={character.food <= 1}
+              caption={foodCaption(character.food)}
+              hint={`🍖 Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`}
+            />
+            <SupplyValue
+              icon="🔫" value={character.ammo} unit="" critical={character.ammo <= 0}
+              caption={character.ammo <= 0 ? 'оружие молчит!' : 'заряды'}
+              hint={`🔫 Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`}
+            />
+            <span title={`Текущее положение персонажа: ${character.status}`}>
+              <span className="text-[#d8c9a3]">{character.status}</span>
+              <SupplyCaption text="положение" />
+            </span>
           </div>
-          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">⭐ Влияние:</span>
+          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 flex flex-col justify-center gap-1 text-xs">
+            <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.influence}>
+              <span className="text-[#b8a878]">⭐ Влияние</span>
               <span className="text-orange-400 font-bold tabular-nums">{character.influence}</span>
             </div>
-            <div className="flex items-center justify-between text-xs mt-1">
-              <span className="text-gray-400">🍀 Удача:</span>
+            <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.luck}>
+              <span className="text-[#b8a878]">🍀 Удача{character.luck <= 2 && <span aria-hidden="true" className="ml-0.5 text-[#e07a7a]">⚠</span>}</span>
               <span className={`font-bold tabular-nums ${character.luck <= 2 ? 'text-[#e07a7a]' : 'text-green-400'}`}>{character.luck}</span>
             </div>
           </div>

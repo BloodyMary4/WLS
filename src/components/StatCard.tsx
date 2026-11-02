@@ -10,6 +10,8 @@ interface StatCardProps {
   barColor?: string;
   /** Тревожное красное свечение заполненной полосы (критические значения). */
   danger?: boolean;
+  /** Пояснение показателя — раскрывается при наведении (каждая деталь понятна игроку). */
+  hint?: string;
   children?: React.ReactNode;
 }
 
@@ -22,6 +24,7 @@ export function StatCard({
   barMax = 100,
   barColor = 'bg-blue-500',
   danger = false,
+  hint,
   children 
 }: StatCardProps) {
   const barPercentage = showBar ? Math.min(100, (barValue / barMax) * 100) : 0;
@@ -40,7 +43,7 @@ export function StatCard({
   }, [barValue]);
 
   return (
-    <div className={`wh-panel p-2.5 xl:p-3${danger ? ' wh-stat-critical' : ''}`}>
+    <div className={`wh-panel p-2.5 xl:p-3${danger ? ' wh-stat-critical' : ''}`} title={hint} aria-label={hint ? `${label}: ${hint}` : undefined}>
       <div className="flex items-center justify-between mb-1.5 gap-2">
         <span className="font-gothic text-xs xl:text-sm text-[#b8a878] tracking-wide truncate">
           {danger && <span aria-hidden="true" className="mr-1">⚠</span>}
