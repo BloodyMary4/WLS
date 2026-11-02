@@ -23,12 +23,13 @@ interface PlanetData {
 const HUMAN_PLANETS: PlanetData[] = [
   { name: 'Кадия', type: 'Мир-крепость', race: 'human' },
   { name: 'Хив', type: 'Улей-мир', race: 'human' },
+  { name: 'Феррус Примус', type: 'Мир-кузница (Адептус Механикус)', race: 'human' },
   { name: 'Мориа', type: 'Рудный мир', race: 'human' },
   { name: 'Катачан', type: 'Мир джунглей', race: 'human' },
   { name: 'Армагеддон', type: 'Промышленный мир', race: 'human' },
   { name: 'Медленг', type: 'Улей-мир', race: 'human' },
   { name: 'Голготх', type: 'Тюрьма-мир', race: 'human' },
-  { name: 'Тартарус Прайм', type: 'Мир-ферма', race: 'human' },
+  { name: 'Агриппина Секунда', type: 'Мир-ферма', race: 'human' },
 ];
 
 const ORK_PLANETS: PlanetData[] = [
@@ -52,9 +53,9 @@ const DARK_ELDAR_PLANETS: PlanetData[] = [
 ];
 
 const TAU_PLANETS: PlanetData[] = [
-  { name: 'Тау (Мир-Улей)', type: 'Столичный мир Тау', race: 'tau' },
-  { name: 'Вел\'н', type: 'Колония Тау', race: 'tau' },
-  { name: 'Дл\'неч', type: 'Мир-кузница Тау', race: 'tau' },
+  { name: 'Тау', type: 'Родной мир Империи Тау', race: 'tau' },
+  { name: 'Вел\'ан', type: 'Первая колония Тау', race: 'tau' },
+  { name: 'Дал\'ын', type: 'Промышленный мир Тау', race: 'tau' },
   { name: 'Т\'олку', type: 'Аграрный мир Тау', race: 'tau' },
 ];
 
