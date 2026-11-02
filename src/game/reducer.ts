@@ -62,7 +62,7 @@ export type GameAction =
 
 export type GameEffect =
   | { kind: 'unlockAudio' }
-  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' }
+  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' | 'wound' }
   | { kind: 'save' }
   | { kind: 'achievementToast'; durationMs: number };
 
@@ -305,7 +305,7 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
 
   // Звуковой акцент исхода выбора (чистая эвристика, без RNG — детерминизм не затрагивается)
   const outcomeTone = classifyChoiceOutcome(choice.effects);
-  if (outcomeTone === 'wound') effects.push({ kind: 'playSound', sound: 'death' });
+  if (outcomeTone === 'wound') effects.push({ kind: 'playSound', sound: 'wound' });
   else if (outcomeTone === 'fortune') effects.push({ kind: 'playSound', sound: 'miracle' });
 
   let newChar = applyChoiceEffects(game.character, choice.effects);

@@ -82,7 +82,7 @@ export function GameScreen({ uiState, sidebarOpen, onToggleSidebar, onChoice, on
                 <div className="wh-bar w-full overflow-hidden" style={{ height: '10px' }}>
                   <div
                     className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000] shimmer"
-                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%' }}
+                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%', transition: 'width 0.6s ease-out' }}
                   ></div>
                 </div>
               </div>

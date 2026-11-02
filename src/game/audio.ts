@@ -1105,22 +1105,35 @@ export class GrimdarkAmbience {
     const master = this.masterGain;
     const now = ctx.currentTime;
 
+    // Тело удара — быстрый спад частоты (мембрана барабана)
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(196, now); // G3
     osc.frequency.exponentialRampToValueAtTime(98, now + 0.12);
-
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(0.22, now + 0.006);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
     osc.connect(gain);
     gain.connect(master);
     osc.start(now);
     osc.stop(now + 0.2);
 
+    // Суб-поддержка на октаву ниже — тёплый «напольный том»
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(98, now);
+    sub.frequency.exponentialRampToValueAtTime(65, now + 0.14);
+    subGain.gain.setValueAtTime(0, now);
+    subGain.gain.linearRampToValueAtTime(0.12, now + 0.01);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    sub.connect(subGain);
+    subGain.connect(master);
+    sub.start(now);
+    sub.stop(now + 0.25);
+
+    // Атака — шумовой щелчок палочки, срезаный сверху, чтобы не «пилить»
     const clickBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.03), ctx.sampleRate);
     const clickData = clickBuffer.getChannelData(0);
     for (let i = 0; i < clickData.length; i++) {
@@ -1130,8 +1143,9 @@ export class GrimdarkAmbience {
     click.buffer = clickBuffer;
     const clickGain = ctx.createGain();
     const clickFilter = ctx.createBiquadFilter();
-    clickFilter.type = 'highpass';
-    clickFilter.frequency.value = 1200;
+    clickFilter.type = 'bandpass';
+    clickFilter.frequency.value = 1800;
+    clickFilter.Q.value = 0.8;
     clickGain.gain.setValueAtTime(0.08, now);
     clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
     click.connect(clickFilter);
@@ -1175,6 +1189,71 @@ export class GrimdarkAmbience {
     band.connect(gain);
     gain.connect(master);
     src.start(now);
+  }
+
+  /**
+   * Серьёзная рана при выборе — короткий диссонансный удар.
+   * Намного короче и тише смерти: «укол тревоги», а не финальный набат.
+   */
+  playWoundHit() {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const master = this.masterGain;
+    const now = ctx.currentTime;
+
+    // Низкий удар + тритон («diabolus in musica») поверх — тревожный акцент
+    const layers = [
+      { freq: 82.41, end: 55, type: 'sawtooth' as OscillatorType, gain: 0.2, dur: 0.7 },
+      { freq: 116.54, end: 110, type: 'triangle' as OscillatorType, gain: 0.12, dur: 0.55 },
+    ];
+
+    layers.forEach((l, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      const panner = ctx.createStereoPanner();
+
+      panner.pan.value = i === 0 ? -0.2 : 0.25;
+      osc.type = l.type;
+      osc.frequency.setValueAtTime(l.freq, now);
+      osc.frequency.exponentialRampToValueAtTime(l.end, now + l.dur);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(900, now);
+      filter.frequency.exponentialRampToValueAtTime(150, now + l.dur);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(l.gain, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + l.dur);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(panner);
+      panner.connect(master);
+      osc.start(now);
+      osc.stop(now + l.dur + 0.05);
+    });
+
+    // Короткий шумовой «удар металла»
+    const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.12), ctx.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseData.length; i++) {
+      noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseData.length * 0.3));
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    const noiseGain = ctx.createGain();
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 700;
+    noiseFilter.Q.value = 0.9;
+    noiseGain.gain.setValueAtTime(0.1, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(master);
+    noise.start(now);
   }
 
   playAchievementSound() {
