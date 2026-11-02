@@ -3,6 +3,8 @@ import { StatCard } from './StatCard';
 import { RaceEmblem } from './RaceEmblem';
 import { listCriticalStats } from '../game/critical';
 import { STAT_HINTS, foodCaption } from '../game/statMeta';
+import { significantDeltas } from '../game/deltaLabels';
+import { PublicStatKey } from '../game/utils';
 import {
   getHealthColor, getHealthBarColor, getSanityColor, getSanityBarColor,
   getWarpCorruptionColor, getWarpCorruptionBarColor,
@@ -13,6 +15,8 @@ type RaceInfo = { name: string; emoji: string; description: string };
 interface GameHeaderProps {
   character: CharacterStats;
   raceInfo: RaceInfo;
+  /** Значимые дельты последнего хода — баннер «Итог выбора» рядом с именем. */
+  lastDeltas?: Partial<Record<PublicStatKey, number>> | null;
   onNewGame: () => void;
 }
 
@@ -41,8 +45,9 @@ function SupplyValue({ icon, value, unit, caption, critical, hint }: { icon: str
 }
 
 /** Шапка игры: имя персонажа + плитки статов + предупреждение о критических состояниях. */
-export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) {
+export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameHeaderProps) {
   const criticals = listCriticalStats(character);
+  const turnResult = significantDeltas(lastDeltas);
   return (
     <header className="sticky top-0 z-40 border-b border-[#c9a227]/30 shadow-lg" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)', backdropFilter: 'blur(8px)' }}>
       <div className="wh-header-compact mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
@@ -58,6 +63,21 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
               </div>
             </div>
           </div>
+          {/* Итог последнего выбора — значимые дельты прямо в шапке (фаза результата) */}
+          {turnResult.length > 0 && (
+            <div
+              role="status"
+              aria-label={`Итог выбора: ${turnResult.map((d) => d.text).join(', ')}`}
+              className="hidden xl:flex items-center gap-1.5 rounded-sm border border-[#c9a227]/40 bg-[#1c1913]/80 px-3 py-1.5 text-xs font-semibold tabular-nums shrink-0 animate-fade-in"
+            >
+              <span className="font-gothic uppercase tracking-wider text-[#b8a878]/80">Итог:</span>
+              {turnResult.map((d) => (
+                <span key={d.key} className={d.tone === 'good' ? 'text-[#7fc97f]' : 'text-[#e07a7a]'}>
+                  {d.text}
+                </span>
+              ))}
+            </div>
+          )}
           {/* Критические состояния — видно сразу, без прокрутки к полоскам */}
           {criticals.length > 0 && (
             <div

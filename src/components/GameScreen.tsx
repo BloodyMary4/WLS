@@ -76,7 +76,7 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
 
       <AchievementToast achievementId={uiState.newAchievement} />
 
-      <GameHeader character={character} raceInfo={raceInfo} onNewGame={onNewGame} />
+      <GameHeader character={character} raceInfo={raceInfo} lastDeltas={uiState.lastDeltas} onNewGame={onNewGame} />
 
       <main>
         <div className="mx-auto w-full max-w-[1700px] px-4 xl:px-6">
@@ -127,6 +127,7 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
                     phase={uiState.phase === 'result' ? 'result' : 'event'}
                     resultText={uiState.resultText}
                     lastChoice={uiState.lastChoice}
+                    lastDeltas={uiState.lastDeltas}
                     onChoice={onChoice}
                     onProceed={onProceed}
                   />

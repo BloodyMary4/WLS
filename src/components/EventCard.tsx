@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { GameEvent, Choice, ChoiceEffects } from '../game/types';
 import { describeEffectChips, EffectChip } from '../game/effectLabels';
+import { describeDeltas } from '../game/deltaLabels';
+import { PublicStatKey } from '../game/utils';
 
 /** Стиль метки последствия по «тону» (понятность без догадок). */
 const CHIP_TONE_CLS: Record<EffectChip['tone'], string> = {
@@ -46,6 +48,8 @@ interface EventCardProps {
   phase: 'event' | 'result';
   resultText: string;
   lastChoice: Choice | null;
+  /** Фактические изменения характеристик за ход — понятная сводка «+/−» в исходе. */
+  lastDeltas?: Partial<Record<PublicStatKey, number>> | null;
   onChoice: (choice: Choice) => void;
   onProceed: () => void;
 }
@@ -94,8 +98,29 @@ function richText(text: string): ReactNode[] {
   return out;
 }
 
+/** Ряд фактических итогов хода: «−10 ❤️ Здоровье» — без сравнения чисел глазами. */
+const DELTA_TONE_CLS: Record<'good' | 'bad', string> = {
+  good: 'text-[#7fc97f] border-[#7fc97f]/40 bg-[#7fc97f]/10',
+  bad: 'text-[#e07a7a] border-[#e07a7a]/40 bg-[#e07a7a]/10',
+};
+
+function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number>> | null | undefined }) {
+  const lines = describeDeltas(deltas);
+  if (lines.length === 0) return null;
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Итог выбора">
+      <span className="text-xs font-gothic uppercase tracking-wider text-[#b8a878]/80 mr-1">Итог:</span>
+      {lines.map((line) => (
+        <span key={line.key} className={`inline-flex items-center px-2 py-0.5 rounded-sm border text-xs font-semibold tabular-nums ${DELTA_TONE_CLS[line.tone]}`}>
+          {line.text}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /** Центральная карточка события: текст года или результат выбора. */
-export function EventCard({ event, age, phase, resultText, lastChoice, onChoice, onProceed }: EventCardProps) {
+export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   return (
     <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-panel wh-frame wh-event-card p-8 animate-parchment">
       <div className="event-head mb-6">
@@ -119,8 +144,8 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
               <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
               <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
             </div>
-            {/* Понятная сводка итогов: что именно изменилось в судьбе персонажа */}
-            {lastChoice.effects && <EffectChipRow chips={describeEffectChips(lastChoice.effects, true)} />}
+            {/* Фактический итог хода: точные дельты характеристик после выбора */}
+            <DeltaSummary deltas={lastDeltas} />
           </div>
           <button
             onClick={onProceed}
