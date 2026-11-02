@@ -1,6 +1,7 @@
 import { CharacterStats } from '../game/types';
 import { StatCard } from './StatCard';
 import { RaceEmblem } from './RaceEmblem';
+import { listCriticalStats } from '../game/critical';
 import {
   getHealthColor, getHealthBarColor, getSanityColor, getSanityBarColor,
   getWarpCorruptionColor, getWarpCorruptionBarColor,
@@ -14,8 +15,22 @@ interface GameHeaderProps {
   onNewGame: () => void;
 }
 
-/** Шапка игры: имя персонажа + плитки статов. */
+/** Плитка припасов: значение подсвечивается красным, когда ресурс на исходе. */
+function SupplyValue({ icon, value, unit, critical }: { icon: string; value: number; unit?: string; critical?: boolean }) {
+  return (
+    <span
+      className={`font-semibold tabular-nums ${critical ? 'text-[#e07a7a] font-bold' : ''}`}
+      title={critical ? `${value}${unit ?? ''} — на исходе!` : undefined}
+    >
+      {icon} {value}{unit}
+      {critical && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+    </span>
+  );
+}
+
+/** Шапка игры: имя персонажа + плитки статов + предупреждение о критических состояниях. */
 export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) {
+  const criticals = listCriticalStats(character);
   return (
     <header className="sticky top-0 z-40 border-b border-[#c9a227]/30 shadow-lg" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)', backdropFilter: 'blur(8px)' }}>
       <div className="wh-header-compact mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
@@ -31,6 +46,17 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
               </div>
             </div>
           </div>
+          {/* Критические состояния — видно сразу, без прокрутки к полоскам */}
+          {criticals.length > 0 && (
+            <div
+              role="alert"
+              title={`Критично: ${criticals.join(', ').toLowerCase()}`}
+              className="hidden md:flex items-center gap-1.5 rounded-sm border border-[#a30000]/70 bg-[#2a0d0d]/80 px-3 py-1.5 text-xs font-gothic uppercase tracking-wider text-[#e07a7a] animate-glow shrink-0"
+            >
+              <span aria-hidden="true">☠</span>
+              {criticals.join(' • ')}
+            </div>
+          )}
           <button
             onClick={() => {
               if (confirm('Начать новую игру?')) {
@@ -43,7 +69,7 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
           </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 xl:gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 xl:gap-3">
           <StatCard
             label="Здоровье"
             value={`${character.health}/${character.maxHealth}`}
@@ -74,26 +100,25 @@ export function GameHeader({ character, raceInfo, onNewGame }: GameHeaderProps) 
             barColor={getWarpCorruptionBarColor(character.warpCorruption)}
             danger={character.warpCorruption >= 80}
           />
-          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-yellow-400 font-semibold">💰 {character.credits}₡</span>
-              <span className="text-green-400 font-semibold">🍖 {character.food}</span>
-              <span className="text-red-400 font-semibold">🔫 {character.ammo}</span>
-            </div>
+          {/* Припасы: 4 ячейки 2×2 — голод и боезапас подсвечиваются, когда на исходе */}
+          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+            <span className={`font-semibold tabular-nums ${character.credits === 0 ? 'text-[#e07a7a]' : 'text-yellow-400'}`}
+              title={character.credits === 0 ? 'Ни одного кредита — торг и взятки недоступны' : `${character.credits} кредитов`}>
+              💰 {character.credits}₡
+            </span>
+            <SupplyValue icon="🍖" value={character.food} critical={character.food <= 1} />
+            <SupplyValue icon="🔫" value={character.ammo} critical={character.ammo <= 0} />
+            <span className="text-gray-400 truncate" title={`Статус: ${character.status}`}>{character.status}</span>
           </div>
           <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-gray-400">⭐ Влияние:</span>
-              <span className="text-orange-400 font-bold">{character.influence}</span>
+              <span className="text-orange-400 font-bold tabular-nums">{character.influence}</span>
             </div>
             <div className="flex items-center justify-between text-xs mt-1">
               <span className="text-gray-400">🍀 Удача:</span>
-              <span className="text-green-400 font-bold">{character.luck}</span>
+              <span className={`font-bold tabular-nums ${character.luck <= 2 ? 'text-[#e07a7a]' : 'text-green-400'}`}>{character.luck}</span>
             </div>
-          </div>
-          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2">
-            <div className="text-xs text-gray-400 mb-1">Статус</div>
-            <div className="text-sm text-purple-400 font-semibold truncate">{character.status}</div>
           </div>
         </div>
       </div>

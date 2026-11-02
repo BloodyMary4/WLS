@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CharacterStats } from '../game/types';
 import { findAugmetic } from '../game/augmetics';
+import { isCritical } from '../game/critical';
 import { HiddenStat } from './HiddenStat';
 import { RaceEmblem } from './RaceEmblem';
 
@@ -117,8 +118,8 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
           <HiddenStat label="Воля" value={character.hiddenParams.willpower} icon="🛡️" color="bg-blue-500" hint={HIDDEN_HINTS.willpower} />
           {character.race === 'human' && (
             <>
-              <HiddenStat label="Мутация" value={character.hiddenParams.mutation} icon="☣️" color="bg-purple-500" hint={HIDDEN_HINTS.mutation} />
-              <HiddenStat label="Подозрение" value={character.hiddenParams.suspicion} icon="👁️" color="bg-orange-500" hint={HIDDEN_HINTS.suspicion} />
+              <HiddenStat label="Мутация" value={character.hiddenParams.mutation} icon="☣️" color={isCritical('Мутация', character.hiddenParams.mutation) ? 'bg-red-600' : 'bg-purple-500'} hint={HIDDEN_HINTS.mutation} />
+              <HiddenStat label="Подозрение" value={character.hiddenParams.suspicion} icon="👁️" color={isCritical('Подозрение', character.hiddenParams.suspicion) ? 'bg-red-600' : 'bg-orange-500'} hint={HIDDEN_HINTS.suspicion} />
             </>
           )}
         </div>
