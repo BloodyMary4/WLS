@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Race } from '../game/types';
+import { getLegacy } from '../game/legacy';
+import { buildLegacySummary } from '../game/legacySummary';
 import { AudioController } from './AudioController';
 import { RaceEmblem } from './RaceEmblem';
 import { RacePicker } from './RacePicker';
@@ -13,6 +15,9 @@ interface MainMenuProps {
 /** Экран заглавия: описание вселенной, выбор расы, кнопки старта. */
 export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuProps) {
   const [selectedRace, setSelectedRace] = useState<Race | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  // Сводка прошлых жизней из localStorage — только для отображения.
+  const legacy = useMemo(() => buildLegacySummary(getLegacy()), []);
   return (
     <div className="wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
@@ -66,6 +71,25 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
             <RacePicker race={selectedRace} onSelect={setSelectedRace} />
           </div>
 
+          {/* Рекорды прошлых жизней (legacy) */}
+          {legacy.totalGamesPlayed > 0 && (
+            <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <div className="wh-panel p-4 max-w-3xl mx-auto flex flex-wrap justify-center gap-x-8 gap-y-2 text-center">
+                <span className="text-sm uppercase tracking-[0.2em] text-gray-500 font-gothic">Прошлые жизни</span>
+                <span className="text-[#d8c9a3]">Жизней прожито: <b className="text-[#e8c85a]">{legacy.totalGamesPlayed}</b></span>
+                {legacy.bestLifeText && (
+                  <span className="text-[#d8c9a3]">Рекорд: <b className="text-[#e8c85a]">{legacy.bestLifeText}</b></span>
+                )}
+                {legacy.achievementsCount > 0 && (
+                  <span className="text-[#d8c9a3]">Достижений: <b className="text-[#e8c85a]">{legacy.achievementsCount}</b></span>
+                )}
+                {legacy.racesPlayedText && (
+                  <span className="text-[#d8c9a3]">Рас познано: <b className="text-[#e8c85a]">{legacy.racesPlayedText}</b></span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Кнопки */}
           <div className="flex flex-col gap-4 items-center mb-8 animate-fade-in" style={{ animationDelay: '1s' }}>
             {hasSave && (
@@ -83,7 +107,32 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
             >
               ⚔️&nbsp;&nbsp;{selectedRace ? `Начать жизнь за ${selectedRace === 'dark_eldar' ? 'друкхаари' : selectedRace === 'tau' ? 'тау' : selectedRace === 'gretchin' ? 'гретчина' : { human: 'человека', ork: 'орка', eldar: 'эльдар' }[selectedRace]}` : 'Начать новую игру'}
             </button>
+
+            <button
+              onClick={() => setHelpOpen((v) => !v)}
+              aria-expanded={helpOpen}
+              className="text-gray-400 hover:text-[#e8c85a] underline decoration-dotted underline-offset-4 transition-colors font-event"
+            >
+              {helpOpen ? 'Скрыть справку' : 'Как играть'}
+            </button>
           </div>
+
+          {/* Шпаргалка «Как играть» (пункт 2 дорожной карты UI/UX) */}
+          {helpOpen && (
+            <div className="wh-panel wh-frame p-6 max-w-2xl mx-auto mb-8 animate-fade-in" role="region" aria-label="Как играть">
+              <h3 className="font-gothic text-xl font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4">Как выжить (или хотя бы попытаться)</h3>
+              <ul className="space-y-2 text-[#d8c9a3] font-event leading-relaxed list-disc list-inside">
+                <li>Каждый ход — один год жизни. Смерть почти гарантирована, но её можно отсрочить.</li>
+                <li>Выбирайте действие клавишами <kbd className="px-1.5 py-0.5 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] font-mono text-sm">A</kbd>–<kbd className="px-1.5 py-0.5 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] font-mono text-sm">D</kbd> или мышью.</li>
+                <li>Здоровье и рассудок — ваши главные щиты. Ранения накапливаются, безумие искажает восприятие.</li>
+                <li>Псайкеры с высоким психическим даром привлекают внимание Имматериума — и Инквизиции.</li>
+                <li>Судьбоносные выборы помечаются золотом в хронике и попадают в летопись на экране смерти.</li>
+              </ul>
+              <p className="mt-4 text-sm text-gray-500 italic font-event">
+                Пример: «Человек в сером плаще предлагает вам жетон Ордо…» → выбор A может изменить всю жизнь.
+              </p>
+            </div>
+          )}
 
           {/* Подсказка */}
           <div className="text-center animate-fade-in" style={{ animationDelay: '1.2s' }}>
