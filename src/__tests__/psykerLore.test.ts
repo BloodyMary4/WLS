@@ -83,6 +83,22 @@ describe('Лор: событие Ордо Малипус для людей-пс�
     expect(getEventForAge(25, psyker({ keyChoices: ['ordo_malice_fled'] })).text).not.toContain('Ордо Малипус');
   });
 
+  it('горящий маяк Варпа (warpAttention >= 4) вызывает Малипус раньше «пятых» лет', () => {
+    const char = psyker({ age: 17, warpAttention: 4 });
+    expect(getEventForAge(17, char).text).toContain('Ордо Малипус');
+    // без маяка на не-«пятых» годах визита нет
+    const quiet = psyker({ age: 17, warpAttention: 0 });
+    expect(getEventForAge(17, quiet).text).not.toContain('Ордо Малипус');
+  });
+
+  it('не дублирует вербовку Ордо Геретикус (inquisition_contact уже получен)', () => {
+    const char = psyker({
+      age: 20,
+      keyChoices: ['inquisition_contact'],
+    });
+    expect(getEventForAge(20, char).text).not.toContain('Ордо Малипус');
+  });
+
   it('не приходит другим расам (эльдар идут своим путём — Провидцы)', () => {
     const eldar = makeCharacter({
       race: 'eldar', age: 20,

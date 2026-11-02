@@ -144,10 +144,15 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
   // Если дар уже проявился (psi >= 5), каждый пятый год после сов совершеннолетия
   // к персонажу приходит Ордо Малипус — отдел Инквизиции, отвечающий за псайкеров.
   const psykerAwakened = (c.hiddenParams.psi || 0) >= 5;
+  // «Маяк» неучтённого псайкера горит ярче с каждым годом: чем сильнее внимание
+  // Варпа (warpAttention >= 4), тем раньше Инквизиция не может игнорировать дар.
+  const beaconBurning = (c.warpAttention || 0) >= 4;
   const ordoMaliceReady =
-    c.race === 'human' && psykerAwakened && age >= 16 && age % 5 === 0 &&
+    c.race === 'human' && psykerAwakened && age >= 16 &&
+    (age % 5 === 0 || beaconBurning) &&
     !c.keyChoices?.includes('ordo_malice_registered') &&
-    !c.keyChoices?.includes('ordo_malice_fled');
+    !c.keyChoices?.includes('ordo_malice_fled') &&
+    !c.keyChoices?.includes('inquisition_contact'); // уже завербован Ордо Геретикус — Малипус не дублирует визит
   if (ordoMaliceReady) {
     return {
       text: 'Возраст ' + age + '. Твой дар больше нельзя скрыть: в зеркале ты на мгновение видишь себя другим — окружённым тенями. У порога дома стоят люди в серых плащах. Нагрудный жетон: череп, крылатая звезда и песочные часы. Ордо Малипус. «Ты помечен Варпом, — говорит старший ровно, как оглашают приговор. — Император милостив: у тебя есть выбор. Служба вместо костра.»',
