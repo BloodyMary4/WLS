@@ -9,7 +9,6 @@ import { CollapsibleSection } from './CollapsibleSection';
 import { WindowPane, ReadoutRow } from './Dashboard';
 // Хроника — самостоятельный обновляемый модуль интерфейса (v0.3.24).
 // Реэкспорт утилит сохраняет публичный API Sidebar (тесты и старые импорты не ломаются).
-import { ChroniclePanel } from './ChroniclePanel';
 export { splitFateMark, isWorldEntry, filterChronicle } from './ChroniclePanel';
 export type { ChronicleFilter } from './ChroniclePanel';
 
@@ -45,24 +44,18 @@ interface SidebarProps {
   character: CharacterStats;
   raceInfo: RaceInfo;
   activeQuests: any[];
-  history: string[];
-  logRef: React.RefObject<HTMLDivElement>;
-  /** Хроника следует за новыми записями (не отлистана вверх). */
-  chroniclePinned?: boolean;
-  /** Вернуть прокрутку хроники к последней записи. */
-  onJumpToLatest?: () => void;
 }
 
 /** Левая колонка: скрытые параметры, расовые особенности, снаряжение, NPC, квесты, хроника.
  *  Каждая секция — сворачиваемая панель (единый паттерн CollapsibleSection):
  *  игрок сам управляет плотностью экрана, ничего не теряя. */
-export function Sidebar({ character, raceInfo, activeQuests, history, logRef, chroniclePinned = true, onJumpToLatest }: SidebarProps) {
+export function Sidebar({ character, raceInfo, activeQuests }: SidebarProps) {
   return (
-    <aside className="fit-col lg:col-span-3 space-y-4 animate-slide-in-left">
+    <aside className="wh-side-group flex flex-col min-h-0">
       {/* Единая прокрутка сайдбара вместо скролла каждой секции отдельно */}
       {/* Единая «книга кодекса»: секции идут сплошным блоком с тонкими бордюрами,
           без зазоров-«воздуха» между отдельными панелями (v0.3.25). */}
-      <div className="fit-scroll flex-1 space-y-2.5 lg:space-y-0 pr-1 wh-side-group flex flex-col min-h-0">
+      <div className="flex flex-col min-h-0">
       <CollapsibleSection
         persistId="stats"
         title={<><span className="text-xl" aria-hidden="true">📊</span>Характеристики</>}
@@ -304,13 +297,6 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, ch
         </CollapsibleSection>
       )}
 
-      {/* Хроника жизни — вынесена в самостоятельный обновляемый модуль ChroniclePanel */}
-      <ChroniclePanel
-        history={history}
-        logRef={logRef}
-        chroniclePinned={chroniclePinned}
-        onJumpToLatest={onJumpToLatest}
-      />
       </div>
     </aside>
   );

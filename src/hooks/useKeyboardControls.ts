@@ -17,7 +17,10 @@ export function useKeyboardControls({ enabled, choices, onChoice, onProceed }: U
     if (!enabled) return;
 
     const handler = (e: KeyboardEvent) => {
+      // Не перехватываем ввод в текстовых полях и нажатия с модификаторами
+      // (Ctrl/Cmd+R, Alt+Tab и т.п. — браузерные комбинации священны).
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
 
       const choiceKeys = ['a', 'b', 'c', 'd'];
       const index = choiceKeys.indexOf(e.key.toLowerCase());

@@ -1,6 +1,7 @@
 import { CharacterStats } from '../game/types';
 import { StatCard } from './StatCard';
 import { RaceEmblem } from './RaceEmblem';
+import { useFit, useShortScreen } from '../game/useFit';
 import { listCriticalStats } from '../game/critical';
 import { STAT_HINTS, STATUS_HINTS, foodCaption } from '../game/statMeta';
 import { significantDeltas } from '../game/deltaLabels';
@@ -44,10 +45,117 @@ function SupplyValue({ icon, value, unit, caption, critical, hint }: { icon: str
   );
 }
 
+/** Компактный HUD-чип: метка + значение + тонкая полоска (fit-экран, v0.3.28). */
+function HudChip({ icon, label, value, pct, barClass, danger, hint }: {
+  icon: string;
+  label: string;
+  value: string;
+  pct: number;
+  barClass: string;
+  danger?: boolean;
+  hint: string;
+}) {
+  return (
+    <div
+      title={hint}
+      className={`flex items-center gap-1.5 px-2 py-0.5 rounded-sm border bg-[#161310]/90 text-xs leading-none shrink-0 ${danger ? 'border-[#a30000]/70' : 'border-[#c9a227]/25'}`}
+    >
+      <span aria-hidden="true">{icon}</span>
+      <span className="text-[#b8a878] hidden xl:inline">{label}</span>
+      <span className={`font-bold tabular-nums ${danger ? 'text-[#e07a7a]' : 'text-[#e8d9b0]'}`}>
+        {value}
+        {danger && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+      </span>
+      <span className="wh-bar overflow-hidden hidden md:block" style={{ width: '44px', height: '4px' }} aria-hidden="true">
+        <span className={`block h-full ${barClass}`} style={{ width: `${Math.max(2, Math.min(100, pct))}%` }}></span>
+      </span>
+    </div>
+  );
+}
+
 /** Шапка игры: имя персонажа + плитки статов + предупреждение о критических состояниях. */
 export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameHeaderProps) {
   const criticals = listCriticalStats(character);
   const turnResult = significantDeltas(lastDeltas);
+  // В fit-режиме шапка — одна приборная строка: вертикаль целиком отдаётся окнам.
+  const fit = useFit();
+  const short = useShortScreen();
+
+  if (fit) {
+    const hpPct = character.maxHealth > 0 ? (character.health / character.maxHealth) * 100 : 0;
+    return (
+      <header className="shrink-0 z-40 border-b border-[#c9a227]/30" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)' }}>
+        <div className="mx-auto w-full max-w-[1700px] px-3 py-1.5 flex items-center gap-2 flex-nowrap overflow-x-auto wh-scroll">
+          <RaceEmblem race={character.race} className="w-7 h-7 shrink-0 drop-shadow-[0_0_6px_rgba(201,162,39,0.35)]" />
+          <div className="min-w-0 shrink-0 max-w-[220px]">
+            <div className="font-gothic text-sm font-bold uppercase tracking-wide bg-gradient-to-b from-[#f0d878] to-[#a8821a] bg-clip-text text-transparent truncate animate-gold-sheen">
+              {character.name}
+            </div>
+            <div className="text-[10px] text-gray-400 truncate" title={`${character.raceName}, ${character.age} лет, планета ${character.planet}`}>
+              {character.raceName} • {character.age} лет • {character.planet}
+            </div>
+          </div>
+
+          <HudChip icon="❤️" label="Здоровье" value={`${character.health}/${character.maxHealth}`} pct={hpPct}
+            barClass={getHealthBarColor(character.health, character.maxHealth)}
+            danger={character.maxHealth > 0 && character.health / character.maxHealth <= 0.25}
+            hint={STAT_HINTS.health} />
+          <HudChip icon="🧠" label="Рассудок" value={`${character.sanity}%`} pct={character.sanity}
+            barClass={getSanityBarColor(character.sanity)} danger={character.sanity <= 20} hint={STAT_HINTS.sanity} />
+          <HudChip icon="☣️" label="Порча" value={`${character.warpCorruption}%`} pct={character.warpCorruption}
+            barClass={getWarpCorruptionBarColor(character.warpCorruption)} danger={character.warpCorruption >= 80} hint={STAT_HINTS.warpCorruption} />
+          <HudChip icon="⭐" label="Влияние" value={`${character.influence}`} pct={Math.min(100, character.influence)}
+            barClass="bg-orange-500" hint={STAT_HINTS.influence} />
+          <HudChip icon="🍀" label="Удача" value={`${character.luck}`} pct={character.luck * 10}
+            barClass="bg-green-500" danger={character.luck <= 2} hint={STAT_HINTS.luck} />
+
+          {/* Припасы: числа с подписями смысла, критичный дефицит — красный с ⚠ */}
+          <div className="flex items-center gap-2 px-2 py-0.5 rounded-sm border border-[#c9a227]/25 bg-[#161310]/90 text-xs leading-tight shrink-0">
+            <span title={character.credits === 0 ? '💰 Кредиты: ни одного — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}
+              className={`font-semibold tabular-nums whitespace-nowrap ${character.credits === 0 ? 'text-[#e07a7a] font-bold' : 'text-yellow-400'}`}>
+              💰 {character.credits}₡{character.credits === 0 && ' ⚠'}
+            </span>
+            <span title={`🍖 Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`}
+              className={`font-semibold tabular-nums whitespace-nowrap ${character.food <= 1 ? 'text-[#e07a7a] font-bold' : 'text-[#e8d9b0]'}`}>
+              🍖 {character.food}{character.food <= 1 && ' ⚠'}
+            </span>
+            <span title={`🔫 Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`}
+              className={`font-semibold tabular-nums whitespace-nowrap ${character.ammo <= 0 ? 'text-[#e07a7a] font-bold' : 'text-[#e8d9b0]'}`}>
+              🔫 {character.ammo}{character.ammo <= 0 && ' ⚠'}
+            </span>
+            <span title={STATUS_HINTS[character.status] ?? `Твоё место в жизни: ${character.status}. Смена положения приходит с судьбоносными выборами.`}
+              className="text-[#d8c9a3] font-semibold whitespace-nowrap hidden lg:inline">
+              {character.status}
+            </span>
+          </div>
+
+          {/* Итог последнего выбора — прямо в приборной строке */}
+          {!short && turnResult.length > 0 && (
+            <div role="status" aria-label={`Итог выбора: ${turnResult.map((d) => d.text).join(', ')}`}
+              className="hidden lg:flex items-center gap-1.5 rounded-sm border border-[#c9a227]/40 bg-[#1c1913]/80 px-2 py-0.5 text-xs font-semibold tabular-nums shrink-0 animate-fade-in">
+              <span className="font-gothic uppercase tracking-wider text-[#b8a878]/80">Итог:</span>
+              {turnResult.map((d) => (
+                <span key={d.key} className={d.tone === 'good' ? 'text-[#7fc97f]' : 'text-[#e07a7a]'}>{d.text}</span>
+              ))}
+            </div>
+          )}
+          {criticals.length > 0 && (
+            <div role="alert" title={`Критично: ${criticals.join(', ').toLowerCase()}`}
+              className="flex items-center gap-1.5 rounded-sm border border-[#a30000]/70 bg-[#2a0d0d]/80 px-2 py-0.5 text-xs font-gothic uppercase tracking-wider text-[#e07a7a] animate-glow shrink-0">
+              <span aria-hidden="true">☠</span>
+              {criticals.join(' • ')}
+            </div>
+          )}
+
+          <button onClick={() => { if (confirm('Начать новую игру?')) onNewGame(); }}
+            className="btn-modern ml-auto bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic text-xs py-1 px-3 rounded-sm border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shrink-0 whitespace-nowrap">
+            🔄 Новая игра
+          </button>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b border-[#c9a227]/30 shadow-lg" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)', backdropFilter: 'blur(8px)' }}>
       <div className="wh-header-compact mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">

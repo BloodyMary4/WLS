@@ -897,3 +897,22 @@ p {
 
 /* Карточка события внутри окна (все ширины): растягивается на всю высоту контента */
 .wh-event-card.min-h-full { height: 100%; }
+
+/* ===== v0.3.28: экран-мостик без «воздуха» — вся вертикаль у окон ===== */
+@media (min-width: 1024px) and (min-height: 640px) {
+  /* Сетка тянется на всю высоту main; колонки не выходят за вьюпорт */
+  .game-fit .fit-grid > .fit-col { height: 100%; }
+  /* Карточка события: текст сверху, решения прижаты к низу окна;
+     если текст не влезает — скроллится только пергаментная часть */
+  .game-fit .wh-event-card { min-height: 0; height: 100%; }
+  .game-fit .wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+  .game-fit .wh-event-card .event-parchment {
+    overflow-y: auto; min-height: 0;
+    scrollbar-width: thin; scrollbar-color: #8b6914 rgba(10,10,10,.6);
+  }
+  .game-fit .wh-event-card .choices-block,
+  .game-fit .wh-event-card .result-block { flex-shrink: 0; }
+  /* Кнопки решений: чуть плотнее по вертикали, чтобы 4 варианта влезали всегда */
+  .game-fit .wh-event-card .choice-btn { padding: 0.45rem 0.75rem; }
+  .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
+}
