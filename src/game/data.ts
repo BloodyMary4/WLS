@@ -135,7 +135,7 @@ const TAU_CASTES: CasteData[] = [
   { name: 'Водная каста', startCredits: 8, race: 'tau' },
   { name: 'Воздушная каста', startCredits: 5, race: 'tau' },
   { name: 'Земляная каста', startCredits: 3, race: 'tau' },
-  { name: 'Эфирная каста', startCredits: 10, race: 'tau' },
+  { name: 'Каста Этиридов', startCredits: 10, race: 'tau' },
 ];
 
 const GRETCHIN_CASTES: CasteData[] = [
@@ -369,7 +369,7 @@ export function getDeathMessage(character: CharacterStats): string {
     case 'dark_eldar':
       return `${name} не выдержал${g} ГОЛОДа в возрасте ${age} лет. Коммагот поглотил его, как и всех. Без боли — нет жизни для Друкхаари.`;
     case 'tau':
-      return `${name} пало за Высшее Блага в возрасте ${age} лет. Жертва — высшая форма служения. Эфирные поют о его вкладе в Великий Узор.`;
+      return `${name} пало за Высшее Благо в возрасте ${age} лет. Жертва — высшая форма служения. Этириды поют о его вкладе в Великий Узор.`;
     case 'gretchin':
       return `${name} не выдержал${g} в возрасте ${age} лет. Ещё один гретчин погиб. Орки даже не заметили. Но где-то другие гретчины помнят...`;
     default:

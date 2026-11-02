@@ -55,7 +55,7 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
       choices: [
         { letter: 'А', text: 'Организовать великий рейд', effects: { strength: 2, cunning: 2, cruelty: 2, description: 'Ты ведёшь Кабал в реальный мир. Жатва богата.' } },
         { letter: 'Б', text: 'Создать новое устройство пыток', effects: { techSkill: 3, cruelty: 3, description: 'Твоё творение... шедевр. Архонт впечатлён.' } },
-        { letter: 'В', text: 'Интриговать против rival', effects: { cunning: 4, description: 'Ты плетёшь сети. Враг падёт, даже не узнав почему.' } },
+        { letter: 'В', text: 'Интриговать против соперника из другого кабала', effects: { cunning: 4, description: 'Ты плетёшь сети. Враг падёт, даже не узнав почему.' } },
         { letter: 'Г', text: 'Искать запрещённые удовольствия', effects: { cruelty: 2, mutation: 2, description: 'Ты идёшь туда, где другие боятся. Но ГОЛОД... не утихает.' } },
       ]
     };

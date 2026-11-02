@@ -129,7 +129,7 @@ export const MICRO_EVENTS: MicroEvent[] = [
   {
     text: 'Ты участвуешь в ритуале Высшего Блага.',
     probability: 0.3,
-    effects: { unity: 2, faith: 1, description: 'Все касты вместе. Эфирные ведут церемонию. Ты чувствуешь... цель.' }
+    effects: { unity: 2, faith: 1, description: 'Все касты вместе. Этириды ведут церемонию. Ты чувствуешь... цель.' }
   },
   {
     text: 'Ты тестируешь новое оружие на пленниках.',
