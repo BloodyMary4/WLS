@@ -11,7 +11,7 @@
  * таймеры) вынесены в слой "effects" — результат хода содержит список эффектов,
  * которые хук исполняет после диспатча. Это делает логику тестируемой без React.
  */
-import { GameState, Choice, CharacterStats } from './types';
+import { GameState, Choice, CharacterStats, ChoiceEffects } from './types';
 import { rng, setGlobalSeed, hashSeed } from './rng';
 import { generateCharacter, getEventForAge, getDeathMessage } from './data';
 import { checkAchievements } from './achievements';
@@ -62,9 +62,23 @@ export type GameAction =
 
 export type GameEffect =
   | { kind: 'unlockAudio' }
-  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' }
+  | { kind: 'playSound'; sound: 'event' | 'death' | 'achievement' | 'miracle' | 'choice' | 'year' }
   | { kind: 'save' }
   | { kind: 'achievementToast'; durationMs: number };
+
+/**
+ * Чистая (без RNG!) эвристика «исхода» выбора для звуковой обратной связи:
+ * серьёзная рана — тревожный удар, ощутимая удача/праведность — светлый акцент.
+ * Экстремальные пороги подобраны так, чтобы срабатывать на заметных последствиях.
+ */
+export function classifyChoiceOutcome(effects: ChoiceEffects): 'wound' | 'fortune' | null {
+  const hpLoss = -(effects.health ?? 0);
+  const sanityLoss = -(effects.sanity ?? 0);
+  if (hpLoss >= 25 || sanityLoss >= 15) return 'wound';
+  const fortuneGain = (effects.credits ?? 0) + (effects.luck ?? 0) * 30 + (effects.faith ?? 0) * 20;
+  if (fortuneGain >= 40) return 'fortune';
+  return null;
+}
 
 export interface GameOutcome {
   state: GameUiState;
@@ -283,7 +297,16 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
   const game = state.game;
   if (!game || game.gameOver) return { state, effects: [] };
 
-  const effects: GameEffect[] = [{ kind: 'unlockAudio' }, { kind: 'playSound', sound: 'event' }];
+  const effects: GameEffect[] = [
+    { kind: 'unlockAudio' },
+    { kind: 'playSound', sound: 'choice' },
+    { kind: 'playSound', sound: 'event' },
+  ];
+
+  // Звуковой акцент исхода выбора (чистая эвристика, без RNG — детерминизм не затрагивается)
+  const outcomeTone = classifyChoiceOutcome(choice.effects);
+  if (outcomeTone === 'wound') effects.push({ kind: 'playSound', sound: 'death' });
+  else if (outcomeTone === 'fortune') effects.push({ kind: 'playSound', sound: 'miracle' });
 
   let newChar = applyChoiceEffects(game.character, choice.effects);
   const aged = updateAgeStatus(newChar);
@@ -346,7 +369,7 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
   const game = state.game;
   if (!game) return { state, effects: [] };
 
-  const effects: GameEffect[] = [{ kind: 'unlockAudio' }];
+  const effects: GameEffect[] = [{ kind: 'unlockAudio' }, { kind: 'playSound', sound: 'year' }];
 
   let newChar = game.character;
   const newHistory = [...game.history];

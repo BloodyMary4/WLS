@@ -1025,121 +1025,156 @@ export class GrimdarkAmbience {
     }
   }
 
+  /**
+   * Звук нового события — удар колокола собора: низкий частотный «удар»
+   * с экспоненциальным спадом + мягкая верхняя парциальная нота и
+   * короткая шумовая атака (молоток по металлу).
+   */
   playEventSound() {
     if (!this.audioContext || !this.masterGain) return;
 
-    const now = this.audioContext.currentTime;
-    
-    const panPosition = (Math.random() - 0.5) * 1.2;
-    
-    const osc = this.audioContext.createOscillator();
-    const gain = this.audioContext.createGain();
-    const filter = this.audioContext.createBiquadFilter();
-    const panner = this.audioContext.createStereoPanner();
-    
-    panner.pan.value = panPosition;
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, now);
-    osc.frequency.exponentialRampToValueAtTime(220, now + 0.8);
-    
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1200, now);
-    filter.frequency.exponentialRampToValueAtTime(400, now + 0.8);
-    filter.Q.value = 2.5;
-    
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.3, now + 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-    
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(panner);
-    panner.connect(this.masterGain);
-    
-    osc.start(now);
-    osc.stop(now + 1.2);
+    const ctx = this.audioContext;
+    const master = this.masterGain;
+    const now = ctx.currentTime;
 
-    const osc2 = this.audioContext.createOscillator();
-    const gain2 = this.audioContext.createGain();
-    const filter2 = this.audioContext.createBiquadFilter();
-    const panner2 = this.audioContext.createStereoPanner();
-    
-    panner2.pan.value = -panPosition;
-    
-    osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(660, now);
-    osc2.frequency.exponentialRampToValueAtTime(330, now + 0.8);
-    
-    filter2.type = 'lowpass';
-    filter2.frequency.value = 800;
-    filter2.Q.value = 1.5;
-    
-    gain2.gain.setValueAtTime(0, now);
-    gain2.gain.linearRampToValueAtTime(0.16, now + 0.08);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 1);
-    
-    osc2.connect(filter2);
-    filter2.connect(gain2);
-    gain2.connect(panner2);
-    panner2.connect(this.masterGain);
-    
-    osc2.start(now);
-    osc2.stop(now + 1);
+    const fundamental = 138.59; // C#3 — «колокольный» пражский тон
+    const partials = [
+      { ratio: 1, gain: 0.26, type: 'sine' as OscillatorType },
+      { ratio: 2.0, gain: 0.12, type: 'sine' as OscillatorType },
+      { ratio: 2.76, gain: 0.07, type: 'triangle' as OscillatorType },
+      { ratio: 4.07, gain: 0.04, type: 'sine' as OscillatorType },
+    ];
 
-    const osc3 = this.audioContext.createOscillator();
-    const gain3 = this.audioContext.createGain();
-    const panner3 = this.audioContext.createStereoPanner();
-    
-    panner3.pan.value = panPosition * 0.5;
-    
-    osc3.type = 'sine';
-    osc3.frequency.setValueAtTime(550, now);
-    osc3.frequency.exponentialRampToValueAtTime(275, now + 0.8);
-    
-    gain3.gain.setValueAtTime(0, now);
-    gain3.gain.linearRampToValueAtTime(0.1, now + 0.1);
-    gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
-    
-    osc3.connect(gain3);
-    gain3.connect(panner3);
-    panner3.connect(this.masterGain);
-    
-    osc3.start(now);
-    osc3.stop(now + 0.9);
+    partials.forEach((p, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const panner = ctx.createStereoPanner();
 
-    const noiseBuffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.15, this.audioContext.sampleRate);
+      panner.pan.value = (i % 2 === 0 ? -1 : 1) * 0.25;
+
+      osc.type = p.type;
+      osc.frequency.setValueAtTime(fundamental * p.ratio, now);
+      // Лёгкий «прогиб» строя вниз — как затухающий язык колокола
+      osc.frequency.exponentialRampToValueAtTime(fundamental * p.ratio * 0.985, now + 1.1);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(p.gain, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.35 - i * 0.15);
+
+      osc.connect(gain);
+      gain.connect(panner);
+      panner.connect(master);
+
+      osc.start(now);
+      osc.stop(now + 1.4);
+    });
+
+    // Шумовая атака — звон молотка/цепи
+    const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.09), ctx.sampleRate);
     const noiseData = noiseBuffer.getChannelData(0);
     for (let i = 0; i < noiseData.length; i++) {
-      noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseData.length * 0.25));
+      noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseData.length * 0.2));
     }
-    
-    const noise = this.audioContext.createBufferSource();
+
+    const noise = ctx.createBufferSource();
     noise.buffer = noiseBuffer;
-    const noiseGain = this.audioContext.createGain();
-    const noiseFilter = this.audioContext.createBiquadFilter();
+    const noiseGain = ctx.createGain();
+    const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 2500;
-    noiseFilter.Q.value = 1.5;
-    
-    noiseGain.gain.setValueAtTime(0.2, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-    
+    noiseFilter.frequency.value = 1800;
+    noiseFilter.Q.value = 1.2;
+
+    noiseGain.gain.setValueAtTime(0.14, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
     noise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
-    noiseGain.connect(this.masterGain);
-    
+    noiseGain.connect(master);
+
     noise.start(now);
-    
-    const delay = this.audioContext.createDelay();
-    delay.delayTime.value = 0.15;
-    const feedback = this.audioContext.createGain();
-    feedback.gain.value = 0.3;
-    
-    gain.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(this.masterGain);
+  }
+
+  /**
+   * Клик по варианту решения — короткий сухой барабанный стук (войс),
+   * даёт тактильную обратную связь до наступления результата года.
+   */
+  playChoiceClick() {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const master = this.masterGain;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(196, now); // G3
+    osc.frequency.exponentialRampToValueAtTime(98, now + 0.12);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.22, now + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(now);
+    osc.stop(now + 0.2);
+
+    const clickBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.03), ctx.sampleRate);
+    const clickData = clickBuffer.getChannelData(0);
+    for (let i = 0; i < clickData.length; i++) {
+      clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (clickData.length * 0.25));
+    }
+    const click = ctx.createBufferSource();
+    click.buffer = clickBuffer;
+    const clickGain = ctx.createGain();
+    const clickFilter = ctx.createBiquadFilter();
+    clickFilter.type = 'highpass';
+    clickFilter.frequency.value = 1200;
+    clickGain.gain.setValueAtTime(0.08, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+    click.connect(clickFilter);
+    clickFilter.connect(clickGain);
+    clickGain.connect(master);
+    click.start(now);
+  }
+
+  /**
+   * Перелистывание года — лёгкий «пергаментный» шорох: отфильтрованный
+   * шум с медленной огибающей, тише клика выбора.
+   */
+  playYearTick() {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const master = this.masterGain;
+    const now = ctx.currentTime;
+
+    const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.22), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      const t = i / data.length;
+      const env = Math.sin(Math.PI * t); // плавная «волна» шороха
+      data[i] = (Math.random() * 2 - 1) * env;
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const band = ctx.createBiquadFilter();
+    band.type = 'bandpass';
+    band.frequency.setValueAtTime(900, now);
+    band.frequency.linearRampToValueAtTime(2400, now + 0.22);
+    band.Q.value = 0.7;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.05, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+    src.connect(band);
+    band.connect(gain);
+    gain.connect(master);
+    src.start(now);
   }
 
   playAchievementSound() {
