@@ -77,12 +77,16 @@ interface SidebarProps {
   activeQuests: any[];
   history: string[];
   logRef: React.RefObject<HTMLDivElement>;
+  /** Хроника следует за новыми записями (не отлистана вверх). */
+  chroniclePinned?: boolean;
+  /** Вернуть прокрутку хроники к последней записи. */
+  onJumpToLatest?: () => void;
 }
 
 /** Левая колонка: скрытые параметры, расовые особенности, снаряжение, NPC, квесты, хроника.
  *  Сайдбар всегда виден — панель «Характеристики» сворачивается кнопкой-заголовком
  *  в стиле остальных панелей (единый интерфейс без отдельной кнопки «Скрыть»). */
-export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: SidebarProps) {
+export function Sidebar({ character, raceInfo, activeQuests, history, logRef, chroniclePinned = true, onJumpToLatest }: SidebarProps) {
   const [statsOpen, setStatsOpen] = useState(true);
   const [chronicleFilter, setChronicleFilter] = useState<ChronicleFilter>('all');
   const shownHistory = filterChronicle(history, chronicleFilter);
@@ -378,6 +382,16 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef }: 
             </button>
           ))}
         </div>
+        {/* Игрок отлистал вверх — подсказка вернуться к последнему году */}
+        {!chroniclePinned && shownHistory.length > 0 && (
+          <button
+            type="button"
+            onClick={onJumpToLatest}
+            className="mb-2 w-full px-2 py-1.5 rounded-sm border border-[#c9a227]/50 bg-[#c9a227]/10 text-[#e8c85a] text-xs font-gothic uppercase tracking-wider hover:bg-[#c9a227]/20 transition-colors"
+          >
+            ↓ К последнему году
+          </button>
+        )}
         <div ref={logRef} role="log" aria-live="polite" aria-label="Хроника жизни" className="wh-chronicle space-y-2">
           {history.length === 0 ? (
             <p className="text-gray-400 italic text-sm text-center py-4">Жизнь только начинается...</p>

@@ -1,5 +1,38 @@
 import type { ReactNode } from 'react';
 import { GameEvent, Choice, ChoiceEffects } from '../game/types';
+import { describeEffectChips, EffectChip } from '../game/effectLabels';
+
+/** Стиль метки последствия по «тону» (понятность без догадок). */
+const CHIP_TONE_CLS: Record<EffectChip['tone'], string> = {
+  good: 'text-[#7fc97f] border-[#7fc97f]/40 bg-[#7fc97f]/10',
+  bad: 'text-[#e07a7a] border-[#e07a7a]/40 bg-[#e07a7a]/10',
+  neutral: 'text-[#b8a878] border-[#b8a878]/40 bg-[#b8a878]/10',
+};
+
+/** Ряд понятных меток последствий: −10 Здоровье, +50 Кредиты, 🗡️ предмет… */
+function EffectChipRow({ chips, compact }: { chips: EffectChip[]; compact?: boolean }) {
+  if (chips.length === 0) return null;
+  const shown = compact ? chips.slice(0, 3) : chips;
+  const rest = chips.length - shown.length;
+  return (
+    <div className={`flex flex-wrap gap-1.5 ${compact ? 'mt-2' : 'mt-3'}`} aria-hidden="true">
+      {shown.map((chip, i) => (
+        <span
+          key={i}
+          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border text-xs font-semibold tracking-wide ${CHIP_TONE_CLS[chip.tone]} ${compact ? 'opacity-80' : ''}`}
+        >
+          <span>{chip.icon}</span>
+          {chip.label}
+        </span>
+      ))}
+      {rest > 0 && (
+        <span className="inline-flex items-center px-1.5 py-0.5 text-xs text-gray-400">
+          +{rest} ещё
+        </span>
+      )}
+    </div>
+  );
+}
 
 /** Маркер «веса» решения для кнопки выбора: судьба ⚡ или опасность 💀. */
 const RISK_BADGE: Record<'fate' | 'danger', { icon: string; label: string; cls: string }> = {
@@ -86,6 +119,8 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
               <span className="text-3xl">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
               <p className="font-event text-lg leading-relaxed text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
             </div>
+            {/* Понятная сводка итогов: что именно изменилось в судьбе персонажа */}
+            {lastChoice.effects && <EffectChipRow chips={describeEffectChips(lastChoice.effects, true)} />}
           </div>
           <button
             onClick={onProceed}
@@ -112,6 +147,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
           {event.choices.map((choice, index) => {
             const mark = choiceRiskMark(choice.effects);
             const badge = mark ? RISK_BADGE[mark] : null;
+            const chips = describeEffectChips(choice.effects);
             return (
             <button
               key={choice.letter}
@@ -125,7 +161,11 @@ export function EventCard({ event, age, phase, resultText, lastChoice, onChoice,
                     {index + 1}
                   </span>
                 </div>
-                <span className="choice-text font-event text-lg text-[#d8c9a3] flex-1 leading-relaxed pt-1 md:pt-2">{choice.text}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="choice-text font-event text-lg text-[#d8c9a3] block leading-relaxed">{choice.text}</span>
+                  {/* Заранее понятные последствия выбора (компактно, максимум 3 метки) */}
+                  <EffectChipRow chips={chips} compact />
+                </div>
                 {badge && (
                   <span
                     title={badge.label}

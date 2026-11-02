@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Choice } from '../game/types';
 import { GameUiState } from '../game/reducer';
 import { RACE_INFO } from '../game/data';
@@ -23,6 +23,8 @@ interface GameScreenProps {
  *  сворачивается внутри сайдара кнопкой-заголовком, а не кнопкой «Скрыть». */
 export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScreenProps) {
   const logRef = useRef<HTMLDivElement>(null);
+  /** true — хроника «пришпилена» к последней записи; false — игрок читает старое. */
+  const [chroniclePinned, setChroniclePinned] = useState(true);
   const game = uiState.game!;
   const { character, currentEvent, history, gameOver, deathMessage } = game;
 
@@ -33,17 +35,36 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
 
   // Автоскролл хроники к последней записи.
   // Уважение prefers-reduced-motion: без плавной анимации прокрутки, сразу в конец.
+  // Если игрок сам отлистал вверх («читаю старое») — не уводим взгляд с новой записи,
+  // вместо этого показываем кнопку-подсказку «к последнему году».
   useEffect(() => {
-    if (logRef.current) {
-      const reduceMotion = typeof window !== 'undefined'
-        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduceMotion) {
-        logRef.current.scrollTop = logRef.current.scrollHeight;
-      } else {
-        logRef.current.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' });
-      }
+    const el = logRef.current;
+    if (!el) return;
+    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceToBottom > 160) {
+      setChroniclePinned(false);
+      return;
     }
+    const reduceMotion = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      el.scrollTop = el.scrollHeight;
+    } else {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
+    setChroniclePinned(true);
   }, [history]);
+
+  /** Вернуть хронику к последней записи (кнопка над скроллом). */
+  const jumpToLatest = () => {
+    const el = logRef.current;
+    if (!el) return;
+    const reduceMotion = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) el.scrollTop = el.scrollHeight;
+    else el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    setChroniclePinned(true);
+  };
 
   if (!currentEvent || !currentEvent.text || !currentEvent.choices) {
     return <div className="text-white p-8">Error: Invalid game state</div>;
@@ -66,6 +87,8 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
               activeQuests={game.activeQuests}
               history={history}
               logRef={logRef}
+              chroniclePinned={chroniclePinned}
+              onJumpToLatest={jumpToLatest}
             />
 
             <div className="fit-col lg:col-span-9 animate-slide-in-right">
