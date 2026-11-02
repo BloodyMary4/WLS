@@ -95,7 +95,7 @@ export const MICRO_EVENTS: MicroEvent[] = [
   },
   // События для эльдар
   {
-    text: 'Ты чувствуешь присутствие Слаанеш.',
+    text: 'Ты чувствуешь присутствие Слаанес.',
     probability: 0.1,
     effects: { warpCorruption: 3, psi: 1, description: 'Шёпот... обещания... экстаз. Ты отступаешь... но часть тебя хочет большего.' }
   },

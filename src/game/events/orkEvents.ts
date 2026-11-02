@@ -105,7 +105,7 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
   return {
     text: 'Возраст ' + age + '. Ты — легендарный Варбосс. Твоё имя знают во всём секторе. Даже Космодесант боится тебя. Но время не щадит никого. Твоё тело стареет, но дух орка не сломлен.',
     choices: [
-      { letter: 'А', text: 'Объединить все племена — создать Великий Вааагх!', effects: { waaagh: 10, strength: 5, influence: 20, health: -30, description: 'Ты собираешь все племена. Великий Вааагх! начинается. Ты — легенда!' } },
+      { letter: 'А', text: 'Объединить все племена — начать Великий Waaagh!', effects: { waaagh: 10, strength: 5, influence: 20, health: -30, description: 'Ты собираешь все племена. Великий Waaagh! начинается. Ты — легенда!' } },
       { letter: 'Б', text: 'Построить крепость — создать новый дом', effects: { cunning: 5, techSkill: 3, influence: 15, description: 'Ты строишь великую крепость. Теперь у орков есть дом. Твоё наследие.' } },
       { letter: 'В', text: 'Передать власть молодому вожаку', effects: { willpower: 4, cunning: 2, description: 'Ты выбираешь преемника. Твоя мудрость живёт в нём. WAAAGH!' } },
       { letter: 'Г', text: 'Отправиться в последнее плавание', effects: { strength: 3, waaagh: 5, health: -40, description: 'Ты садишься на корабль и уплываешь в космос. Никто не знает, куда. Но ты свободен.' } },
