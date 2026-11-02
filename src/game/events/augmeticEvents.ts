@@ -4,7 +4,7 @@
  * (src/game/augmetics.ts). Выбор «Согласиться» несёт addAugmentic=<id>,
  * эффекты операции и пассивные бонусы применяются через applyChoiceEffects.
  */
-import { CharacterStats, GameEvent } from '../types';
+import { CharacterStats, GameEvent, Choice } from '../types';
 import { availableAugmetics, Augmetic } from '../augmetics';
 
 /** Детерминированный выбор импланта по возрасту (без RNG — seed-партии не смещается) */

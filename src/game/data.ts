@@ -7,7 +7,8 @@ import {
   getDarkEldarEvent, 
   getTauEvent, 
   getGretchinEvent, 
-  getInquisitionBranchEvent 
+  getInquisitionBranchEvent,
+  getAugmeticEvent 
 } from './events';
 import { generateWorldEvent } from './utils';
 
@@ -197,7 +198,7 @@ export function generateCharacter(): CharacterStats {
   return generateCharacterByRace(race);
 }
 
-function generateCharacterByRace(race: Race): CharacterStats {
+export function generateCharacterByRace(race: Race): CharacterStats {
   const raceInfo = RACE_INFO[race];
   let planet: PlanetData;
   let caste: CasteData;

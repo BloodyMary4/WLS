@@ -6,6 +6,7 @@ import {
   initialUiState,
   dispatchGameAction,
 } from '../game/reducer';
+import type { Race } from '../game/types';
 import { getAmbience } from '../game/audio';
 import { vibrate, type HapticEvent } from '../game/haptics';
 
@@ -90,7 +91,7 @@ export function useGameStore() {
 
   const handleChoice = (choice: GameUiState['lastChoice'] & {}) => dispatchTracked({ type: 'CHOOSE', choice });
   const proceedToNextYear = () => dispatchTracked({ type: 'PROCEED_TO_NEXT_YEAR' });
-  const startNewGame = (seedStr?: string) => dispatchTracked({ type: 'START_NEW_GAME', seedStr });
+  const startNewGame = (seedStr?: string, race?: Race) => dispatchTracked({ type: 'START_NEW_GAME', seedStr, race });
 
   const loadSavedGame = (): boolean => {
     try {

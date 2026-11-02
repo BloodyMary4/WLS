@@ -11,9 +11,9 @@
  * таймеры) вынесены в слой "effects" — результат хода содержит список эффектов,
  * которые хук исполняет после диспатча. Это делает логику тестируемой без React.
  */
-import { GameState, Choice, CharacterStats, ChoiceEffects } from './types';
+import { GameState, Choice, CharacterStats, ChoiceEffects, Race } from './types';
 import { rng, setGlobalSeed, hashSeed } from './rng';
-import { generateCharacter, getEventForAge, getDeathMessage } from './data';
+import { generateCharacter, generateCharacterByRace, getEventForAge, getDeathMessage } from './data';
 import { checkAchievements } from './achievements';
 import { triggerMicroEvent } from './microEvents';
 import { getLegacy, updateLegacyOnDeath, getLegacyBonuses } from './legacy';
@@ -52,7 +52,7 @@ export const initialUiState: GameUiState = {
 // ---------- Действия ----------
 
 export type GameAction =
-  | { type: 'START_NEW_GAME'; seedStr?: string }
+  | { type: 'START_NEW_GAME'; seedStr?: string; race?: Race }
   | { type: 'LOAD_SAVED_GAME'; game: GameState; unlockedAchievements: string[] }
   | { type: 'CHOOSE'; choice: Choice }
   | { type: 'PROCEED_TO_NEXT_YEAR' }
@@ -256,14 +256,14 @@ function resolveDeathOrIntercession(
 
 // ---------- Чистые переходы ----------
 
-export function computeStartNewGame(state: GameUiState, seedStr?: string): GameOutcome {
+export function computeStartNewGame(state: GameUiState, seedStr?: string, race?: Race): GameOutcome {
   const effects: GameEffect[] = [{ kind: 'unlockAudio' }];
 
   // Seed партии: детерминированность для тестов и баг-репортов.
   const seed = seedStr && seedStr.trim() ? hashSeed(seedStr.trim()) : (rng().next() * 2 ** 32) >>> 0;
   setGlobalSeed(seed);
 
-  const character = generateCharacter();
+  const character = race ? generateCharacterByRace(race) : generateCharacter();
   if (!character) {
     console.error('Failed to generate character');
     return { state, effects: [] };

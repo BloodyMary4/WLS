@@ -111,13 +111,13 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
   if (effects.removeItem) {
     newChar.inventory = (newChar.inventory || []).filter(i => i !== effects.removeItem);
   }
-  if (effects.addAugmentic && !newChar.augmentics.includes(effects.addAugmentic)) {
+  if (effects.addAugmentic && !(newChar.augmentics || []).includes(effects.addAugmentic)) {
     // Лорная интеграция импланта: пассивные бонусы каталога применяются один раз
     // при установке (чистая функция — без RNG, детерминизм seed не затрагивается).
     newChar = installAugmetic(newChar, effects.addAugmentic);
   }
   if (effects.removeAugmentic) {
-    newChar.augmentics = newChar.augmentics.filter(a => a !== effects.removeAugmentic);
+    newChar.augmentics = (newChar.augmentics || []).filter(a => a !== effects.removeAugmentic);
   }
   if (effects.newStatus) {
     newChar.status = effects.newStatus;
