@@ -40,7 +40,9 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
           {/* Описание */}
           <div className="wh-panel wh-frame p-8 mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-start gap-4">
-              <div className="text-5xl animate-pulse">⚔️</div>
+              <div className="w-9 h-9 shrink-0 mt-1 opacity-80">
+                <RaceEmblem race="human" className="w-full h-full" />
+              </div>
               <div className="flex-1">
                 <p className="text-lg leading-relaxed text-gray-200 mb-4">
                   В мрачном будущем тридцать первого тысячелетия нет мира. Есть лишь бесконечная бойня.
@@ -66,8 +68,8 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
                   className="wh-panel hover-lift p-6 animate-scale-in cursor-pointer"
                   style={{ animationDelay: `${0.5 + index * 0.1}s` }}
                 >
-                  <div className="mb-4 w-16 h-16 mx-auto transform hover:scale-110 transition-transform duration-300">
-                    <RaceEmblem race={key as Race} className="w-full h-full drop-shadow-[0_0_8px_rgba(201,162,39,0.3)]" />
+                  <div className="mb-3 w-10 h-10 mx-auto">
+                    <RaceEmblem race={key as Race} className="w-full h-full opacity-90" />
                   </div>
                   <h3 className="font-gothic text-xl font-bold text-[#e8c85a] mb-2 uppercase tracking-wide">{info.name}</h3>
                   <p className="font-event text-base text-[#a89870] leading-relaxed">{info.description}</p>
@@ -83,7 +85,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
                 onClick={onLoadSavedGame}
                 className="btn-modern bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic font-bold py-4 px-12 rounded-sm text-xl border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shadow-lg"
               >
-                📜 Продолжить игру
+                📜&nbsp;&nbsp;Продолжить игру
               </button>
             )}
 
@@ -91,7 +93,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
               onClick={onStartNewGame}
               className="btn-wh-primary btn-modern font-bold py-5 px-16 rounded-sm text-2xl hover:scale-105"
             >
-              ⚔️ Начать новую игру
+              ⚔️&nbsp;&nbsp;Начать новую игру
             </button>
           </div>
 
