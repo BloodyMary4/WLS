@@ -44,6 +44,22 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
   const maxExpectedAge = GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED_BY_RACE[character.race]
     ?? GAME_CONFIG.AGE_THRESHOLDS.MAX_EXPECTED;
 
+  /** Прокрутка ленты хроники вниз. Защита от сред без matchMedia/scrollTo
+   *  (jsdom, старые webview): иначе исключение роняет весь React-дерево
+   *  и игрок видит пустой экран. */
+  const scrollChronicleToBottom = (smooth: boolean) => {
+    const el = logRef.current;
+    if (!el) return;
+    const reduceMotion = typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (smooth && !reduceMotion && typeof el.scrollTo === 'function') {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
+  };
+
   // Автоскролл хроники к последней записи (уважает prefers-reduced-motion).
   useEffect(() => {
     const el = logRef.current;
@@ -53,21 +69,13 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
       setChroniclePinned(false);
       return;
     }
-    const reduceMotion = typeof window !== 'undefined'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) el.scrollTop = el.scrollHeight;
-    else el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    scrollChronicleToBottom(true);
     setChroniclePinned(true);
   }, [history]);
 
   /** Вернуть хронику к последней записи (кнопка в шапке окна). */
   const jumpToLatest = () => {
-    const el = logRef.current;
-    if (!el) return;
-    const reduceMotion = typeof window !== 'undefined'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) el.scrollTop = el.scrollHeight;
-    else el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    scrollChronicleToBottom(true);
     setChroniclePinned(true);
   };
 
