@@ -174,6 +174,6 @@ describe('Маршрутизация getEventForAge — приоритеты а�
     const ev = getEventForAge(15, c);
     const install = ev.choices.find(ch => ch.effects?.addAugmentic);
     expect(install).toBeTruthy();
-    expect(['choppa_hand', 'gork_eye', 'bigteeth']).toContain(install!.effects!.addAugmentic);
+    expect(['choppa_hand', 'mork_eye', 'bigteeth']).toContain(install!.effects!.addAugmentic);
   });
 });

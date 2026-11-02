@@ -110,8 +110,8 @@ const ORK_CASTES: CasteData[] = [
   { name: 'Бой (рядовой воин)', startCredits: 0, race: 'ork' },
   { name: 'Отпрыск вождя', startCredits: 0, race: 'ork' },
   { name: 'Малыш-рант', startCredits: 0, race: 'ork' },
-  { name: 'Ученик Мегабосса', startCredits: 0, race: 'ork' },
-  { name: 'Питомец Медика', startCredits: 0, race: 'ork' },
+  { name: 'Непота Босса', startCredits: 0, race: 'ork' },
+  { name: 'Питомец Гризника', startCredits: 0, race: 'ork' },
 ];
 
 const ELDAR_CASTES: CasteData[] = [

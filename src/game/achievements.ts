@@ -126,7 +126,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     name: 'Учёный',
     description: 'Стать учёным или провидцем',
     icon: '📚',
-    condition: (c) => ['Провидец', 'Ученик Медика'].includes(c.status)
+    condition: (c) => ['Провидец', 'Ученик Гризника'].includes(c.status)
   },
   {
     id: 'trait_collector',
