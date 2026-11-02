@@ -27,6 +27,8 @@ const HIDDEN_HINTS: Record<string, string> = {
   unity: "Преданность Высшему Благу тау. Сплочённость каст и доверие манд'ва решают судьбу общины.",
   techSkill: 'Мастерство обращения с машинным духом. Нужно пилотам, техникам и огранщикам света.',
   sneakiness: 'Умение гретчина остаться незамеченным: под ногами вааagh-боссов и вождей выживает только ловкий.',
+  warpAttention: 'Насколько ты ярок в Имматериуме. Каждый незакрытый пси-дар слышен демонам и Инквизиции: чем выше шкала, тем раньше придут — Ордо Малипус (псайкеры) или костер еретиков.',
+  warpCorruption: 'Порча души от контакта с Варпом. Растёт вслед за вниманием Имматериума; на пределе плоть и разум начинают служить Хаосу.',
 };
 
 interface SidebarProps {
@@ -80,6 +82,34 @@ export function Sidebar({ character, raceInfo, activeQuests, history, logRef, op
                 {character.intercessionCount
                   ? `Смерть уже отводила взор ${character.intercessionCount} ${declineMiracles(character.intercessionCount)}.`
                   : 'Твоя вера замечена на Троне. В час смерти Он может взглянуть вниз.'}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Внимание Имматериума — лорная шкала: псайкеры и безумцы «светятся» в Варпе */}
+        {character.warpAttention > 0 && (
+          <div className={`mt-4 pt-3 border-t border-purple-500/20 ${character.warpAttention >= 5 ? 'animate-pulse' : ''}`}>
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span
+                className="font-gothic text-[#b8a878] tracking-wide cursor-help"
+                title={HIDDEN_HINTS.warpAttention}
+              >
+                🔮 Внимание Имматериума
+              </span>
+              <span className={`font-bold ${character.warpAttention >= 5 ? 'text-purple-300' : 'text-[#d8c9a3]'}`}>
+                {character.warpAttention}/10
+              </span>
+            </div>
+            <div className="wh-bar w-full overflow-hidden" style={{ height: '6px' }}>
+              <div
+                className="wh-bar-fill bg-gradient-to-r from-purple-800 to-fuchsia-500"
+                style={{ width: `${(character.warpAttention / 10) * 100}%`, height: '100%' }}
+              ></div>
+            </div>
+            {character.warpAttention >= 4 && (
+              <p className="text-[11px] text-purple-300/70 italic mt-1.5 leading-snug">
+                Тебя слышат по ту сторону реальности. Чем ярче свет — тем раньше придут: Ордо Малипус или то, что хуже него.
               </p>
             )}
           </div>
