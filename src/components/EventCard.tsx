@@ -136,16 +136,21 @@ function EventParchment({ text, icon, extra, miracle }: {
 }) {
   return (
     <div
-      className={`event-parchment wh-parchment-simple rounded-sm px-4 py-3 ${miracle ? 'wh-miracle' : ''}`}
+      className={`event-parchment wh-parchment-simple rounded-sm px-4 py-3 ${miracle ? 'wh-miracle' : ''} ${extra ? '' : 'flex-1 min-h-0'}`}
       style={{ borderColor: miracle || icon === '⚔️' || icon === '🕊️' ? 'rgba(201,162,39,0.7)' : undefined }}
     >
-      <div className="flex items-start gap-3 flex-1 min-h-0">
+      {/* v0.3.47: строка «иконка + текст» растянута на всю высоту пергамента
+          (items-stretch), а скролл живёт ВНУТРИ текстового блока — раньше
+          скроллилась вся колонка, из-за чего в фазе результата иконка ⚔️
+          уезжала вверх и обрезалась, а текст уходил за нижнюю рамку прямо
+          под кнопки («не читается, текст уходит за выборы»). */}
+      <div className="flex items-stretch gap-3 flex-1 min-h-0">
         {icon && <span className="text-xl leading-none pt-0.5 shrink-0">{icon}</span>}
-        <p className="result-text font-event leading-relaxed text-[#e8d9b0] flex-1 min-w-0 event-body-scroll">
+        <p className="result-text font-event leading-relaxed text-[#e8d9b0] flex-1 min-w-0 min-h-0 overflow-y-auto overscroll-contain pr-2 wh-scroll">
           {richText(text)}
         </p>
       </div>
-      {extra}
+      {extra && <div className="shrink-0">{extra}</div>}
     </div>
   );
 }
@@ -159,10 +164,10 @@ function EventParchment({ text, icon, extra, miracle }: {
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   const isResult = phase === 'result' && lastChoice;
   return (
-    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col animate-parchment">
+    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col min-h-0 flex-1 animate-parchment">
       {!isResult && (
-      <div className="event-head mb-2 min-h-0">
-        <div className="event-label-row flex items-center gap-2 mb-1.5">
+      <div className="event-head mb-2 flex flex-col flex-1 min-h-0">
+        <div className="event-label-row flex items-center gap-2 mb-1.5 shrink-0">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
           <span className="font-gothic text-sm font-bold text-[#e07a7a] uppercase tracking-[0.18em] animate-candle">
             Судьба &bull; М41.{String(age).padStart(3, '0')}
@@ -173,27 +178,29 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
       )}
 
       {phase === 'result' && lastChoice ? (
-        <div className="result-block flex flex-col space-y-2.5 animate-fade-in" aria-live="polite">
+        <div className="result-block flex flex-col flex-1 min-h-0 space-y-2.5 animate-fade-in" aria-live="polite">
           <EventParchment
             text={resultText}
             icon={isMiracle(resultText) ? '🕊️' : '⚔️'}
             miracle={isMiracle(resultText)}
             extra={<DeltaSummary deltas={lastDeltas} />}
           />
+          {/* v0.3.47: пергамент результата занимает всю свободную высоту и
+              скроллит текст ВНУТРИ рамки; кнопка — фиксированная внизу блока,
+              поэтому она больше никогда не наезжает на текст (и наоборот). */}
           <button
             onClick={onProceed}
-            className="btn-wh-primary btn-modern w-full font-bold py-2.5 rounded-sm text-base transition-all hover:scale-[1.02]"
-          >
-            Продолжить → Год {age}
-            <span className="hidden md:inline text-sm font-normal opacity-70 ml-2">(Пробел)</span>
-          </button>
-          {/* Мобильный липкий HUD-экшен: большая тач-кнопка всегда под пальцем */}
-          <button
-            onClick={onProceed}
-            className="lg:hidden sticky bottom-2 z-30 w-full mt-2 font-gothic font-bold py-4 rounded-sm text-lg shadow-[0_-4px_20px_rgba(0,0,0,0.6)]"
+            className="btn-wh-primary btn-modern w-full shrink-0 font-bold py-2.5 rounded-sm text-base transition-all hover:scale-[1.02] lg:hidden"
             style={{ background: 'linear-gradient(180deg, #c9a227 0%, #8a6d15 100%)', color: '#14110a' }}
           >
             ⏭ Дальше → Год {age}
+          </button>
+          <button
+            onClick={onProceed}
+            className="btn-wh-primary btn-modern w-full shrink-0 font-bold py-2.5 rounded-sm text-base transition-all hover:scale-[1.02] hidden lg:block"
+          >
+            Продолжить → Год {age}
+            <span className="text-sm font-normal opacity-70 ml-2">(Пробел)</span>
           </button>
         </div>
       ) : (

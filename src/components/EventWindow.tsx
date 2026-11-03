@@ -48,6 +48,7 @@ export function EventWindow({ event, age, phase, resultText, lastChoice, lastDel
         </span>
       }
       stretch
+      fillBody
       className="animate-scale-in"
     >
       <EventCard

@@ -19,13 +19,17 @@ interface WindowPaneProps {
   scroll?: boolean;
   /** Окно тянется на всю высоту ряда (главное окно события). */
   stretch?: boolean;
+  /** v0.3.47: контент растягивается на всю высоту тела окна (flex-колонка),
+   *  вместо минимальной планки 160px — нужно окну события, где текст и
+   *  выборы делят вертикаль по flex. */
+  fillBody?: boolean;
 }
 
 /** Одно окно приборного отсека: золотая рамка + тонкая плашка заголовка.
  *  v0.3.43: параметр scroll оставлен для совместимости — теперь ВСЕ окна
  *  показывают контент полностью (прокрутка внутри окна при переполнении),
  *  ничего не обрезается молча. */
-export function WindowPane({ title, icon, extra, children, className = '', stretch = false, scroll = true }: WindowPaneProps) {
+export function WindowPane({ title, icon, extra, children, className = '', stretch = false, scroll = true, fillBody = false }: WindowPaneProps) {
   const noScroll = scroll === false;
   return (
     <section
@@ -47,7 +51,7 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
           ячейку сетки, но никогда не обрезает содержимое молча: при
           переполнении показывается тонкий золотой скроллбар (wh-scroll),
           а в окне события — контент разрастается сам («документ»). */}
-      <div className={`flex-1 min-h-[160px] p-2 ${noScroll ? '' : 'overflow-y-auto wh-scroll overscroll-contain'}`}>{children}</div>
+      <div className={`flex-1 min-h-0 p-2 ${fillBody ? 'flex flex-col' : 'min-h-[160px]'} ${noScroll ? '' : 'overflow-y-auto wh-scroll overscroll-contain'}`}>{children}</div>
     </section>
   );
 }

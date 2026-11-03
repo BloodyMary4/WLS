@@ -905,32 +905,29 @@ p {
    выборов прижаты к низу окна и доступны ВСЕГДА. Никакого наползания
    текста на выборы больше физически невозможно: у каждого блока своя
    область, всё обрезается только рамками окон. */
+/* ===== v0.3.47: скролл ВНУТРИ текстового блока пергамента =====
+   Раньше overflow-y стоял на всей колонке «иконка+текст+итоги», из-за чего
+   в фазе результата иконка ⚔️ обрезалась сверху, а текст уходил за нижнюю
+   рамку пергамента прямо под кнопки — «текст уходит за выборы, не читается».
+   Теперь скроллится только сам текст внутри своей рамки; пергамент тянется
+   на всю свободную высоту окна, рамки блоков держат границы. */
 .wh-event-card { display: flex; flex-direction: column; min-height: 0; }
 .wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; }
-/* Пергамент — flex-колонка: текст тянется на свободную высоту и скроллится
-   ВНУТРИ своей рамки (в fit-режиме), поэтому никогда не наползает на выборы. */
-.wh-event-card .event-parchment { overflow: visible; overflow-x: hidden; display: flex; flex-direction: column; min-height: 0; }
+.wh-event-card .event-parchment { overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .wh-event-card .result-text { font-size: 16px; line-height: 1.55; }
 .wh-event-card .result-block { display: flex; flex-direction: column; min-height: 0; }
-/* Блок «Твоё решение»: всегда в потоке под текстом; не сжимается. */
-.wh-event-card .choices-block { overflow: visible; min-height: 0; flex-shrink: 0; }
+/* Блок «Твоё решение»: прижат к низу контента; если выборов много —
+   скроллится ВНУТРИ своего блока, не вылезая за окно. */
+.wh-event-card .choices-block { overflow-y: auto; overscroll-behavior: contain; min-height: 0; flex-shrink: 1; }
 
 @media (min-width: 1024px) and (min-height: 640px) {
   /* Сетка-мостик остаётся строго во вьюпорте: колонки делят экран,
-     страница НЕ прокручивается целиком (возврат к v0.3.41 поведению). */
+     страница НЕ прокручивается целиком. */
   .game-fit .wh-event-card { height: 100%; }
   .game-fit .wh-event-card .event-head { flex: 1 1 auto; }
-  /* Текст года занимает всю свободную высоту пергамента и скроллится сам. */
-  .game-fit .wh-event-card .event-body-scroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding-right: 8px;
-  }
   .game-fit .wh-event-card .event-parchment { min-height: 0; }
   /* Кнопки выборов — внизу окна, всегда кликабельны. */
-  .game-fit .wh-event-card .choices-block { flex: 0 0 auto; max-height: 55%; }
+  .game-fit .wh-event-card .choices-block { flex: 0 1 auto; max-height: 55%; }
   .game-fit .wh-event-card .choice-btn { padding: 0.5rem 0.8rem; min-height: 48px; }
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
 }
