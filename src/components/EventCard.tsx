@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { GameEvent, Choice, ChoiceEffects } from '../game/types';
+import { useFit } from '../game/useFit';
 import { describeEffectChips, EffectChip } from '../game/effectLabels';
 import { describeDeltas } from '../game/deltaLabels';
 import { PublicStatKey } from '../game/utils';
@@ -122,21 +124,111 @@ function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number
   );
 }
 
+/** Меряет число строк, на которые разбивается текст при данной ширине.
+ *  Используется для авторегулировки кегля: чем длиннее текст, тем мельче
+ *  он рисуется — до тех пор, пока целиком не помещается БЕЗ прокрутки. */
+let measureCtx: CanvasRenderingContext2D | null | undefined;
+function countWrappedLines(text: string, fontSize: number, widthPx: number): number {
+  if (measureCtx === undefined) {
+    try {
+      const c = document.createElement('canvas');
+      measureCtx = c.getContext('2d');
+    } catch {
+      measureCtx = null;
+    }
+  }
+  if (!measureCtx) return Math.ceil(text.length / 60);
+  measureCtx.font = `${fontSize}px "IM Fell English", Georgia, serif`;
+  const words = String(text).split(/\s+/).filter(Boolean);
+  let lines = 1;
+  let cur = '';
+  for (const w of words) {
+    const cand = cur ? `${cur} ${w}` : w;
+    if (measureCtx.measureText(cand).width > widthPx && cur) {
+      lines += 1;
+      cur = w;
+    } else {
+      cur = cand;
+    }
+  }
+  return lines;
+}
+
+/** Подбор кегля текста (15→11px), чтобы он уместился в maxLines строк. */
+function fittedFontSize(text: string, widthPx: number, maxLines: number): number {
+  for (const fs of [15, 14, 13, 12, 11]) {
+    if (countWrappedLines(text, fs, widthPx) <= maxLines) return fs;
+  }
+  return 11;
+}
+
+/** Ширина колонки текста по фактическому размеру окна (эвристика). */
+function useTextWidth(): number {
+  const [w, setW] = useState(() => (typeof window !== 'undefined' ? Math.min(Math.max(window.innerWidth * 0.42, 320), 760) : 560));
+  useEffect(() => {
+    const update = () => setW(Math.min(Math.max(window.innerWidth * 0.42, 320), 760));
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return w;
+}
+
+/**
+ * Пергамент с текстом, который ВСЕГДА показывается целиком — без прокрутки.
+ * Кегль автоматически уменьшается (15→11px), чтобы текст вместился в
+ * отведённое число строк; если совсем не влезает — обрезка многоточием
+ * (-webkit-line-clamp), но полоса прокрутки не появляется никогда
+ * (требование игрока v0.3.42: «убери вообще скроллинг в решениях»).
+ */
+function FitParchment({ text, maxLines, icon, extra, miracle }: {
+  text: string;
+  maxLines: number;
+  icon?: string;
+  extra?: ReactNode;
+  miracle?: boolean;
+}) {
+  const width = useTextWidth();
+  const fs = fittedFontSize(text, width - 40, maxLines);
+  return (
+    <div
+      className={`event-parchment wh-parchment-simple rounded-sm px-4 py-3 overflow-hidden ${miracle ? 'wh-miracle' : ''}`}
+      style={{ borderColor: miracle || icon === '⚔️' || icon === '🕊️' ? 'rgba(201,162,39,0.7)' : undefined }}
+    >
+      <div className="flex items-start gap-3">
+        {icon && <span className="text-xl leading-none pt-0.5 shrink-0">{icon}</span>}
+        <p
+          className="result-text font-event leading-snug text-[#e8d9b0] flex-1 min-w-0 overflow-hidden"
+          style={{
+            fontSize: `${fs}px`,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: maxLines,
+          }}
+        >
+          {richText(text)}
+        </p>
+      </div>
+      {extra}
+    </div>
+  );
+}
+
 /** Центральная карточка события: текст года или результат выбора.
- *  Компактная раскладка «всё на экране»: заголовок-строка, плотный пергамент,
- *  решения без лишних отступов — карточка умещается во вьюпорт без прокрутки.
- *  v0.3.27: карточка тянется на всю высоту окна (текст сверху, решения прижаты
- *  к низу) — пустоты между пергаментом и кнопками больше нет. */
+ *  v0.3.42: ВСЯ карточка умещается в экран ЦЕЛИКОМ — прокрутка убрана
+ *  полностью (по требованию игрока: скролл в решениях неудобен). Текст
+ *  года и исход решения печатаются компактным кеглем, вписанным в окно;
+ *  выборы всегда видны внизу без колеса мыши. */
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   const isResult = phase === 'result' && lastChoice;
+  const fit = useFit();
+  /* Сколько строк доступно тексту при плотной раскладке — зависит от
+     высоты окна: считаем грубо по высоте вьюпорта. */
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const eventMaxLines = fit ? Math.max(5, Math.round((vh * 0.34) / 17)) : 8;
+  const resultMaxLines = fit ? Math.max(6, Math.round((vh * 0.42) / 17)) : 10;
   return (
     <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col min-h-full animate-parchment">
       {!isResult && (
-      /* v0.3.41: текст года — фиксированная полоса (shrink-0), выборы —
-         отдельная скроллящаяся область ниже. Раньше пергамент события имел
-         flex:1 и при длинном тексте съедал почти всю высоту окна: кнопки
-         выборов уезжали за нижнюю рамку, и чтобы их нажать, приходилось
-         крутить колесо вслепую («выборы делать неудобно»). */
       <div className="event-head mb-2 shrink-0 min-h-0">
         <div className="event-label-row flex items-center gap-2 mb-1.5">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
@@ -144,29 +236,19 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
             Судьба &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
-        <div className="event-parchment wh-parchment-simple rounded-sm px-4 py-3">
-          <p className="font-event text-[15px] leading-snug text-[#d8c9a3]">
-            {richText(event.text)}
-          </p>
-        </div>
+        <FitParchment text={event.text} maxLines={eventMaxLines} />
       </div>
       )}
 
       {phase === 'result' && lastChoice ? (
-        <div className="result-block flex flex-col flex-1 min-h-0 space-y-2.5 animate-fade-in mt-auto" aria-live="polite">
-          {/* v0.3.40: пергамент результата — flex-колонка, текст скроллится
-              ВНУТРИ него (flex-1 min-h-0). Раньше блок результата прижимался
-              к низу окна (margin-top:auto), а его высота ничем не ограничивалась:
-              длинный текст «Исход решения» вырастал вверх, наползал на заголовок
-              «Твоё решение» и кнопки выборов — прочитать его было невозможно. */}
-          <div className={`result-parchment wh-parchment-simple rounded-sm px-4 py-3 flex-1 min-h-0 flex flex-col ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
-            <div className="flex items-start gap-3 flex-1 min-h-0">
-              <span className="text-xl leading-none pt-0.5 shrink-0">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
-              <p className="result-text font-event text-[15px] leading-snug text-[#e8d9b0] flex-1 min-w-0 italic">{richText(resultText)}</p>
-            </div>
-            {/* Фактический итог хода: точные дельты характеристик после выбора */}
-            <DeltaSummary deltas={lastDeltas} />
-          </div>
+        <div className="result-block flex flex-col space-y-2.5 animate-fade-in" aria-live="polite">
+          <FitParchment
+            text={resultText}
+            maxLines={resultMaxLines}
+            icon={isMiracle(resultText) ? '🕊️' : '⚔️'}
+            miracle={isMiracle(resultText)}
+            extra={<DeltaSummary deltas={lastDeltas} />}
+          />
           <button
             onClick={onProceed}
             className="btn-wh-primary btn-modern w-full font-bold py-2.5 rounded-sm text-base transition-all hover:scale-[1.02]"
@@ -184,13 +266,10 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </button>
         </div>
       ) : (
-        /* v0.3.40: блок выборов скроллится внутри окна, если не умещается —
-           раньше при низком окне кнопки выходили за нижнюю рамку и обрезались
-           overflow-hidden'ом WindowPane (информация «уходила» за пределы).
-           v0.3.41: padding-bottom 44px — под кнопками всегда остаётся чистое
-           место: полоса прокрутки окна больше не перекрывает нижний выбор,
-           последняя кнопка гарантированно доступна клику целиком. */
-        <div className="choices-block flex-1 min-h-0 overflow-y-auto space-y-2 mt-auto wh-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#8b6914 rgba(10,10,10,.6)', paddingBottom: '44px' }}>
+        /* v0.3.42: прокрутка в выборах убрана полностью (требование игрока).
+           padding-bottom снят, overflow-y:auto удалён — кнопки всегда на
+           экране; если блок не умещается, он просто прижат к низу колонки. */
+        <div className="choices-block min-h-0 space-y-2">
           <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg, rgba(24,21,14,0.98) 70%, rgba(24,21,14,0))', padding: '2px 0 6px' }}>
             Твоё решение:
             <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}{event.choices.length <= 4 ? ' / A–D' : ''}</span>

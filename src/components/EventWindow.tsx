@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GameEvent, Choice } from '../game/types';
 import { PublicStatKey } from '../game/utils';
-import { useFit } from '../game/useFit';
 import { WindowPane } from './Dashboard';
 import { EventCard } from './EventCard';
 
@@ -23,7 +22,7 @@ interface EventWindowProps {
 }
 
 export function EventWindow({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventWindowProps) {
-  const fit = useFit();
+  // v0.3.42: скролл в окне события отключён всегда (требование игрока).
   // Счётчик строк текста события — подсказка объёма в шапке окна.
   const [lines, setLines] = useState<number | null>(null);
 
@@ -46,7 +45,7 @@ export function EventWindow({ event, age, phase, resultText, lastChoice, lastDel
           {age} лет · М41.{String(age).padStart(3, '0')}
         </span>
       }
-      scroll={fit}
+      scroll={false}
       stretch
       className="animate-scale-in"
     >
