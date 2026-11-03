@@ -32,22 +32,8 @@ function SupplyCaption({ text, critical }: { text: string; critical?: boolean })
   );
 }
 
-/** Плитка припасов: значение + человекочитаемая подпись; краснеет, когда ресурс на исходе. */
-function SupplyValue({ icon, value, unit, caption, critical, hint }: { icon: string; value: number; unit?: string; caption: string; critical?: boolean; hint: string }) {
-  return (
-    <span title={hint}>
-      <span className={`font-semibold tabular-nums ${critical ? 'text-[#e07a7a] font-bold' : ''}`}>
-        {icon} {value}{unit}
-        {critical && <span aria-hidden="true" className="ml-0.5">⚠</span>}
-      </span>
-      <SupplyCaption text={caption} critical={critical} />
-    </span>
-  );
-}
-
 /** Компактный HUD-сегмент приборной панели: засечки-метка, значение, микро-шкала. */
-function HudChip({ icon, label, value, pct, barClass, danger, hint }: {
-  icon: string;
+function HudChip({ label, value, pct, barClass, danger, hint }: {
   label: string;
   value: string;
   pct: number;
@@ -60,8 +46,7 @@ function HudChip({ icon, label, value, pct, barClass, danger, hint }: {
       title={hint}
       className={`wh-hud-seg${danger ? ' wh-hud-seg-danger' : ''}`}
     >
-      <span className="wh-hud-icon" aria-hidden="true">{icon}</span>
-      <span className="wh-hud-label hidden xl:inline">{label}</span>
+      <span className="wh-hud-label !normal-case !tracking-normal">{label}</span>
       <span className={`wh-hud-value${danger ? ' !text-[#e07a7a]' : ''}`}>
         {value}
         {danger && <span aria-hidden="true" className="ml-0.5">⚠</span>}
@@ -70,6 +55,28 @@ function HudChip({ icon, label, value, pct, barClass, danger, hint }: {
         <span className={`block h-full ${barClass}`} style={{ width: `${Math.max(2, Math.min(100, pct))}%` }}></span>
       </span>
     </div>
+  );
+}
+
+/** Припас/стат одной строкой без эмодзи: текстовая метка + число (v0.3.52). */
+function TextChip({ label, value, danger, hint }: { label: string; value: string; danger?: boolean; hint: string }) {
+  return (
+    <div title={hint} className={`wh-hud-seg${danger ? ' wh-hud-seg-danger' : ''}`}>
+      <span className="wh-hud-label !normal-case !tracking-normal">{label}</span>
+      <span className={`wh-hud-value whitespace-nowrap${danger ? ' !text-[#e07a7a] font-bold' : ''}`}>{value}</span>
+    </div>
+  );
+}
+
+/** Строка припасов в плитке non-fit HUD: метка — значение, ниже человекочитаемая подпись. */
+function HudRow({ label, value, caption, danger, hint }: { label: string; value: string; caption?: string; danger?: boolean; hint: string }) {
+  return (
+    <span title={hint}>
+      <span className={`font-semibold tabular-nums ${danger ? 'text-wh-blood font-bold' : 'text-[#e8d9b0]'}`}>
+        {label}: {value}{danger && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+      </span>
+      {caption && <SupplyCaption text={caption} critical={danger} />}
+    </span>
   );
 }
 
@@ -96,35 +103,30 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
             </div>
           </div>
 
-          <HudChip icon="❤️" label="Здоровье" value={`${character.health}/${character.maxHealth}`} pct={hpPct}
+          <HudChip label="Здоровье" value={`${character.health}/${character.maxHealth}`} pct={hpPct}
             barClass={getHealthBarColor(character.health, character.maxHealth)}
             danger={character.maxHealth > 0 && character.health / character.maxHealth <= 0.25}
             hint={STAT_HINTS.health} />
-          <HudChip icon="🧠" label="Рассудок" value={`${character.sanity}%`} pct={character.sanity}
+          <HudChip label="Рассудок" value={`${character.sanity}%`} pct={character.sanity}
             barClass={getSanityBarColor(character.sanity)} danger={character.sanity <= 20} hint={STAT_HINTS.sanity} />
-          <HudChip icon="☣️" label="Порча" value={`${character.warpCorruption}%`} pct={character.warpCorruption}
+          <HudChip label="Порча" value={`${character.warpCorruption}%`} pct={character.warpCorruption}
             barClass={getWarpCorruptionBarColor(character.warpCorruption)} danger={character.warpCorruption >= 80} hint={STAT_HINTS.warpCorruption} />
-          <HudChip icon="⭐" label="Влияние" value={`${character.influence}`} pct={Math.min(100, character.influence)}
-            barClass="bg-orange-500" hint={STAT_HINTS.influence} />
-          <HudChip icon="🍀" label="Удача" value={`${character.luck}`} pct={character.luck * 10}
-            barClass="bg-green-500" danger={character.luck <= 2} hint={STAT_HINTS.luck} />
+          <HudChip label="Влияние" value={`${character.influence}`} pct={Math.min(100, character.influence)}
+            barClass="bg-wh-caution" hint={STAT_HINTS.influence} />
+          <HudChip label="Удача" value={`${character.luck}`} pct={character.luck * 10}
+            barClass="bg-wh-health" danger={character.luck <= 2} hint={STAT_HINTS.luck} />
 
-          {/* Припасы: единый блок приборной панели */}
+          {/* Припасы: отдельные текстовые ячейки без эмодзи (v0.3.52) */}
+          <TextChip label="Кредиты" value={`${character.credits}₡`} danger={character.credits === 0}
+            hint={character.credits === 0 ? 'Кредиты: ни одного — торг и взятки недоступны' : `Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`} />
+          <TextChip label="Провизия" value={String(character.food)} danger={character.food <= 1}
+            hint={`Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`} />
+          <TextChip label="Боезапас" value={String(character.ammo)} danger={character.ammo <= 0}
+            hint={`Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`} />
           <div className="wh-hud-seg">
-            <span title={character.credits === 0 ? '💰 Кредиты: ни одного — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}
-              className={`wh-hud-value !text-yellow-400 whitespace-nowrap ${character.credits === 0 ? '!text-[#e07a7a] font-bold' : ''}`}>
-              💰 {character.credits}₡{character.credits === 0 && ' ⚠'}
-            </span>
-            <span title={`🍖 Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`}
-              className={`wh-hud-value whitespace-nowrap ${character.food <= 1 ? '!text-[#e07a7a] font-bold' : ''}`}>
-              🍖 {character.food}{character.food <= 1 && ' ⚠'}
-            </span>
-            <span title={`🔫 Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`}
-              className={`wh-hud-value whitespace-nowrap ${character.ammo <= 0 ? '!text-[#e07a7a] font-bold' : ''}`}>
-              🔫 {character.ammo}{character.ammo <= 0 && ' ⚠'}
-            </span>
+            <span className="wh-hud-label !normal-case !tracking-normal">Положение</span>
             <span title={STATUS_HINTS[character.status] ?? `Твоё место в жизни: ${character.status}. Смена положения приходит с судьбоносными выборами.`}
-              className="wh-hud-label hidden lg:inline !text-[#d8c9a3] font-semibold whitespace-nowrap">
+              className="wh-hud-value !text-[#d8c9a3] whitespace-nowrap cursor-help">
               {character.status}
             </span>
           </div>
@@ -243,39 +245,30 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
             danger={character.warpCorruption >= 80}
             hint={STAT_HINTS.warpCorruption}
           />
-          {/* Припасы: 4 ячейки 2×2 — голод и боезапас подсвечиваются, когда на исходе */}
+          {/* Припасы: чистая таблица без эмодзи (v0.3.52) */}
           <div className="wh-hud-cell grid grid-cols-2 gap-x-3 gap-y-1">
             <span className="wh-hud-label col-span-2 !text-[10px]" aria-hidden="true">Припасы</span>
-            <span title={character.credits === 0 ? '💰 Кредиты: ни одного кредита — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}>
-              <span className={`font-semibold tabular-nums ${character.credits === 0 ? 'text-[#e07a7a] font-bold' : 'text-yellow-400'}`}>
-                💰 {character.credits}₡{character.credits === 0 && <span aria-hidden="true" className="ml-0.5">⚠</span>}
-              </span>
-              <SupplyCaption text={character.credits === 0 ? 'нет денег' : 'кредиты'} critical={character.credits === 0} />
-            </span>
-            <SupplyValue
-              icon="🍖" value={character.food} critical={character.food <= 1}
+            <HudRow label="Кредиты" value={`${character.credits}₡`} danger={character.credits === 0}
+              caption={character.credits === 0 ? 'нет денег' : 'на торг и взятки'}
+              hint={character.credits === 0 ? 'Кредиты: ни одного кредита — торг и взятки недоступны' : `Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`} />
+            <HudRow label="Провизия" value={String(character.food)} danger={character.food <= 1}
               caption={foodCaption(character.food)}
-              hint={`🍖 Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`}
-            />
-            <SupplyValue
-              icon="🔫" value={character.ammo} unit="" critical={character.ammo <= 0}
+              hint={`Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`} />
+            <HudRow label="Боезапас" value={String(character.ammo)} danger={character.ammo <= 0}
               caption={character.ammo <= 0 ? 'оружие молчит!' : 'заряды'}
-              hint={`🔫 Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`}
-            />
-            <span title={STATUS_HINTS[character.status] ?? `Твоё место в жизни: ${character.status}. Смена ремесла или положения приходит с судьбоносными выборами.`}>
-              <span className="text-[#d8c9a3] font-semibold">{character.status}</span>
-              <SupplyCaption text="кто ты сейчас" />
-            </span>
+              hint={`Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`} />
+            <HudRow label="Положение" value={character.status} caption="кто ты сейчас"
+              hint={STATUS_HINTS[character.status] ?? `Твоё место в жизни: ${character.status}. Смена ремесла или положения приходит с судьбоносными выборами.`} />
           </div>
           <div className="wh-hud-cell">
-            <span className="wh-hud-label !text-[10px]" aria-hidden="true">Положение</span>
+            <span className="wh-hud-label !text-[10px]" aria-hidden="true">Судьба</span>
             <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.influence}>
-              <span className="text-[#b8a878]">⭐ Влияние</span>
-              <span className="text-orange-400 font-bold tabular-nums">{character.influence}</span>
+              <span className="text-[#b8a878]">Влияние</span>
+              <span className="text-wh-caution font-bold tabular-nums">{character.influence}</span>
             </div>
             <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.luck}>
-              <span className="text-[#b8a878]">🍀 Удача{character.luck <= 2 && <span aria-hidden="true" className="ml-0.5 text-[#e07a7a]">⚠</span>}</span>
-              <span className={`font-bold tabular-nums ${character.luck <= 2 ? 'text-[#e07a7a]' : 'text-green-400'}`}>{character.luck}</span>
+              <span className="text-[#b8a878]">Удача{character.luck <= 2 && <span aria-hidden="true" className="ml-0.5 text-wh-blood">⚠</span>}</span>
+              <span className={`font-bold tabular-nums ${character.luck <= 2 ? 'text-wh-blood' : 'text-wh-health'}`}>{character.luck}</span>
             </div>
           </div>
         </div>

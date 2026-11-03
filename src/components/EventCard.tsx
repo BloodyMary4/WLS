@@ -168,7 +168,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
       {!isResult && (
       <div className="event-head mb-2 flex flex-col flex-1 min-h-0">
         <div className="event-label-row flex items-center gap-2 mb-1.5 shrink-0">
-          <div className="w-2 h-2 bg-red-500 rounded-full shadow-sm shadow-red-500/40"></div>
+          <div className="w-2 h-2 bg-wh-blood rounded-full shadow-sm shadow-red-500/40"></div>
           <span className="font-gothic text-sm font-bold text-[#e07a7a] uppercase tracking-[0.18em]">
             Судьба &bull; М41.{String(age).padStart(3, '0')}
           </span>

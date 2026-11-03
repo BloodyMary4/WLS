@@ -184,10 +184,10 @@
   border-bottom: 1px solid rgba(201, 162, 39, 0.35);
   background:
     /* заклёпки по верхней кромке */
-    radial-gradient(circle at 8px 6px, rgba(201,162,39,0.5) 0 1.5px, transparent 2.5px),
-    repeating-linear-gradient(90deg, transparent 0 92px, rgba(201,162,39,0.45) 92px 96px, transparent 96px 184px),
+    radial-gradient(circle at 8px 6px, rgba(201,162,39,0.32) 0 1.2px, transparent 2.2px),
+    repeating-linear-gradient(90deg, transparent 0 148px, rgba(201,162,39,0.28) 148px 152px, transparent 152px 304px),
     linear-gradient(180deg, rgba(26,23,16,0.97) 0%, rgba(10,9,7,0.97) 100%);
-  background-size: 184px 12px, 184px 12px, 100% 100%;
+  background-size: 304px 12px, 304px 12px, 100% 100%;
   background-position: 0 0, 0 0, 0 0;
   background-repeat: repeat-x, repeat-x, no-repeat;
   backdrop-filter: blur(8px);
@@ -214,11 +214,10 @@
   font-size: 0.75rem;
   line-height: 1.35;
   color: #e8d9b0;
-  background:
-    linear-gradient(180deg, rgba(30,26,18,0.96) 0%, rgba(13,11,8,0.97) 100%);
-  border: 1px solid rgba(201, 162, 39, 0.28);
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  box-shadow: inset 0 0 24px rgba(0,0,0,0.55);
+  background: linear-gradient(180deg, rgba(28,25,18,0.94) 0%, rgba(14,12,9,0.96) 100%);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(201,162,39,0.08), inset 0 0 18px rgba(0,0,0,0.45);
 }
 /* Угловая засечка-«прищепка» сверху слева — отсылка к HUD-рамкам */
 .wh-hud-cell::before {
@@ -226,7 +225,7 @@
   position: absolute;
   top: 3px; left: 12px;
   width: 22px; height: 2px;
-  background: linear-gradient(90deg, rgba(201,162,39,0.85), rgba(201,162,39,0));
+  background: linear-gradient(90deg, rgba(201,162,39,0.55), rgba(201,162,39,0));
   pointer-events: none;
 }
 /* Сегмент строки (fit): та же эстетика, минимальные отступы */
@@ -239,9 +238,9 @@
   font-size: 0.72rem;
   line-height: 1.2;
   color: #e8d9b0;
-  background: linear-gradient(180deg, rgba(28,24,15,0.95) 0%, rgba(12,10,8,0.95) 100%);
-  border: 1px solid rgba(201, 162, 39, 0.25);
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  background: linear-gradient(180deg, rgba(28,24,15,0.92) 0%, rgba(12,10,8,0.94) 100%);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+  border-radius: 2px;
 }
 .wh-hud-seg-danger {
   border-color: rgba(163, 0, 0, 0.75);
@@ -252,8 +251,8 @@
 .wh-hud-label {
   font-family: 'Cinzel', serif;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  font-size: 0.64rem;
   color: rgba(184, 168, 120, 0.85);
   white-space: nowrap;
 }
@@ -272,6 +271,26 @@
 @media (prefers-reduced-motion: reduce) {
   .wh-hud-seg-danger { animation: none; }
 }
+
+/* ===== v0.3.52: палитра по гайдлайну — неон/металл на тёмном железе ===== */
+.text-wh-health   { color: #6fe3b1; } /* ядовито-зелёный Necron (здоровье) */
+.bg-wh-health     { background-color: #4fbf94; }
+.text-wh-plasma   { color: #58c4e8; } /* плазменный синий (рассудок) */
+.bg-wh-plasma     { background-color: #3fa8d4; }
+.text-wh-caution  { color: #d9b45a; } /* старое золото (осторожно) */
+.bg-wh-caution    { background-color: #c9a227; }
+.text-wh-blood    { color: #e05a52; } /* кроваво-красный (критично) */
+.bg-wh-blood      { background-color: #a32020; }
+.text-wh-warp-low  { color: #8a7fb8; }
+.bg-wh-warp-low    { background-color: #55497f; }
+.text-wh-warp-mid  { color: #9d8fd0; }
+.bg-wh-warp-mid    { background-color: #6a5aa8; }
+.text-wh-warp-high { color: #b39ddb; }
+.bg-wh-warp-high   { background-color: #7e6bc4; }
+/* Полосы HUD: без свечения, спокойный металл */
+.wh-bar-fill.bg-green-500, .wh-bar-fill.bg-blue-500, .wh-bar-fill.bg-purple-500,
+.wh-bar-fill.bg-purple-600, .wh-bar-fill.bg-orange-500, .wh-bar-fill.bg-yellow-400,
+.wh-bar-fill.bg-red-400, .wh-bar-fill.bg-red-600 { box-shadow: none; }
 
 /* ===== БАЗОВЫЕ СТИЛИ ===== */
 * {

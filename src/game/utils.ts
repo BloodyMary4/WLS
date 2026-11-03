@@ -310,22 +310,24 @@ function getColorByThresholds(value: number, thresholds: ColorThreshold[], prefi
   return `${prefix}-${thresholds[thresholds.length - 1].color}`;
 }
 
+// v0.3.52: палитра по гайдлайну — ядовито-зелёный Necron / плазменный синий /
+// старое золото / кроваво-красный вместо кричащих tailwind-дефолтов.
 const HEALTH_THRESHOLDS: ColorThreshold[] = [
-  { threshold: GAME_CONFIG.HEALTH.LOW_PERCENT, color: 'green-400' },
-  { threshold: GAME_CONFIG.HEALTH.CRITICAL_PERCENT, color: 'yellow-400' },
-  { threshold: 0, color: 'red-400' }
+  { threshold: GAME_CONFIG.HEALTH.LOW_PERCENT, color: 'wh-health' },
+  { threshold: GAME_CONFIG.HEALTH.CRITICAL_PERCENT, color: 'wh-caution' },
+  { threshold: 0, color: 'wh-blood' }
 ];
 
 const SANITY_THRESHOLDS: ColorThreshold[] = [
-  { threshold: 70, color: 'blue-400' },
-  { threshold: 40, color: 'yellow-400' },
-  { threshold: 0, color: 'red-400' }
+  { threshold: 70, color: 'wh-plasma' },
+  { threshold: 40, color: 'wh-caution' },
+  { threshold: 0, color: 'wh-blood' }
 ];
 
 const WARP_CORRUPTION_THRESHOLDS: ColorThreshold[] = [
-  { threshold: 70, color: 'purple-600' },
-  { threshold: 30, color: 'purple-500' },
-  { threshold: 0, color: 'purple-400' }
+  { threshold: 70, color: 'wh-warp-high' },
+  { threshold: 30, color: 'wh-warp-mid' },
+  { threshold: 0, color: 'wh-warp-low' }
 ];
 
 export function getHealthColor(health: number, maxHealth: number): string {

@@ -90,7 +90,7 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
     <div className="text-center py-16 animate-fade-in">
       <div className="relative inline-block mb-8">
         <div className="text-8xl drop-shadow-[0_0_18px_rgba(163,0,0,0.5)]">☠️</div>
-        <div className="absolute inset-0 bg-red-600/15 rounded-full blur-3xl"></div>
+        <div className="absolute inset-0 bg-wh-blood/15 rounded-full blur-3xl"></div>
       </div>
       <h2 className="font-gothic text-5xl font-bold mb-6 uppercase tracking-[0.25em] bg-gradient-to-b from-[#e74c3c] via-[#a30000] to-[#5c0000] bg-clip-text text-transparent">
         СМЕРТЬ
@@ -116,7 +116,7 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
         <div className="space-y-4 text-lg">
           <div className="flex justify-between items-center py-3 border-b border-gray-700">
             <span className="text-gray-400">Раса:</span>
-            <span className="flex items-center gap-2 font-bold text-yellow-400 text-xl">
+            <span className="flex items-center gap-2 font-bold text-wh-caution text-xl">
               <RaceEmblem race={character.race} className="w-7 h-7" />
               {character.raceName}
             </span>
@@ -137,11 +137,11 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-700">
             <span className="text-gray-400">Сословие:</span>
-            <span className="font-semibold text-orange-400 text-lg">{character.caste}</span>
+            <span className="font-semibold text-wh-caution text-lg">{character.caste}</span>
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-gray-400">Статус:</span>
-            <span className="font-semibold text-purple-400 text-lg">{character.status}</span>
+            <span className="font-semibold text-wh-warp-low text-lg">{character.status}</span>
           </div>
         </div>
       </div>

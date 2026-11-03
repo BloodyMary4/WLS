@@ -19,7 +19,7 @@ export function CompanionsWindow({ npcs }: CompanionsWindowProps) {
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-xs font-bold text-gray-100 truncate">{npc.name}</span>
               <span className={`text-[10px] font-bold shrink-0 ${
-                npc.relationship >= 50 ? 'text-green-400' : npc.relationship >= 0 ? 'text-yellow-400' : 'text-red-400'
+                npc.relationship >= 50 ? 'text-wh-health' : npc.relationship >= 0 ? 'text-wh-caution' : 'text-wh-blood'
               }`}>
                 {npc.relationship > 0 ? 'Союзник' : npc.relationship >= 0 ? 'Нейтрал' : 'Враг'}
               </span>
@@ -31,7 +31,7 @@ export function CompanionsWindow({ npcs }: CompanionsWindowProps) {
               </span>
             </div>
             <div className="wh-bar w-full overflow-hidden mt-1" style={{ height: '4px' }} aria-hidden="true">
-              <div className={`h-full ${npc.relationship >= 50 ? 'bg-green-500' : npc.relationship >= 0 ? 'bg-yellow-500' : 'bg-red-500'}`}
+              <div className={`h-full ${npc.relationship >= 50 ? 'bg-wh-health' : npc.relationship >= 0 ? 'bg-wh-caution' : 'bg-wh-blood'}`}
                 style={{ width: `${Math.abs(npc.relationship)}%` }} />
             </div>
           </div>

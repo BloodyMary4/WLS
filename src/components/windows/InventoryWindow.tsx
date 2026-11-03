@@ -35,7 +35,7 @@ export function InventoryWindow({ character }: InventoryWindowProps) {
         )}
         <div>
           <span className="text-[#b8a878] font-semibold">Черты: </span>
-          <span className="text-blue-400">{character.traits.length > 0 ? character.traits.join(', ') : 'нет'}</span>
+          <span className="text-wh-plasma">{character.traits.length > 0 ? character.traits.join(', ') : 'нет'}</span>
         </div>
       </div>
     </WindowPane>

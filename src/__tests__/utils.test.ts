@@ -146,14 +146,14 @@ describe('updateAgeStatus', () => {
 
 describe('цвета состояний', () => {
   it('getHealthColor: полный HP зелёный, критический красный', () => {
-    expect(getHealthColor(100, 100)).toBe('text-green-400');
-    expect(getHealthColor(10, 100)).toBe('text-red-400');
-    expect(getHealthColor(30, 100)).toBe('text-yellow-400');
+    expect(getHealthColor(100, 100)).toBe('text-wh-health');
+    expect(getHealthColor(10, 100)).toBe('text-wh-blood');
+    expect(getHealthColor(30, 100)).toBe('text-wh-caution');
   });
 
   it('getSanityColor: границы корректны', () => {
-    expect(getSanityColor(90)).toBe('text-blue-400');
-    expect(getSanityColor(50)).toBe('text-yellow-400');
-    expect(getSanityColor(10)).toBe('text-red-400');
+    expect(getSanityColor(90)).toBe('text-wh-plasma');
+    expect(getSanityColor(50)).toBe('text-wh-caution');
+    expect(getSanityColor(10)).toBe('text-wh-blood');
   });
 });

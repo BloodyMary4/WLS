@@ -22,13 +22,13 @@ export function HiddenStatsWindow({ character }: HiddenStatsWindowProps) {
       extra={<span className="text-[10px] text-gray-400 tabular-nums">0–10</span>}>
       <BarStat label="Вера" value={hp.faith} icon="✝️" color="bg-amber-500" hint={HIDDEN_HINTS.faith} />
       <BarStat label="Хитрость" value={hp.cunning} icon="🗡️" color="bg-emerald-500" hint={HIDDEN_HINTS.cunning} />
-      <BarStat label="Сила" value={hp.strength} icon="💪" color="bg-red-500" hint={HIDDEN_HINTS.strength} />
-      <BarStat label="Воля" value={hp.willpower} icon="🛡️" color="bg-blue-500" hint={HIDDEN_HINTS.willpower} />
+      <BarStat label="Сила" value={hp.strength} icon="💪" color="bg-wh-blood" hint={HIDDEN_HINTS.strength} />
+      <BarStat label="Воля" value={hp.willpower} icon="🛡️" color="bg-wh-plasma" hint={HIDDEN_HINTS.willpower} />
       {character.race === 'human' && (
         <>
-          <BarStat label="Мутация" value={hp.mutation} icon="☣️" color="bg-purple-500"
+          <BarStat label="Мутация" value={hp.mutation} icon="☣️" color="bg-wh-warp-mid"
             danger={isCritical('Мутация', hp.mutation)} hint={HIDDEN_HINTS.mutation} />
-          <BarStat label="Подозрение" value={hp.suspicion} icon="👁️" color="bg-orange-500"
+          <BarStat label="Подозрение" value={hp.suspicion} icon="👁️" color="bg-wh-caution"
             danger={isCritical('Подозрение', hp.suspicion)} hint={HIDDEN_HINTS.suspicion} />
         </>
       )}

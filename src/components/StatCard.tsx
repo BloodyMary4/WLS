@@ -22,7 +22,7 @@ export function StatCard({
   showBar = false,
   barValue = 0,
   barMax = 100,
-  barColor = 'bg-blue-500',
+  barColor = 'bg-wh-plasma',
   danger = false,
   hint,
   children 

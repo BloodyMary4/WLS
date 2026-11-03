@@ -21,9 +21,9 @@ export function DossierWindow({ character, raceInfo }: DossierWindowProps) {
       <ReadoutRow label="Положение" value={character.status} hint="Твоё место в жизни меняется судьбоносными выборами." />
       <ReadoutRow label="Планета" value={character.planet} hint="Место рождения — там начинался твой путь." />
       <div className="grid grid-cols-2 gap-x-3 mt-1">
-        <BarStat label="Влияние" value={character.influence} max={100} icon="⭐" color="bg-orange-500"
+        <BarStat label="Влияние" value={character.influence} max={100} icon="⭐" color="bg-wh-caution"
           hint="Влияние в имперских кругах: открывает связи, торг и покровительство." />
-        <BarStat label="Удача" value={character.luck} max={10} icon="🍀" color="bg-green-500" danger={character.luck <= 2}
+        <BarStat label="Удача" value={character.luck} max={10} icon="🍀" color="bg-wh-health" danger={character.luck <= 2}
           hint="Удача: ниже 2 — звёзды против тебя, торг и взятки дают сбой." />
       </div>
     </WindowPane>
