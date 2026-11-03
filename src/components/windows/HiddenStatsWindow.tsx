@@ -53,7 +53,7 @@ export function HiddenStatsWindow({ character }: HiddenStatsWindowProps) {
 
       {/* Внимание Имматериума — лорная шкала: псайкеры и безумцы «светятся» в Варпе */}
       {character.warpAttention > 0 && (
-        <div className={`mt-1.5 pt-1.5 border-t border-purple-500/20 ${character.warpAttention >= 5 ? 'animate-pulse' : ''}`}>
+        <div className={`mt-1.5 pt-1.5 border-t border-purple-500/20 ${character.warpAttention >= 5 ? 'text-[#c9a2ff]' : ''}`}>
           <BarStat label="Внимание Имматериума" value={character.warpAttention} icon="🔮" color="bg-gradient-to-r from-purple-800 to-fuchsia-500"
             danger={character.warpAttention >= 7} hint={HIDDEN_HINTS.warpAttention} />
           {character.warpAttention >= 4 && (
