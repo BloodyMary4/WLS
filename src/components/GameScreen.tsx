@@ -84,71 +84,62 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
   /** Активные испытания судьбы (квесты) — для отдельного окна левого отсека. */
   const activeQuests = game.activeQuests ?? [];
 
-  /* Строгая трёхколоночная CSS Grid компоновка (v0.3.60, по ТЗ игрока).
+  /* Строгая трёхколоночная CSS Grid компоновка (v0.3.61, по ТЗ игрока).
      Полностью сохранён дизайн: цвета, фоны блоков, золотой текст, рамки и
      разделительные линии — нетронуты. Изменена только геометрия раскладки.
 
-     Структура сетки:
-     1. Header (100% ширины) — статус-бар с полосками здоровья/рассудка/порчи
-        (рендерится отдельно до этой функции, оставлен как есть).
-     2. Основной контент — grid-template-columns: 25% 50% 25%, gap 20px:
-        • ЛЕВАЯ колонка (25%): сверху «Досье», строго под ним «Хроника жизни»
-          (скролл ленты — только внутри окна, наложения текста больше нет).
-        • ЦЕНТРАЛЬНАЯ колонка (50%): наверху «Событие года» с художественным
-          текстом сюжета, строго под текстом — «Твоё решение» с кнопками
-          выборов (выборы всегда видны без скролла).
-        • ПРАВАЯ колонка (25%): сверху «Снабжение», строго под ним
-          «Состояние Галактики».
-     3. Footer (100% ширины) — строка «Прогресс жизни» и ачивки, прижат к
-        самому низу экрана через общую flex-сетку страницы (без position:
-        absolute и лишних margin-top, из-за которых блоки налезали друг на
-        друга в районе Снаряжения и Хроники жизни).
+     Точная разметка из ТЗ: родительский контейнер .game-layout —
+     display:grid; grid-template-columns: 25% 50% 25%; gap:20px; padding:10px;
+     align-items:start. Внутри — три flex-колонки (.left-column,
+     .center-column, .right-column) с vertical gap 15px.
 
-     Весь интерфейс помещается на одном экране без вертикального скролла
-     страницы: длинные ленты скроллятся только внутри своих окон. */
+     Распределение блоков:
+     • .left-column   — «Досье», затем «Хроника жизни», затем «Снаряжение»
+                        (инвентарь вместе с чертами), ниже компаньоны/квесты
+                        и скрытые свойства.
+     • .center-column — «Событие года» (художественный текст), строго под
+                        ним «Твоё решение» (кнопки выбора — внутри окна
+                        события, прижаты к его низу и всегда видны).
+     • .right-column  — «Снабжение» (кредиты, пайки, боезапас), строго под
+                        ним «Состояние Галактики».
+     Шапка со статами и футер с прогрессом жизни — вне грид-контейнера,
+     на 100% ширины. У внутренних блоков нет фиксированных ширин и
+     position:absolute — наложения блоков физически невозможны. */
   const bayGrid = (center: ReactNode) => (
-    <main className={`flex-1 ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
+    <main className={`flex-1 game-layout-wrap ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
       <div className={`mx-auto w-full max-w-[1700px] px-2 xl:px-3 ${fit ? 'h-full' : ''}`}>
-        <div className={`fit-grid bridge-3col grid grid-cols-1 lg:grid-cols-4 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
-          {/* ЛЕВАЯ колонка (25%): Досье сверху, строго под ним Хроника жизни;
-              ниже — второстепенные отсеки, когда они появляются. */}
-          <aside className="col-span-1 fit-col animate-slide-in-left min-h-0">
-            <div className="codex-sheet flex-1 min-h-0">
-              <DossierWindow character={character} raceInfo={raceInfo} />
-              <div className="bridge-chronicle min-h-0 flex-1">
-                <ChroniclePanel
-                  history={history}
-                  logRef={logRef}
-                  chroniclePinned={chroniclePinned}
-                  onJumpToLatest={jumpToLatest}
-                />
-              </div>
-              {(character.npcs.length > 0 || activeQuests.length > 0 ||
-                character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
-                <div className="codex-pair">
-                  {character.npcs.length > 0 ? <CompanionsWindow npcs={character.npcs} /> : <span className="codex-pair-fill" aria-hidden="true" />}
-                  {activeQuests.length > 0 ? <QuestsWindow quests={activeQuests} /> : <span className="codex-pair-fill" aria-hidden="true" />}
-                </div>
-              )}
-              {(character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
-                <InventoryWindow character={character} />
-              )}
-              <HiddenStatsWindow character={character} />
+        <div className="game-layout">
+          {/* ЛЕВАЯ КОЛОНКА (25%): Досье → Хроника жизни → Снаряжение. */}
+          <aside className="left-column animate-slide-in-left">
+            <DossierWindow character={character} raceInfo={raceInfo} />
+            <div className="bridge-chronicle min-h-0 flex-1">
+              <ChroniclePanel
+                history={history}
+                logRef={logRef}
+                chroniclePinned={chroniclePinned}
+                onJumpToLatest={jumpToLatest}
+              />
             </div>
+            {(character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
+              <InventoryWindow character={character} />
+            )}
+            {(character.npcs.length > 0 || activeQuests.length > 0) && (
+              <div className="codex-pair">
+                {character.npcs.length > 0 ? <CompanionsWindow npcs={character.npcs} /> : <span className="codex-pair-fill" aria-hidden="true" />}
+                {activeQuests.length > 0 ? <QuestsWindow quests={activeQuests} /> : <span className="codex-pair-fill" aria-hidden="true" />}
+              </div>
+            )}
+            <HiddenStatsWindow character={character} />
           </aside>
 
-          {/* ЦЕНТРАЛЬНАЯ колонка (50%): главное текстовое окно события на всю
-              высоту; «Твоё решение» с кнопками — строго под текстом внутри
-              того же окна, прижато к низу и видно без скролла. */}
-          <div className="lg:col-span-2 col-span-1 fit-col min-h-0 gap-2">
-            <div className="fit-col flex-1 min-h-0 gap-1.5">
-              {center}
-            </div>
+          {/* ЦЕНТРАЛЬНАЯ КОЛОНКА (50%): событие с текстом сюжета, строго под
+              ним блок «Твоё решение» с кнопками (внутри окна, внизу). */}
+          <div className="center-column">
+            {center}
           </div>
 
-          {/* ПРАВАЯ колонка (25%): Снабжение сверху, строго под ним
-              Состояние Галактики. */}
-          <aside className="col-span-1 fit-col animate-slide-in-right min-h-0">
+          {/* ПРАВАЯ КОЛОНКА (25%): Снабжение → Состояние Галактики. */}
+          <aside className="right-column animate-slide-in-right">
             <SuppliesWindow character={character} />
             <div className="bridge-galaxy min-h-0">
               {character.worldEvent ? (

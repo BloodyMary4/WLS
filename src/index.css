@@ -1238,20 +1238,59 @@ p {
   .game-fit .codex-sheet > .codex-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* ===== v0.3.60 «Мостик: строгие три колонки» (по ТЗ игрока) =====
-   Современная CSS Grid компоновка, дизайн (цвета, фоны, золото, рамки)
-   сохранён без изменений — изменена только геометрия:
-   • bridge-3col — основной grid контейнер: 25% | 50% | 25%, gap 20px;
-   • ЛЕВАЯ колонка: Досье сверху, строго под ним Хроника жизни (скролл
-     ленты только внутри окна — наложения текста больше нет);
-   • ЦЕНТР: «Событие года» + «Твоё решение» (выборы прижаты к низу окна,
-     всегда видны без скролла);
-   • ПРАВАЯ колонка: Снабжение сверху, строго под ним Состояние Галактики;
-   • Footer прижат ко дну через flex-сетку страницы (без position:absolute
-     и лишних margin-top). Никакого вертикального скролла страницы. */
-.bridge-3col { gap: 20px; }
+/* ===== v0.3.61 «Мостик: строгие три колонки» (точная разметка из ТЗ) =====
+   Современная CSS Grid компоновка, дизайн (цвета, фоны, золото, рамки,
+   разделительные линии) сохранён без изменений — изменена только геометрия.
+   Ровно та структура, что требует игрок: .game-layout — grid 25%/50%/25%,
+   gap 20px, padding 10px, align-items:start; внутри — три flex-колонки с
+   vertical gap 15px. У внутренних блоков нет фиксированных ширин и
+   position:absolute — наложения физически невозможны.
+   • .left-column   : Досье → Хроника жизни → Снаряжение (черты+инвентарь)
+                      → Компаньоны/Квесты → Скрытые свойства;
+   • .center-column : Событие года (текст сюжета), строго под ним —
+                      «Твоё решение» с кнопками А–Г (всегда видны);
+   • .right-column  : Снабжение (кредиты, пайки, боезапас) → Состояние
+                      Галактики.
+   Шапка и футер — вне грид-контейнера, растянуты на 100% ширины. */
+.game-layout {
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  align-items: start;
+}
+.left-column,
+.center-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 0;
+  min-height: 0;
+}
+/* Внутренним окнам колонок не нужны собственные отступы — расстояние
+   задаёт flex-gap колонок; ширина — автоматически по ширине колонки. */
+.left-column > *,
+.center-column > *,
+.right-column > * { min-width: 0; }
+.left-column > .wh-window,
+.center-column > .wh-window,
+.right-column > .wh-window,
+.left-column > section,
+.right-column > section { margin-bottom: 0; }
+/* Fit-режим (полный экран без прокрутки страницы): колонки тянутся на всю
+   высоту, гибкую высоту получает хроника слева и событие в центре. */
+.game-fit .game-layout { height: 100%; align-items: stretch; }
+.game-fit .left-column > .bridge-chronicle { flex: 1 1 auto; min-height: 0; }
+.game-fit .center-column { flex: 1 1 auto; min-height: 0; }
+.game-fit .center-column > * { flex: 1 1 auto; min-height: 0; }
+.game-fit .right-column { min-height: 0; }
+/* Обычный поток (узкие/низкие экраны): три колонки складываются столбиком,
+   страница прокручивается, окна получают фиксированные удобные высоты. */
 @media (max-width: 1023px) {
-  .bridge-3col { gap: 8px; }
+  .game-layout { grid-template-columns: 1fr; gap: 12px; padding: 4px; }
 }
 /* Хроника жизни в левой колонке: занимает остаток высоты после Досье,
    лента скроллится строго внутри своего окна (overflow-y:auto у .wh-scroll
@@ -1266,9 +1305,9 @@ p {
 .bridge-galaxy { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
 .bridge-galaxy > section { flex: 1 1 auto; min-height: 0; margin-bottom: 0; overflow: hidden; }
 /* В левой колонке хронике отдаём гибкую высоту, остальные окна — по содержимому. */
-.game-fit .codex-sheet > .bridge-chronicle { flex: 1 1 auto; min-height: 0; }
-.game-fit .fit-col > .wh-chronicle-wrap,
-.game-fit .fit-col > section[aria-label="Хроника жизни"] { flex: 0 0 auto; }
+.game-fit .left-column > .bridge-chronicle { flex: 1 1 auto; min-height: 0; }
+.game-fit .left-column > section.wh-window { flex: 0 0 auto; }
+.game-fit .right-column > section.wh-window:first-child { flex: 0 0 auto; }
 /* Обычный поток (узкие экраны): колонки складываются столбиком с
    фиксированными высотами окон, чтобы текст не резался. */
 .game-container:not(.game-fit) .bridge-chronicle > section[aria-label="Хроника жизни"] {
@@ -1276,4 +1315,7 @@ p {
 }
 .game-container:not(.game-fit) .bridge-galaxy { flex: 0 0 auto; }
 .game-container:not(.game-fit) .bridge-galaxy > section { height: 180px; }
+/* Снаряжение и прочие окна левого столбца в обычном потоке — по содержимому,
+   без наложений (position:absolute нигде нет). */
+.game-container:not(.game-fit) .left-column > section.wh-window { margin-bottom: 0; }
 
