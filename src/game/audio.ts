@@ -501,8 +501,10 @@ export class GrimdarkAmbience {
   private pickMoodEvent(mood: 'normal' | 'tense' | 'danger' | 'epic'): () => void {
     const r = Math.random();
     if (mood === 'epic') {
-      // Оркестровый пафос: хор, литавры, триумфальный аккорд, колокол
-      if (r < 0.4) return () => this.playLatinChoir();
+      // Оркестровый пафос: струнный накат + литавры, хор, акцент литавр,
+      // триумфальный аккорд темы, колокол
+      if (r < 0.25) return () => this.playEpicSwell();
+      if (r < 0.45) return () => this.playLatinChoir();
       if (r < 0.7) return () => this.playTimpaniRoll();
       if (r < 0.88) return () => this.playChord();
       return () => this.playBellTone();
@@ -708,8 +710,10 @@ export class GrimdarkAmbience {
     const ctx = this.audioContext;
     const now = ctx.currentTime;
     const duration = 6 + Math.random() * 3;
-    const roots = [110, 130.81, 146.83, 164.81];
-    const root = roots[Math.floor(Math.random() * roots.length)];
+    // v0.3.75: хор поёт текущий оборот темы (корень на октаву выше баса),
+    // чтобы эпические партии звучали как одна тема, а не случайный набор.
+    const chord = this.nextThemeChord();
+    const root = chord[0] * 2;
     // «Слоги» псевдо-латыни — гласные форманты: A, O, U
     const vowels: Array<[number, number]> = [[720, 1100], [420, 780], [320, 720]];
 
@@ -725,7 +729,8 @@ export class GrimdarkAmbience {
     choirFeedback.connect(choirDelay);
     choirFilter.connect(this.masterGain);
 
-    const voices = [root / 2, root, root * 1.5];
+    // Голоса хора — аккордовые тоны текущей темы (без «тритона» 1.5x)
+    const voices = [chord[0], chord[1] ?? chord[0] * 1.5, chord[2] ?? chord[0] * 2];
     voices.forEach((freq, vi) => {
       const syllables = 3;
       const sylLen = duration / syllables;
@@ -783,7 +788,11 @@ export class GrimdarkAmbience {
     for (let i = 0; i < hits; i++) {
       const osc = ctx.createOscillator();
       osc.type = 'sine';
-      const f = 70 + Math.random() * 20;
+      // v0.3.75: литавры строим от корня текущей темы — эпика звучит
+      // как оркестровая сюита в одной тональности, а не белый шум ударов.
+      const themeRoot = GrimdarkAmbience.MOOD_THEMES[this.currentMood][0][0];
+      const baseF = 55 * Math.pow(2, themeRoot / 12);
+      const f = i % 2 === 0 ? baseF : baseF * 1.5;
       osc.frequency.setValueAtTime(f * 1.6, t);
       osc.frequency.exponentialRampToValueAtTime(f, t + 0.25);
 
@@ -819,6 +828,51 @@ export class GrimdarkAmbience {
       gap = Math.max(0.18, gap * 0.72);
       t += gap;
     }
+  }
+
+  /**
+   * v0.3.75 «Оркестровый пафос»: струнный накат — три скрещенные пилы в
+   * октавах текущего оборота темы через lowpass с нарастающей яркостью,
+   * длинная атака и нисходящий темп; поверх — удар литавр в конце наката.
+   */
+  private playEpicSwell(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+    const chord = GrimdarkAmbience.MOOD_THEMES.epic[this.themeIndex % 4];
+    const duration = 7;
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(300, now);
+    lp.frequency.linearRampToValueAtTime(2600, now + duration * 0.7);
+    lp.frequency.linearRampToValueAtTime(900, now + duration);
+    lp.Q.value = 0.7;
+
+    const swellGain = ctx.createGain();
+    swellGain.gain.setValueAtTime(0, now);
+    swellGain.gain.linearRampToValueAtTime(0.05, now + duration * 0.65);
+    swellGain.gain.linearRampToValueAtTime(0.0001, now + duration);
+
+    lp.connect(swellGain);
+    swellGain.connect(this.masterGain);
+
+    chord.forEach((semi, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = 55 * Math.pow(2, semi / 12) * (i === 0 ? 2 : 4);
+      osc.detune.value = (Math.random() - 0.5) * 8;
+      const g = ctx.createGain();
+      g.gain.value = 0.5 / (i + 1);
+      osc.connect(g);
+      g.connect(lp);
+      osc.start(now);
+      osc.stop(now + duration);
+    });
+
+    // Финальный акцент литавр на последней секунде наката
+    setTimeout(() => this.playTimpaniRoll(), duration * 700);
   }
 
   /**
@@ -922,18 +976,51 @@ export class GrimdarkAmbience {
     g.linearRampToValueAtTime(s.whisperGain, now + 4.5);
   }
 
+  /**
+   * v0.3.75: ладовая память саундтрека. Аккорды берутся из «текущей темы» —
+   * гармонического оборота, который крутится по кругу и меняется только при
+   * смене настроения. За игрой слышна связная музыкальная мысль, а не
+   * случайный набор звуков. Ллады: эолийский (эмбиент), фригийский
+   * (кибер-готика/индастриал), мажорные фанфары (эпика).
+   */
+  private static readonly MOOD_THEMES: Record<'normal' | 'tense' | 'danger' | 'epic', number[][]> = {
+    // Дарк-эмбиент: эолийский лад, оборот i - VI - v - i
+    normal: [[0, 3, 7], [8, 12, 15], [7, 10, 14], [0, 3, 8]],
+    // Кибер-готика: фригийский лад со «зловещей» секундой bII
+    tense: [[0, 1, 7], [5, 8, 12], [1, 5, 8], [0, 3, 6]],
+    // Дарк-электро: остинатно bII - i - bII - bVII, качающий бас
+    danger: [[1, 5, 8], [0, 3, 7], [1, 5, 8], [0, 1, 5]],
+    // Оркестровый пафос: мажорные фанфары IV - V - I - vi
+    epic: [[5, 9, 12], [7, 11, 14], [0, 4, 7], [9, 12, 16]],
+  };
+
+  private themeIndex = 0;
+
+  /** Следующий оборот текущей темы (по кругу; каждые 4 оборота — сдвиг на октаву). */
+  private nextThemeChord(): number[] {
+    const theme = GrimdarkAmbience.MOOD_THEMES[this.currentMood];
+    const step = this.themeIndex % theme.length;
+    const octaveShift = Math.floor(this.themeIndex / theme.length) % 2 === 1 ? 12 : 0;
+    this.themeIndex++;
+    return theme[step].map((semi) => 55 * Math.pow(2, (semi + octaveShift) / 12));
+  }
+
   private playDarkNote() {
     if (!this.audioContext || !this.masterGain) return;
 
-    const scales = [
-      [55, 61.74, 65.41, 73.42, 82.41, 87.31, 98, 110],
-      [73.42, 82.41, 87.31, 98, 110, 116.54, 130.81, 146.83],
-      [82.41, 92.50, 98, 110, 123.47, 130.81, 146.83, 164.81],
-      [55, 58.27, 65.41, 73.42, 82.41, 87.31, 98, 110],
-      [55, 58.27, 65.41, 73.42, 77.78, 87.31, 98, 110]
-    ];
+    // v0.3.75: одиночные ноты эмбиента звучат в ладу ТЕКУЩЕЙ темы —
+    // фригийский лад для кибер-готики/индастриала, эолийский для покоя,
+    // мажорный для эпика. Сольные линии больше не фальшивят аккордам.
+    const MOOD_SCALES: Record<string, number[]> = {
+      normal: [0, 2, 3, 5, 7, 8, 10],
+      tense: [0, 1, 3, 5, 7, 8, 10],
+      danger: [0, 1, 3, 5, 7, 8, 10],
+      epic: [0, 2, 4, 5, 7, 9, 11],
+    };
+    const semis = MOOD_SCALES[this.currentMood] ?? MOOD_SCALES.normal;
+    const octaves = [1, 2];
+    const scale = octaves.flatMap((o) => semis.map((semi) => 55 * o * Math.pow(2, semi / 12)));
     
-    const scale = scales[Math.floor(Math.random() * scales.length)];
     const noteIndex = Math.floor(Math.random() * scale.length);
     const note = scale[noteIndex];
     const duration = 4 + Math.random() * 6;
@@ -1078,18 +1165,8 @@ export class GrimdarkAmbience {
 
     const now = this.audioContext.currentTime;
     const duration = 5 + Math.random() * 3;
-    
-    const chords = [
-      [55, 65.41, 82.41],
-      [73.42, 87.31, 110],
-      [82.41, 98, 123.47],
-      [65.41, 82.41, 98],
-      [55, 65.41, 77.78],
-      [73.42, 92.50, 110],
-      [82.41, 98, 116.54],
-    ];
-    
-    const chord = chords[Math.floor(Math.random() * chords.length)];
+
+    const chord = this.nextThemeChord();
     
     const panPositions = [-0.6, 0, 0.6, -0.3, 0.3];
     
@@ -2011,6 +2088,9 @@ export class GrimdarkAmbience {
     const s = GrimdarkAmbience.MOOD_SETTINGS[mood];
     const transitionTime = s.transition;
     this.currentMood = mood;
+    // Новая тема: сбрасываем ротацию оборотов, чтобы настроение начиналось
+    // с тоники своей ладовой темы (v0.3.75).
+    this.themeIndex = 0;
 
     // Смена настроения перезапускает цикл далёких взрывов: он живёт
     // только в danger (см. scheduleArtillery / playDistantBlast).
