@@ -1,5 +1,7 @@
+/* v0.3.50 «Лаконичный Кодекс»: чистый sans для основного текста (по гайдлайну)
+   + готический Cinzel только для заголовков. IM Fell/Spectral убраны — два
+   разнобойных серифа и делали интерфейс «страшным». */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -14,22 +16,26 @@
   --wh-void: #0b0a08;
 }
 
-/* Готический шрифт для игровых текстов */
+/* Готический шрифт — ТОЛЬКО для заголовков/меток (Cinzel).
+   Основной игровой текст — чистый футуристический sans (Inter), согласно
+   гайдлайну: «брутальные шрифты с засечками для заголовков, без засечек —
+   для основного текста». v0.3.50 */
 .font-gothic {
-  font-family: 'IM Fell English', 'Cinzel', serif !important;
+  font-family: 'Cinzel', serif !important;
 }
 .font-event {
-  font-family: 'Spectral', 'IM Fell English', Georgia, serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Зернистость и виньетка поверх всего экрана — эффект старой плёнки/гравюры */
+/* Зерно и виньетка — ЕДИНСТВЕННЫЕ полноэкранные слои, оба едва заметны
+   (v0.3.50: зерно 0.05→0.028, виньетка 0.55→0.3 — «грязь» уходила в текст) */
 .wh-grain::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 60;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
 }
 .wh-vignette::before {
   content: '';
@@ -37,19 +43,17 @@
   inset: 0;
   pointer-events: none;
   z-index: 59;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  background: radial-gradient(ellipse at center, transparent 68%, rgba(0, 0, 0, 0.3) 100%);
 }
 
-/* Пергаментный блок текста события */
+/* Пергаментный блок текста события. v0.3.50: полосы-«шум» убраны — они
+   дробили читаемость; пергамент теперь ровный тёмный тон с золотой нитью. */
 .wh-parchment {
-  background:
-    linear-gradient(rgba(11, 10, 8, 0.88), rgba(11, 10, 8, 0.88)),
-    repeating-linear-gradient(0deg, rgba(216, 201, 163, 0.06) 0px, rgba(216, 201, 163, 0.06) 1px, transparent 1px, transparent 3px),
-    #171309;
-  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: linear-gradient(180deg, #1a1610 0%, #14110b 100%);
+  border: 1px solid rgba(201, 162, 39, 0.4);
   box-shadow:
-    inset 0 0 40px rgba(0, 0, 0, 0.7),
-    0 0 25px rgba(0, 0, 0, 0.6);
+    inset 0 0 40px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(0, 0, 0, 0.55);
   position: relative;
 }
 .wh-parchment::before,
@@ -69,14 +73,11 @@
 /* Простой пергамент без угловых глифов — для плотной раскладки карточки события (v0.3.25):
    аквилы остаются только на больших «свитках» (главное меню, экран смерти). */
 .wh-parchment-simple {
-  background:
-    linear-gradient(rgba(11, 10, 8, 0.88), rgba(11, 10, 8, 0.88)),
-    repeating-linear-gradient(0deg, rgba(216, 201, 163, 0.06) 0px, rgba(216, 201, 163, 0.06) 1px, transparent 1px, transparent 3px),
-    #171309;
-  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: linear-gradient(180deg, #1a1610 0%, #14110b 100%);
+  border: 1px solid rgba(201, 162, 39, 0.4);
   box-shadow:
-    inset 0 0 40px rgba(0, 0, 0, 0.7),
-    0 0 25px rgba(0, 0, 0, 0.6);
+    inset 0 0 40px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(0, 0, 0, 0.55);
 }
 
 /* Двойная золотая рамка в стиле гравюр Кодексов */
@@ -147,7 +148,9 @@
   font-size: 1rem;
 }
 
-/* Мерцание «свечи» для заголовков */
+/* Мерцание «свечи» — только для редких мистических акцентов (клятва Инквизиции).
+   Из карточки события и фона меню убрано (v0.3.50): дёрганые заголовки и
+   пульсирующие пятна были главной причиной ощущения «страшного» интерфейса. */
 @keyframes candleFlicker {
   0%, 100% { opacity: 1; }
   92% { opacity: 1; }
@@ -156,6 +159,9 @@
   97% { opacity: 0.9; }
 }
 .animate-candle { animation: candleFlicker 4s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-candle { animation: none; }
+}
 
 /* Статус-бары — узкие, металлические */
 .wh-bar {
@@ -240,7 +246,7 @@
 .wh-hud-seg-danger {
   border-color: rgba(163, 0, 0, 0.75);
   background: linear-gradient(180deg, rgba(42,13,13,0.95) 0%, rgba(20,6,6,0.95) 100%);
-  animation: glow 2.4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(163, 0, 0, 0.35); /* v0.3.50: статичное предупреждение вместо пульса */
 }
 /* Метки: готический капс, приглушённое старое золото */
 .wh-hud-label {
@@ -749,26 +755,14 @@ p {
 
 /* ===== Grimdark-дополнения: разворот пергамента, чудо, тревога ===== */
 
-/* Пергамент «разворачивается» при смене события (key={age-event} перезапускает анимацию) */
+/* Пергамент разворачивается мягким появлением (v0.3.50: 3D-наклон с blur
+   выглядел «дёрганым» — оставлен только плавный fade, без искажений). */
 @keyframes parchmentUnroll {
-  0% {
-    opacity: 0;
-    transform: perspective(700px) rotateX(-14deg) translateY(-10px);
-    filter: blur(2px);
-  }
-  60% {
-    opacity: 1;
-    transform: perspective(700px) rotateX(3deg) translateY(0);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: perspective(700px) rotateX(0deg);
-  }
+  0% { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 .animate-parchment {
-  animation: parchmentUnroll 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transform-origin: top center;
+  animation: parchmentUnroll 0.3s ease-out both;
 }
 
 /* Золотая вспышка — «Император защищает» (чудо заступничества в хронике) */
@@ -804,13 +798,10 @@ p {
   .wh-stat-critical { animation: none; }
 }
 
-/* Свечение золотого текста заголовков — как позолота в луче свечи */
-@keyframes goldSheen {
-  0%, 100% { text-shadow: 0 0 6px rgba(201, 162, 39, 0.25); }
-  50% { text-shadow: 0 0 16px rgba(232, 200, 90, 0.55); }
-}
+/* Свечение золотого текста заголовков — СТАТИЧНО (v0.3.50): пульсирующий
+   текст подчёркивал «дешёвый» вид интерфейса; мягкая тень без анимации. */
 .animate-gold-sheen {
-  animation: goldSheen 5s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(201, 162, 39, 0.28);
 }
 
 /* Вспышка полос статов при изменении значения: рост — янтарный, урон — багровый */
@@ -955,15 +946,27 @@ p {
   .game-fit .wh-side-group .wh-chronicle { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 }
 
-/* ===== v0.3.26: оконная раскладка «мостик» — экран из иллюминаторов ===== */
+/* ===== v0.3.50 «Лаконичный Кодекс»: единая приборная панель вместо пёстрого набора окон =====
+   Окно-«иллюминатор» = лист тёмного железа: тонкая золотая нить рамки,
+   мягкая внутренняя тень, скошенный угол; шапка окна — синека с засечкой. */
 .wh-window {
-  background: linear-gradient(180deg, rgba(24, 21, 14, 0.92) 0%, rgba(13, 11, 8, 0.95) 100%);
-  border: 1px solid rgba(201, 162, 39, 0.35);
+  background: linear-gradient(180deg, rgba(27, 24, 17, 0.96) 0%, rgba(15, 13, 9, 0.97) 100%);
+  border: 1px solid rgba(201, 162, 39, 0.22);
   border-radius: 2px;
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 .wh-window-head {
-  background: linear-gradient(180deg, rgba(201, 162, 39, 0.14) 0%, rgba(201, 162, 39, 0.04) 100%);
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.08) 0%, rgba(201, 162, 39, 0.02) 100%);
+  position: relative;
+}
+/* Золотая засечка слева от заголовка — единый HUD-маркер всех окон */
+.wh-window-head::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.9), rgba(201, 162, 39, 0.2));
+  pointer-events: none;
 }
 /* Единый золотой скроллбар для всех внутренних окон */
 .wh-scroll {
@@ -1006,7 +1009,7 @@ p {
    ни один блок физически не может наползть на другой; информация всегда
    доходит до пользователя (скролл золотым HUD-ползунком вместо обрезки).
    Палитра/рамки: уголь + золото + кровавый акцент, готические шрифты
-   (Cinzel — заголовки, Spectral — основной текст). */
+   (Cinzel — заголовки, Inter — основной текст). */
 .wh-event-card { display: flex; flex-direction: column; min-height: 0; }
 .wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; }
 .wh-event-card .event-parchment {

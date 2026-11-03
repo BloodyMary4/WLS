@@ -22,10 +22,10 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
     <div className="game-container game-fit wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
 
-      {/* Фоновые эффекты */}
+      {/* Фоновые эффекты (v0.3.50: мерцание убрано — статичные мягкие пятна) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-64 h-64 bg-yellow-700/10 rounded-full blur-3xl animate-candle"></div>
-        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-900/15 rounded-full blur-3xl animate-candle" style={{ animationDelay: '1.3s' }}></div>
+        <div className="absolute top-0 left-1/4 w-64 h-64 bg-yellow-700/8 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-900/10 rounded-full blur-3xl"></div>
       </div>
 
       <main className="fit-scroll relative z-10 container mx-auto px-6 py-12">
