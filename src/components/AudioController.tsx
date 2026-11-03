@@ -40,9 +40,6 @@ export function AudioController() {
     ambience.setVolume(newVolume);
   };
 
-  // Если браузер так и не разрешил автозапуск — подсказываем игроку, что делать
-  const showHint = !isPlaying && volume > 0;
-
   return (
     <div className="fixed top-6 right-6 z-50 flex flex-col items-end gap-3">
       {/* Панель громкости с красивым дизайном */}
@@ -132,16 +129,6 @@ export function AudioController() {
         {isPlaying ? '🎵 Играет' : '🔇 Выкл'}
       </div>
 
-      {/* Подсказка: браузеры блокируют автозапуск звука до первого действия пользователя */}
-      {showHint && (
-        <button
-          onClick={handleToggle}
-          className="max-w-[240px] px-3 py-1 rounded-lg bg-yellow-900/70 border border-yellow-600/50 text-yellow-300 text-sm font-event hover:bg-yellow-800/70 transition-colors"
-          title="Нажмите, чтобы включить музыку"
-        >
-          🔈 Нажмите любую клавишу или кликните — включим музыку
-        </button>
-      )}
     </div>
   );
 }

@@ -211,7 +211,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
         <div className="choices-block wh-scroll min-h-0 space-y-2 lg:flex-1 lg:flex lg:flex-col">
           <p className="choices-title font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3 shrink-0">
             Твоё решение:
-            <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}{event.choices.length <= 4 ? ' / A–D' : ''}</span>
+            <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}</span>
           </p>
           {event.choices.map((choice, index) => {
             const mark = choiceRiskMark(choice.effects);
@@ -225,9 +225,8 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-2.5">
-                <div className="wh-choice-letter flex-shrink-0 w-8 h-8 flex flex-col items-center justify-center shadow-lg leading-none" title={`Клавиши выбора: ${index + 1} или ${choice.letter}`}>
-                  <span className="font-bold tabular-nums text-sm">{index + 1}</span>
-                  <span className="text-[9px] opacity-70 font-gothic">{choice.letter}</span>
+                <div className="wh-choice-letter flex-shrink-0 w-8 h-8 flex items-center justify-center shadow-lg leading-none" title={`Клавиша выбора: ${index + 1}`}>
+                  <span className="font-bold tabular-nums text-base">{index + 1}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="choice-text font-event text-[15px] text-[#d8c9a3] block leading-snug">{choice.text}</span>

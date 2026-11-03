@@ -21,7 +21,7 @@ function App() {
   const game = uiState.game;
   const inGame = !!game && !isInvalidEvent(game.currentEvent);
 
-  // Горячие клавиши: выбор A–D/1–4 в фазе события, Space/Enter — продолжить год.
+  // Горячие клавиши: выбор только 1–4 в фазе события, Space/Enter — продолжить год.
   useKeyboardControls({
     enabled: !!game && !game.gameOver,
     choices: game && uiState.phase === 'event' ? game.currentEvent.choices : [],
