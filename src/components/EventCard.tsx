@@ -148,14 +148,15 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
       )}
 
       {phase === 'result' && lastChoice ? (
-        <div className="result-block space-y-2.5 animate-fade-in mt-auto" aria-live="polite">
-          <div className={`result-parchment wh-parchment-simple rounded-sm px-4 py-3 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
-            <div className="flex items-start gap-3">
+        <div className="result-block flex flex-col flex-1 min-h-0 space-y-2.5 animate-fade-in mt-auto" aria-live="polite">
+          {/* v0.3.40: пергамент результата — flex-колонка, текст скроллится
+              ВНУТРИ него (flex-1 min-h-0). Раньше блок результата прижимался
+              к низу окна (margin-top:auto), а его высота ничем не ограничивалась:
+              длинный текст «Исход решения» вырастал вверх, наползал на заголовок
+              «Твоё решение» и кнопки выборов — прочитать его было невозможно. */}
+          <div className={`result-parchment wh-parchment-simple rounded-sm px-4 py-3 flex-1 min-h-0 flex flex-col ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
+            <div className="flex items-start gap-3 flex-1 min-h-0">
               <span className="text-xl leading-none pt-0.5 shrink-0">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
-              {/* v0.3.39: результат решения скроллится внутри пергамента —
-                  раньше у .result-parchment не было overflow, и при высоком
-                  тексте в низком окне строки выходили за рамку и сливались
-                  с кнопкой «Продолжить» (текст становился нечитаемым). */}
               <p className="result-text font-event text-[15px] leading-snug text-[#e8d9b0] flex-1 min-w-0 italic">{richText(resultText)}</p>
             </div>
             {/* Фактический итог хода: точные дельты характеристик после выбора */}
@@ -178,8 +179,11 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </button>
         </div>
       ) : (
-        <div className="choices-block space-y-2 mt-auto">
-          <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3">
+        /* v0.3.40: блок выборов скроллится внутри окна, если не умещается —
+           раньше при низком окне кнопки выходили за нижнюю рамку и обрезались
+           overflow-hidden'ом WindowPane (информация «уходила» за пределы). */
+        <div className="choices-block flex-1 min-h-0 overflow-y-auto space-y-2 mt-auto wh-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#8b6914 rgba(10,10,10,.6)' }}>
+          <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg, rgba(24,21,14,0.98) 70%, rgba(24,21,14,0))', padding: '2px 0 6px' }}>
             Твоё решение:
             <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–4 / A–D</span>
           </p>
