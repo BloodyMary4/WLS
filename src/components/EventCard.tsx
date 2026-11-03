@@ -3,6 +3,7 @@ import { GameEvent, Choice, ChoiceEffects } from '../game/types';
 import { describeEffectChips, EffectChip } from '../game/effectLabels';
 import { describeDeltas } from '../game/deltaLabels';
 import { PublicStatKey } from '../game/utils';
+import { stripLoreMarker } from '../game/events/humanLoreEvents';
 
 /** Стиль метки последствия по «тону» (понятность без догадок). */
 const CHIP_TONE_CLS: Record<EffectChip['tone'], string> = {
@@ -173,7 +174,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
             Судьба &bull; М41.{String(age).padStart(3, '0')}
           </span>
         </div>
-        <EventParchment text={event.text} />
+        <EventParchment text={stripLoreMarker(event.text)} />
       </div>
       )}
 

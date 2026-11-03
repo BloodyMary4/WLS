@@ -14,6 +14,7 @@
 import { GameState, Choice, CharacterStats, ChoiceEffects, Race } from './types';
 import { rng, setGlobalSeed, hashSeed } from './rng';
 import { generateCharacter, generateCharacterByRace, getEventForAge, getDeathMessage } from './data';
+import { markLoreSeen, loreMarkerIndex, stripLoreMarker } from './events/humanLoreEvents';
 import { checkAchievements } from './achievements';
 import { triggerMicroEvent } from './microEvents';
 import { getLegacy, updateLegacyOnDeath, getLegacyBonuses } from './legacy';
@@ -360,6 +361,13 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
   const aged = updateAgeStatus(newChar);
   newChar = aged.character;
 
+  // Анти-повтор лорных событий: если текущее событие — из лорного пула,
+  // отмечаем его просмотренным в keyChoices персонажа (сохраняется в сейве).
+  {
+    const idx = loreMarkerIndex(game.currentEvent.text);
+    if (idx !== null) markLoreSeen(newChar, idx);
+  }
+
   // Визуальные дельты хода: бейджи +/− на плитках шапки в фазе исхода.
   const turnDeltas: Partial<Record<PublicStatKey, number>> = computeStatDeltas(game.character, newChar);
 
@@ -375,7 +383,7 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
 
   // Записи с меткой **судьба** — ключевые выборы жизни (попадают в летопись на экране смерти).
   const fateMark = choice.effects.keyChoice ? ' **судьба**' : '';
-  const historyEntry = `[Год ${newChar.age - 1}]${fateMark} ${game.currentEvent.text.substring(0, 60)}... → ${choice.text}`;
+  const historyEntry = `[Год ${newChar.age - 1}]${fateMark} ${stripLoreMarker(game.currentEvent.text).substring(0, 60)}... → ${choice.text}`;
   const newHistory = [...game.history, historyEntry];
 
   const intermediate: GameUiState = {
