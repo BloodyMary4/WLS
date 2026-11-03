@@ -45,7 +45,7 @@ function SupplyValue({ icon, value, unit, caption, critical, hint }: { icon: str
   );
 }
 
-/** Компактный HUD-чип: метка + значение + тонкая полоска (fit-экран, v0.3.28). */
+/** Компактный HUD-сегмент приборной панели: засечки-метка, значение, микро-шкала. */
 function HudChip({ icon, label, value, pct, barClass, danger, hint }: {
   icon: string;
   label: string;
@@ -58,15 +58,15 @@ function HudChip({ icon, label, value, pct, barClass, danger, hint }: {
   return (
     <div
       title={hint}
-      className={`flex items-center gap-1.5 px-2 py-0.5 rounded-sm border bg-[#161310]/90 text-xs leading-none shrink-0 ${danger ? 'border-[#a30000]/70' : 'border-[#c9a227]/25'}`}
+      className={`wh-hud-seg${danger ? ' wh-hud-seg-danger' : ''}`}
     >
-      <span aria-hidden="true">{icon}</span>
-      <span className="text-[#b8a878] hidden xl:inline">{label}</span>
-      <span className={`font-bold tabular-nums ${danger ? 'text-[#e07a7a]' : 'text-[#e8d9b0]'}`}>
+      <span className="wh-hud-icon" aria-hidden="true">{icon}</span>
+      <span className="wh-hud-label hidden xl:inline">{label}</span>
+      <span className={`wh-hud-value${danger ? ' !text-[#e07a7a]' : ''}`}>
         {value}
         {danger && <span aria-hidden="true" className="ml-0.5">⚠</span>}
       </span>
-      <span className="wh-bar overflow-hidden hidden md:block" style={{ width: '44px', height: '4px' }} aria-hidden="true">
+      <span className="wh-bar overflow-hidden hidden md:block" style={{ width: '44px', height: '3px' }} aria-hidden="true">
         <span className={`block h-full ${barClass}`} style={{ width: `${Math.max(2, Math.min(100, pct))}%` }}></span>
       </span>
     </div>
@@ -84,9 +84,9 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
   if (fit) {
     const hpPct = character.maxHealth > 0 ? (character.health / character.maxHealth) * 100 : 0;
     return (
-      <header className="shrink-0 z-40 border-b border-[#c9a227]/30" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)' }}>
-        <div className="mx-auto w-full max-w-[1700px] px-3 py-1.5 flex items-center gap-2 flex-nowrap overflow-x-auto wh-scroll">
-          <RaceEmblem race={character.race} className="w-7 h-7 shrink-0 drop-shadow-[0_0_6px_rgba(201,162,39,0.35)]" />
+      <header className="wh-hud-strip shrink-0 z-40">
+        <div className="mx-auto w-full max-w-[1700px] px-3 py-1 flex items-center gap-2 flex-nowrap overflow-x-auto wh-scroll">
+          <RaceEmblem race={character.race} className="w-6 h-6 shrink-0 drop-shadow-[0_0_6px_rgba(201,162,39,0.35)]" />
           <div className="min-w-0 shrink-0 max-w-[220px]">
             <div className="font-gothic text-sm font-bold uppercase tracking-wide bg-gradient-to-b from-[#f0d878] to-[#a8821a] bg-clip-text text-transparent truncate animate-gold-sheen">
               {character.name}
@@ -109,22 +109,22 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
           <HudChip icon="🍀" label="Удача" value={`${character.luck}`} pct={character.luck * 10}
             barClass="bg-green-500" danger={character.luck <= 2} hint={STAT_HINTS.luck} />
 
-          {/* Припасы: числа с подписями смысла, критичный дефицит — красный с ⚠ */}
-          <div className="flex items-center gap-2 px-2 py-0.5 rounded-sm border border-[#c9a227]/25 bg-[#161310]/90 text-xs leading-tight shrink-0">
+          {/* Припасы: единый блок приборной панели */}
+          <div className="wh-hud-seg">
             <span title={character.credits === 0 ? '💰 Кредиты: ни одного — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}
-              className={`font-semibold tabular-nums whitespace-nowrap ${character.credits === 0 ? 'text-[#e07a7a] font-bold' : 'text-yellow-400'}`}>
+              className={`wh-hud-value !text-yellow-400 whitespace-nowrap ${character.credits === 0 ? '!text-[#e07a7a] font-bold' : ''}`}>
               💰 {character.credits}₡{character.credits === 0 && ' ⚠'}
             </span>
             <span title={`🍖 Провизия: ${character.food} — ${foodCaption(character.food)}. ${STAT_HINTS.food}`}
-              className={`font-semibold tabular-nums whitespace-nowrap ${character.food <= 1 ? 'text-[#e07a7a] font-bold' : 'text-[#e8d9b0]'}`}>
+              className={`wh-hud-value whitespace-nowrap ${character.food <= 1 ? '!text-[#e07a7a] font-bold' : ''}`}>
               🍖 {character.food}{character.food <= 1 && ' ⚠'}
             </span>
             <span title={`🔫 Боезапас: ${character.ammo}. ${STAT_HINTS.ammo}`}
-              className={`font-semibold tabular-nums whitespace-nowrap ${character.ammo <= 0 ? 'text-[#e07a7a] font-bold' : 'text-[#e8d9b0]'}`}>
+              className={`wh-hud-value whitespace-nowrap ${character.ammo <= 0 ? '!text-[#e07a7a] font-bold' : ''}`}>
               🔫 {character.ammo}{character.ammo <= 0 && ' ⚠'}
             </span>
             <span title={STATUS_HINTS[character.status] ?? `Твоё место в жизни: ${character.status}. Смена положения приходит с судьбоносными выборами.`}
-              className="text-[#d8c9a3] font-semibold whitespace-nowrap hidden lg:inline">
+              className="wh-hud-label hidden lg:inline !text-[#d8c9a3] font-semibold whitespace-nowrap">
               {character.status}
             </span>
           </div>
@@ -132,16 +132,16 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
           {/* Итог последнего выбора — прямо в приборной строке */}
           {!short && turnResult.length > 0 && (
             <div role="status" aria-label={`Итог выбора: ${turnResult.map((d) => d.text).join(', ')}`}
-              className="hidden lg:flex items-center gap-1.5 rounded-sm border border-[#c9a227]/40 bg-[#1c1913]/80 px-2 py-0.5 text-xs font-semibold tabular-nums shrink-0 animate-fade-in">
-              <span className="font-gothic uppercase tracking-wider text-[#b8a878]/80">Итог:</span>
+              className="wh-hud-seg !border-[#c9a227]/40 shrink-0 animate-fade-in">
+              <span className="wh-hud-label">Итог:</span>
               {turnResult.map((d) => (
-                <span key={d.key} className={d.tone === 'good' ? 'text-[#7fc97f]' : 'text-[#e07a7a]'}>{d.text}</span>
+                <span key={d.key} className={`wh-hud-value ${d.tone === 'good' ? '!text-[#7fc97f]' : '!text-[#e07a7a]'}`}>{d.text}</span>
               ))}
             </div>
           )}
           {criticals.length > 0 && (
             <div role="alert" title={`Критично: ${criticals.join(', ').toLowerCase()}`}
-              className="flex items-center gap-1.5 rounded-sm border border-[#a30000]/70 bg-[#2a0d0d]/80 px-2 py-0.5 text-xs font-gothic uppercase tracking-wider text-[#e07a7a] animate-glow shrink-0">
+              className="wh-hud-seg wh-hud-seg-danger !font-gothic !uppercase !tracking-wider !text-[#e07a7a] shrink-0">
               <span aria-hidden="true">☠</span>
               {criticals.join(' • ')}
             </div>
@@ -149,7 +149,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
 
           <button onClick={() => { if (confirm('Начать новую игру?')) onNewGame(); }}
             className="btn-modern ml-auto bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic text-xs py-1 px-3 rounded-sm border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shrink-0 whitespace-nowrap">
-            🔄 Новая игра
+            Новая игра
           </button>
         </div>
       </header>
@@ -157,9 +157,9 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#c9a227]/30 shadow-lg" style={{ background: 'linear-gradient(180deg, rgba(28,24,14,0.95) 0%, rgba(11,10,8,0.95) 100%)', backdropFilter: 'blur(8px)' }}>
-      <div className="wh-header-compact mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-3">
-        <div className="header-row flex items-center justify-between mb-3 animate-slide-in-left">
+    <header className="wh-hud-panel sticky top-0 z-40 shadow-lg">
+      <div className="wh-header-compact mx-auto w-full max-w-[1700px] px-4 xl:px-6 py-2.5">
+        <div className="header-row flex items-center justify-between mb-2 animate-slide-in-left">
           <div className="flex items-center gap-3 min-w-0">
             <RaceEmblem race={character.race} className="w-9 h-9 xl:w-10 xl:h-10 shrink-0 drop-shadow-[0_0_6px_rgba(201,162,39,0.35)]" />
             <div className="min-w-0">
@@ -205,7 +205,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
             }}
             className="btn-modern bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic text-sm py-1.5 px-4 rounded-sm border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shadow-lg shrink-0"
           >
-            🔄 Новая игра
+            Новая игра
           </button>
         </div>
 
@@ -244,8 +244,8 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
             hint={STAT_HINTS.warpCorruption}
           />
           {/* Припасы: 4 ячейки 2×2 — голод и боезапас подсвечиваются, когда на исходе */}
-          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-            <span className="font-gothic uppercase tracking-wider text-[10px] text-[#b8a878]/70 col-span-2 leading-none" aria-hidden="true">Припасы</span>
+          <div className="wh-hud-cell grid grid-cols-2 gap-x-3 gap-y-1">
+            <span className="wh-hud-label col-span-2 !text-[10px]" aria-hidden="true">Припасы</span>
             <span title={character.credits === 0 ? '💰 Кредиты: ни одного кредита — торг и взятки недоступны' : `💰 Кредиты: ${character.credits} ₡ — деньги на торг, взятки и припасы`}>
               <span className={`font-semibold tabular-nums ${character.credits === 0 ? 'text-[#e07a7a] font-bold' : 'text-yellow-400'}`}>
                 💰 {character.credits}₡{character.credits === 0 && <span aria-hidden="true" className="ml-0.5">⚠</span>}
@@ -267,8 +267,8 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
               <SupplyCaption text="кто ты сейчас" />
             </span>
           </div>
-          <div className="bg-[#161310] border border-[#c9a227]/25 rounded-sm px-3 py-2 flex flex-col justify-center gap-1 text-xs">
-            <span className="font-gothic uppercase tracking-wider text-[10px] text-[#b8a878]/70 leading-none" aria-hidden="true">Положение</span>
+          <div className="wh-hud-cell">
+            <span className="wh-hud-label !text-[10px]" aria-hidden="true">Положение</span>
             <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.influence}>
               <span className="text-[#b8a878]">⭐ Влияние</span>
               <span className="text-orange-400 font-bold tabular-nums">{character.influence}</span>

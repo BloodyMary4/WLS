@@ -43,13 +43,13 @@ export function StatCard({
   }, [barValue]);
 
   return (
-    <div className={`wh-panel wh-stat-card p-2.5 xl:p-3${danger ? ' wh-stat-critical' : ''}`} title={hint} aria-label={hint ? `${label}: ${hint}` : undefined}>
-      <div className="flex items-center justify-between mb-1.5 gap-2">
-        <span className="font-gothic text-xs xl:text-sm text-[#b8a878] tracking-wide truncate">
+    <div className={`wh-hud-cell wh-stat-card${danger ? ' wh-stat-critical' : ''}`} title={hint} aria-label={hint ? `${label}: ${hint}` : undefined}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="wh-hud-label truncate">
           {danger && <span aria-hidden="true" className="mr-1">⚠</span>}
           {label}
         </span>
-        <span className={`text-xs xl:text-sm font-bold whitespace-nowrap ${valueClassName}`}>
+        <span className={`wh-hud-value tabular-nums ${valueClassName}`}>
           {value}
         </span>
       </div>
