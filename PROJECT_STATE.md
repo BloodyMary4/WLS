@@ -262,3 +262,10 @@
 - Deploy success; живой сайт отдаёт index-C-JYnjlq.js + index-Bc0RQ92F.css (CI пересобирает с base=/WLS/, имена бандлов отличаются от локальных dist/ — это нормально).
 - Проверено на живом CDN: choices-title/sticky панель выборов, event-scroll (скролл текста внутри пергамента), новые choice-btn (уголь+золото+кровавая кромка) — все правила присутствуют байт-в-байт.
 - Лишний Desktop Build отменён по правилу пользователя.
+
+
+## v0.3.52 (bb703663) — HUD по гайдлайну
+- Убрана эмодзи-каша из HUD: ❤️🧠☣️⭐🍀💰🍖🔫 → текстовые метки (Здоровье/Рассудок/Порча/Влияние/Удача/Кредиты/Провизия/Боезапас/Положение).
+- Палитра заменена на гайдлайновую: неон-акценты text/bg-wh-health (#6fe3b1 Necron), wh-plasma (#58c4e8), wh-caution (#c9a227 золото), wh-blood (#a32020/#e05a52), wh-warp-* ; хром-классы tailwind (green/blue/purple/orange/red/yellow) замаплены во всех компонентах.
+- CSS: убраны clip-path-скосы (съедали рамки), заклёпки реже/тусклее, labels 0.64rem ls .06em, полосы без свечения.
+- typecheck ✅ 240/240 ✅ build ✅; CI success, Deploy Pages success, Desktop Build отменён. Live проверен: index-C0Rpdlyf.js содержит «Кредиты/Провизия», CSS содержит wh-health #6fe3b1.
