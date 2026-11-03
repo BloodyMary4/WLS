@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAmbience } from '../game/audio';
 
+const MOOD_NAMES: Record<string, string> = {
+  normal: 'Пустота',
+  tense: 'Кибер-готика',
+  danger: 'Дарк-электро',
+  epic: 'Оркестровый пафос',
+};
+
 export function AudioController() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.55);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [mood, setMood] = useState('normal');
 
   const ambience = getAmbience();
 
@@ -13,6 +21,13 @@ export function AudioController() {
   useEffect(() => {
     setVolume(ambience.getVolume());
     setIsPlaying(ambience.getIsPlaying());
+  }, [ambience]);
+
+  // v0.3.73: показатель текущего настроения саундтрека (четыре направления
+  // гримдарка). Опрос раз в 2 секунды — дёшево и без ре-рендеров на каждый ход.
+  useEffect(() => {
+    const id = setInterval(() => setMood(ambience.getMood()), 2000);
+    return () => clearInterval(id);
   }, [ambience]);
 
   const syncStatus = useCallback(() => {
@@ -71,6 +86,13 @@ export function AudioController() {
               className="flex-1 h-2 bg-gray-800 rounded-full appearance-none cursor-pointer accent-yellow-500 hover:accent-yellow-400 transition-all"
             />
           </div>
+          {/* v0.3.73: настроение саундтрека — четыре направления гримдарка */}
+          {isPlaying && (
+            <div className="mt-3 pt-3 border-t border-yellow-600/30 flex items-center justify-between">
+              <span className="font-cinzel text-xs tracking-widest uppercase text-yellow-600/80">Настроение</span>
+              <span className="text-sm text-wh-parchment">{MOOD_NAMES[mood] ?? 'Пустота'}</span>
+            </div>
+          )}
         </div>
       )}
       

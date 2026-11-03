@@ -489,30 +489,437 @@ export class GrimdarkAmbience {
     this.lfo.start();
   }
 
+  /**
+   * Маршрутизация мелодических событий по четырём направлениям гримдарка
+   * (v0.3.73, ТЗ пользователя):
+   *  • normal — «зловещий эмбиент и пустота»: редкие струнные аккорды, колокола, гул;
+   *  • tense  — «кибер-готика / индастриал»: церковный орган поверх скрежета механизмов;
+   *  • danger — «дарк-электро» (в духе Darktide): дисторшн-бас, индустриальные удары,
+   *    церковные колокола; далёкая артиллерия живёт отдельно в setMood('danger');
+   *  • epic   — «оркестровый пафос»: литавры и псевдо-латинский хор.
+   */
+  private pickMoodEvent(mood: 'normal' | 'tense' | 'danger' | 'epic'): () => void {
+    const r = Math.random();
+    if (mood === 'epic') {
+      // Оркестровый пафос: хор, литавры, триумфальный аккорд, колокол
+      if (r < 0.4) return () => this.playLatinChoir();
+      if (r < 0.7) return () => this.playTimpaniRoll();
+      if (r < 0.88) return () => this.playChord();
+      return () => this.playBellTone();
+    }
+    if (mood === 'danger') {
+      // Дарк-электро: грязный бас, стена удара, колокола отчаяния
+      if (r < 0.45) return () => this.playDistortedBassHit();
+      if (r < 0.7) return () => this.playIndustrialPercussion();
+      if (r < 0.85) return () => this.playBellTone();
+      return () => this.playDeepPulse();
+    }
+    if (mood === 'tense') {
+      // Кибер-готика: орган, скрежет, шёпоты варпа, редкий низкий аккорд
+      if (r < 0.45) return () => this.playPipeOrgan();
+      if (r < 0.7) return () => this.playMetalCreak();
+      if (r < 0.85) return () => this.playWhisperSurge();
+      return () => this.playChord();
+    }
+    // normal — дарк-эмбиент: одиночные ноты, аккорды, эхо, звон механизмов
+    if (r < 0.3) return () => this.playDarkNote();
+    if (r < 0.52) return () => this.playChord();
+    if (r < 0.7) return () => this.playAtmospheric();
+    if (r < 0.82) return () => this.playBellTone();
+    if (r < 0.92) return () => this.playMechanismClank();
+    return () => this.playDeepPulse();
+  }
+
   private startMelodicEvents() {
     const scheduleNext = () => {
       if (!this.isPlaying) return;
-      const delay = 2500 + Math.random() * 4500;
+      // Темп событий зависит от настроения: покой дышит медленно,
+      // опасность не даёт расслабиться.
+      const base = this.currentMood === 'danger' ? 1800
+        : this.currentMood === 'tense' ? 2600
+        : this.currentMood === 'epic' ? 3200
+        : 4200;
+      const spread = this.currentMood === 'normal' ? 5000 : 3200;
+      const delay = base + Math.random() * spread;
       this.intervalId = setTimeout(() => {
         if (!this.isPlaying || !this.audioContext || !this.masterGain) return;
-        
-        const eventType = Math.random();
-        if (eventType < 0.45) {
-          this.playDarkNote();
-        } else if (eventType < 0.65) {
-          this.playChord();
-        } else if (eventType < 0.82) {
-          this.playAtmospheric();
-        } else if (eventType < 0.92) {
-          this.playBellTone();
-        } else {
-          this.playDeepPulse();
-        }
-        
+
+        this.pickMoodEvent(this.currentMood)();
+
         scheduleNext();
       }, delay);
     };
     scheduleNext();
+  }
+
+  // ---------- v0.3.73: новые слои по четырём направлениям гримдарка ----------
+
+  /**
+   * Кирка по ржавой балке — короткий металлический лязг (скиталец Адептус
+   * Механикус). Случайная высота тона, чтобы не звучало как метроном.
+   */
+  playMechanismClank(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime + 0.02;
+    const freq = 180 + Math.random() * 240;
+
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.value = freq * 2.76; // фальшивый частичный тон — «колокольный» лязг
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.05, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    const bandpass = ctx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.value = freq * 3;
+    bandpass.Q.value = 6;
+
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = (Math.random() - 0.5) * 1.2;
+
+    osc.connect(bandpass);
+    osc2.connect(bandpass);
+    bandpass.connect(gain);
+    gain.connect(panner);
+    panner.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.4);
+    osc2.start(now);
+    osc2.stop(now + 0.4);
+  }
+
+  /**
+   * Тяжёлый церковный орган (кибер-готика / Mechanicus): ряд труб —
+   * основной тон + октава/квинта/кварта, медленная атака, длинный хвост
+   * через feedback-delay, имитирующий гул собора.
+   */
+  private playPipeOrgan(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+    const duration = 5 + Math.random() * 3;
+    const roots = [55, 61.74, 65.41, 73.42];
+    const root = roots[Math.floor(Math.random() * roots.length)];
+    const pipes = [root, root * 2, root * 3, root * 4];
+
+    const organDelay = ctx.createDelay();
+    organDelay.delayTime.value = 0.42;
+    const organFeedback = ctx.createGain();
+    organFeedback.gain.value = 0.32;
+    const organDelayFilter = ctx.createBiquadFilter();
+    organDelayFilter.type = 'lowpass';
+    organDelayFilter.frequency.value = 900;
+    organDelay.connect(organDelayFilter);
+    organDelayFilter.connect(organFeedback);
+    organFeedback.connect(organDelay);
+    organDelayFilter.connect(this.masterGain);
+
+    pipes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = i % 2 === 0 ? 'sawtooth' : 'square';
+      osc.frequency.value = freq * (1 + (Math.random() - 0.5) * 0.004);
+
+      const oscGain = ctx.createGain();
+      const level = 0.03 / (i + 1);
+      oscGain.gain.setValueAtTime(0, now);
+      oscGain.gain.linearRampToValueAtTime(level, now + 1.2);
+      oscGain.gain.setValueAtTime(level, now + Math.max(1.2, duration - 2));
+      oscGain.gain.linearRampToValueAtTime(0, now + duration);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 600 + i * 250;
+      filter.Q.value = 1.2;
+
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = (i - 1.5) * 0.35;
+
+      osc.connect(filter);
+      filter.connect(oscGain);
+      oscGain.connect(panner);
+      panner.connect(this.masterGain!);
+      panner.connect(organDelay);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.1);
+    });
+  }
+
+  /**
+   * Металлический скрежет (индастриал): шум через узкий bandpass, ползущий
+   * вверх по спектру — звук тормозящей шестерни или скрипящей переборки.
+   */
+  private playMetalCreak(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+    const duration = 1.6 + Math.random() * 1.4;
+
+    const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duration), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.min(1, i / (data.length * 0.1)) * Math.exp(-i / (data.length * 0.6));
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const bandpass = ctx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.setValueAtTime(900, now);
+    bandpass.frequency.exponentialRampToValueAtTime(2600, now + duration);
+    bandpass.Q.value = 14;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.045, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = (Math.random() - 0.5) * 1.4;
+
+    noise.connect(bandpass);
+    bandpass.connect(gain);
+    gain.connect(panner);
+    panner.connect(this.masterGain);
+
+    noise.start(now);
+  }
+
+  /**
+   * Хор на псевдо-латыни (эпика): вокальные форманты a-o-u в три голоса
+   * (бас/баритон/тенор), медленная атака, тяжёлое эхо собора.
+   * Звучит как молитва миллиардов.
+   */
+  private playLatinChoir(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+    const duration = 6 + Math.random() * 3;
+    const roots = [110, 130.81, 146.83, 164.81];
+    const root = roots[Math.floor(Math.random() * roots.length)];
+    // «Слоги» псевдо-латыни — гласные форманты: A, O, U
+    const vowels: Array<[number, number]> = [[720, 1100], [420, 780], [320, 720]];
+
+    const choirDelay = ctx.createDelay();
+    choirDelay.delayTime.value = 0.33;
+    const choirFeedback = ctx.createGain();
+    choirFeedback.gain.value = 0.38;
+    const choirFilter = ctx.createBiquadFilter();
+    choirFilter.type = 'lowpass';
+    choirFilter.frequency.value = 1400;
+    choirDelay.connect(choirFilter);
+    choirFilter.connect(choirFeedback);
+    choirFeedback.connect(choirDelay);
+    choirFilter.connect(this.masterGain);
+
+    const voices = [root / 2, root, root * 1.5];
+    voices.forEach((freq, vi) => {
+      const syllables = 3;
+      const sylLen = duration / syllables;
+      for (let s = 0; s < syllables; s++) {
+        const t = now + s * sylLen;
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq * (1 + (Math.random() - 0.5) * 0.006);
+
+        const vowel = vowels[(s + vi) % vowels.length];
+        const formant1 = ctx.createBiquadFilter();
+        formant1.type = 'bandpass';
+        formant1.frequency.value = vowel[0];
+        formant1.Q.value = 7;
+        const formant2 = ctx.createBiquadFilter();
+        formant2.type = 'bandpass';
+        formant2.frequency.value = vowel[1];
+        formant2.Q.value = 9;
+
+        const g = ctx.createGain();
+        const level = 0.022 / (vi * 0.5 + 1);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(level, t + sylLen * 0.25);
+        g.gain.linearRampToValueAtTime(level * 0.7, t + sylLen * 0.75);
+        g.gain.linearRampToValueAtTime(0.0001, t + sylLen * 0.98);
+
+        const panner = ctx.createStereoPanner();
+        panner.pan.value = (vi - 1) * 0.5;
+
+        osc.connect(formant1);
+        formant1.connect(formant2);
+        formant2.connect(g);
+        g.connect(panner);
+        panner.connect(this.masterGain!);
+        panner.connect(choirDelay);
+
+        osc.start(t);
+        osc.stop(t + sylLen);
+      }
+    });
+  }
+
+  /**
+   * Литавры (эпика): синус с проседающей частотой + шумовой удар колотушки,
+   * нарастающий ритмический рисунок — накатывает полк.
+   */
+  private playTimpaniRoll(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    let t = ctx.currentTime + 0.05;
+    const hits = 4 + Math.floor(Math.random() * 3);
+    let gap = 0.5;
+
+    for (let i = 0; i < hits; i++) {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      const f = 70 + Math.random() * 20;
+      osc.frequency.setValueAtTime(f * 1.6, t);
+      osc.frequency.exponentialRampToValueAtTime(f, t + 0.25);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+
+      osc.connect(g);
+      g.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 1.2);
+
+      // Шумовой «щелчок» колотушки
+      const dur = 0.12;
+      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let k = 0; k < data.length; k++) {
+        data[k] = (Math.random() * 2 - 1) * Math.exp(-k / (data.length * 0.2));
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 400;
+      const ng = ctx.createGain();
+      ng.gain.value = 0.05;
+      noise.connect(lp);
+      lp.connect(ng);
+      ng.connect(this.masterGain);
+      noise.start(t);
+
+      gap = Math.max(0.18, gap * 0.72);
+      t += gap;
+    }
+  }
+
+  /**
+   * Грязный дисторшн-бас (дарк-электро / Darktide): пила через waveshaper
+   * с сильной перегрузкой и lowpass — стена звука на два удара.
+   */
+  private playDistortedBassHit(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const shaper = ctx.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) {
+      const x = (i / 1023) * 2 - 1;
+      curve[i] = Math.tanh(4.5 * x); // мягкий, но грязный клиппинг
+    }
+    shaper.curve = curve;
+    shaper.oversample = '4x';
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 320;
+    lp.Q.value = 2.5;
+
+    const out = ctx.createGain();
+    out.gain.value = 0.9;
+
+    shaper.connect(lp);
+    lp.connect(out);
+    out.connect(this.masterGain);
+
+    for (let hit = 0; hit < 2; hit++) {
+      const t = now + hit * 0.42;
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      const f = 41 + Math.random() * 10;
+      osc.frequency.setValueAtTime(f * 2.2, t);
+      osc.frequency.exponentialRampToValueAtTime(f, t + 0.18);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.11, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+
+      osc.connect(shaper);
+      osc.start(t);
+      osc.stop(t + 0.65);
+    }
+  }
+
+  /**
+   * Индустриальная перкуссия (дарк-электро): цепь бочек и лязгающих
+   * акцентов — ритм конвейера улья.
+   */
+  private playIndustrialPercussion(): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    const ctx = this.audioContext;
+    let t = ctx.currentTime + 0.05;
+    const pattern = [0.34, 0.34, 0.22, 0.34, 0.5];
+    for (let i = 0; i < pattern.length; i++) {
+      const kick = i % 2 === 0;
+      const osc = ctx.createOscillator();
+      osc.type = kick ? 'sine' : 'square';
+      const f = kick ? 55 : 160 + Math.random() * 120;
+      osc.frequency.setValueAtTime(kick ? 90 : f * 1.5, t);
+      osc.frequency.exponentialRampToValueAtTime(f, t + 0.1);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(kick ? 0.1 : 0.035, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.001, t + (kick ? 0.4 : 0.18));
+
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = kick ? 0 : (Math.random() - 0.5) * 1.2;
+
+      osc.connect(g);
+      g.connect(panner);
+      panner.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.5);
+
+      t += pattern[i];
+    }
+  }
+
+  /**
+   * Шёпот варпа проступает сквозь гул (tense): временное усиление слоя
+   * шёпотов с последующим возвратом к текущему настроению.
+   */
+  private playWhisperSurge(): void {
+    if (!this.audioContext || !this.whisperGainNode) return;
+    const now = this.audioContext.currentTime;
+    const s = GrimdarkAmbience.MOOD_SETTINGS[this.currentMood];
+    const g = this.whisperGainNode.gain;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    g.linearRampToValueAtTime(s.whisperGain * 3.5, now + 1.2);
+    g.linearRampToValueAtTime(s.whisperGain, now + 4.5);
   }
 
   private playDarkNote() {
@@ -1640,6 +2047,11 @@ export class GrimdarkAmbience {
     });
 
     if (mood === 'danger') this.scheduleArtillery();
+  }
+
+  /** Текущее настроение саундтрека (для индикатора в HUD, v0.3.73) */
+  getMood(): 'normal' | 'tense' | 'danger' | 'epic' {
+    return this.currentMood;
   }
 
   // ---------- Danger-слой: далёкая артиллерия ----------
