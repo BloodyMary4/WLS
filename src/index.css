@@ -1174,7 +1174,29 @@ p {
 }
 .wh-readout > div:last-child { border-bottom: none; }
 
-/* Левый отсек в fit-режиме: окна идут плотной стопкой по содержимому,
-   остаток высоты отдаётся скроллируемому окну шкал — никаких пустых дыр. */
-.game-fit .codex-grid { grid-template-rows: none; grid-auto-rows: min-content; align-content: start; overflow-y: auto; }
-.game-fit .codex-grid > section[aria-label="Скрытые свойства"] { grid-row: span 1; min-height: 140px; }
+/* Левый отсек в fit-режиме (v0.3.55 «Вахтенная компоновка»): полосы по
+   содержимому, «Скрытые свойства» растягивается на остаток высоты и
+   скроллит шкалы внутри себя — колонка целиком НЕ прокручивается, всё
+   видно сразу. */
+.game-fit .codex-grid { grid-template-rows: none; grid-auto-rows: min-content; align-content: start; overflow-y: hidden; }
+.game-fit .codex-grid > section[aria-label="Скрытые свойства"] { grid-row: span 1; min-height: 140px; flex: 1 1 auto; }
+
+/* ===== v0.3.55 «Вахтенная компоновка»: всё на экране сразу =====
+   На широких экранах левый отсек делится на фиксированные полосы:
+   Досье и Снабжение+Галактика — по содержимому, «Скрытые свойства» —
+   растягивающаяся полоса с внутренним скроллом шкал. Парные окна
+   стоят бок о бок в одной полосе и равны по высоте. Правый отсек:
+   хроника ~72%, «Прогресс жизни» — компактное окно внизу. */
+.codex-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; min-width: 0; }
+.codex-pair > .wh-window { min-width: 0; margin-bottom: 0; }
+.codex-pair-fill { display: none; }
+@media (min-width: 1024px) and (min-height: 640px) {
+  /* Одна колонка левого отсека слишком узка для пары — складываем в столбик */
+  .game-fit .codex-pair:not(:has(~ .codex-pair-fill)) { grid-template-columns: 1fr; }
+}
+.game-container:not(.game-fit) .codex-pair { grid-template-columns: 1fr; }
+.game-container:not(.game-fit) .codex-pair > .wh-window { min-height: 120px; }
+/* Хроника тянется, прогресс — компактная полоса снизу (оба режима) */
+.fit-col > .wh-chronicle-wrap,
+.fit-col > section[aria-label="Хроника жизни"] { flex: 1 1 auto; min-height: 0; }
+.fit-col > section[aria-label="Прогресс жизни"] { flex: 0 0 auto; }

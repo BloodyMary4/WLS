@@ -92,19 +92,34 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
     <main className={`flex-1 ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
       <div className={`mx-auto w-full max-w-[1700px] px-2 xl:px-3 ${fit ? 'h-full' : ''}`}>
         <div className={`fit-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
-          {/* Левый отсек (v0.3.32): сетка самостоятельных окон-приборов.
-              Каждое окно — отдельный модуль с адекватным размером; длинные
-              списки скроллятся только внутри своего окна. */}
+          {/* Левый отсек (v0.3.55): три полосы фиксированной высоты —
+              Досье / Снабжение+Галактика в паре бок о бок / Скрытые свойства.
+              Всё умещается на экране сразу без прокрутки колонки;
+              дополнительные окна делят нижнюю зону двумя рядами. */}
           <div className="lg:col-span-3 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
             <div className="codex-grid flex-1 min-h-0">
               <DossierWindow character={character} raceInfo={raceInfo} />
-              <SuppliesWindow character={character} />
+              <div className="codex-pair">
+                <SuppliesWindow character={character} />
+                {character.worldEvent ? (
+                  <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />
+                ) : (
+                  <span className="codex-pair-fill" aria-hidden="true" />
+                )}
+              </div>
               <HiddenStatsWindow character={character} />
-              {character.worldEvent && <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />}
-              {character.npcs.length > 0 && <CompanionsWindow npcs={character.npcs} />}
-              {activeQuests.length > 0 && <QuestsWindow quests={activeQuests} />}
+              {(character.npcs.length > 0 || activeQuests.length > 0 ||
+                character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
+                <div className="codex-pair">
+                  {character.npcs.length > 0 ? <CompanionsWindow npcs={character.npcs} /> : <span className="codex-pair-fill" aria-hidden="true" />}
+                  {activeQuests.length > 0 ? <QuestsWindow quests={activeQuests} /> : <span className="codex-pair-fill" aria-hidden="true" />}
+                </div>
+              )}
               {(character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
-                <InventoryWindow character={character} />
+                <div className="codex-pair">
+                  <InventoryWindow character={character} />
+                  <span className="codex-pair-fill" aria-hidden="true" />
+                </div>
               )}
             </div>
           </div>
@@ -114,7 +129,9 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             {center}
           </div>
 
-          {/* Правый отсек: хроника жизни — окно на всю высоту, скролл только внутри ленты */}
+          {/* Правый отсек (v0.3.55): хроника занимает верх ~70% высоты,
+              «Прогресс жизни» — отдельное аккуратное окно внизу вместо
+              тонкой строки футера; обе ленты скроллятся только внутри себя. */}
           <div className="lg:col-span-3 md:col-span-2 col-span-1 fit-col animate-slide-in-right min-h-0">
             <ChroniclePanel
               history={history}
@@ -122,6 +139,31 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
               chroniclePinned={chroniclePinned}
               onJumpToLatest={jumpToLatest}
             />
+            <section className="wh-window shrink-0" aria-label="Прогресс жизни">
+              <header className="wh-window-head flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
+                <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Прогресс жизни</h3>
+                <span className="ml-auto text-xs text-gray-300 font-bold tabular-nums whitespace-nowrap">{character.age} / ~{maxExpectedAge} лет</span>
+              </header>
+              <div className="p-2 space-y-1.5">
+                <div className="wh-bar overflow-hidden" style={{ height: '6px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет — за чертой начинается стариковская пора`}>
+                  <div
+                    className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000]"
+                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%' }}
+                  ></div>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-[#b8a878]/80">
+                  <span title={`Достижения: открыто ${uiState.unlockedAchievements.length} из ${ACHIEVEMENTS.length}`}>
+                    Достижения: <span className="text-[#e8c85a] font-bold tabular-nums">{uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}</span>
+                  </span>
+                  <span className="hidden xl:flex items-center gap-1.5">
+                    <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">1–4</kbd>
+                    выбор
+                    <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">Space</kbd>
+                    дальше
+                  </span>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
