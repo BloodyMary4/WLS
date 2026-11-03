@@ -145,7 +145,7 @@ export function AudioController() {
       {showHint && (
         <button
           onClick={handleToggle}
-          className="max-w-[240px] px-3 py-1 rounded-lg bg-yellow-900/70 border border-yellow-600/50 text-yellow-300 text-sm font-event animate-pulse hover:bg-yellow-800/70 transition-colors"
+          className="max-w-[240px] px-3 py-1 rounded-lg bg-yellow-900/70 border border-yellow-600/50 text-yellow-300 text-sm font-event hover:bg-yellow-800/70 transition-colors"
           title="Нажмите, чтобы включить музыку"
         >
           🔈 Нажмите любую клавишу или кликните — включим музыку

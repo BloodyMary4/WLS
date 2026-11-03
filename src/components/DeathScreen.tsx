@@ -89,8 +89,8 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
   return (
     <div className="text-center py-16 animate-fade-in">
       <div className="relative inline-block mb-8">
-        <div className="text-8xl animate-pulse">☠️</div>
-        <div className="absolute inset-0 bg-red-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="text-8xl drop-shadow-[0_0_18px_rgba(163,0,0,0.5)]">☠️</div>
+        <div className="absolute inset-0 bg-red-600/15 rounded-full blur-3xl"></div>
       </div>
       <h2 className="font-gothic text-5xl font-bold mb-6 uppercase tracking-[0.25em] bg-gradient-to-b from-[#e74c3c] via-[#a30000] to-[#5c0000] bg-clip-text text-transparent">
         СМЕРТЬ

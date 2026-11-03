@@ -191,7 +191,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
             <div
               role="alert"
               title={`Критично: ${criticals.join(', ').toLowerCase()}`}
-              className="hidden md:flex items-center gap-1.5 rounded-sm border border-[#a30000]/70 bg-[#2a0d0d]/80 px-3 py-1.5 text-xs font-gothic uppercase tracking-wider text-[#e07a7a] animate-glow shrink-0"
+              className="hidden md:flex items-center gap-1.5 rounded-sm border border-[#a30000]/70 bg-[#2a0d0d]/80 px-3 py-1.5 text-xs font-gothic uppercase tracking-wider text-[#e07a7a] shrink-0"
             >
               <span aria-hidden="true">☠</span>
               {criticals.join(' • ')}

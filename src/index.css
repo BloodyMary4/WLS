@@ -776,23 +776,22 @@ p {
   border-color: rgba(232, 200, 90, 0.9) !important;
 }
 
-/* Тревожное красное свечение критических статус-баров */
-@keyframes dangerPulse {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
-  50% { filter: drop-shadow(0 0 9px rgba(239, 68, 68, 1)); }
-}
+/* Тревожное красное свечение критических статус-баров — СТАТИЧНО (v0.3.50):
+   бесконечный пульс полос превращал интерфейс в «мигающую гирлянду». */
 .wh-bar-fill-danger {
-  animation: dangerPulse 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.55));
 }
 
-/* Критическая плитка стата в шапке: красная рамка + мягкое тревожное свечение */
+/* Критическая плитка стата в шапке: красная рамка + ЕДИНОЖДЫ вспыхивает при
+   входе в критику (animation-iteration-count: 1), затем статична — v0.3.50 */
 .wh-stat-critical {
   border-color: rgba(163, 0, 0, 0.7) !important;
-  animation: statCriticalGlow 2.2s ease-in-out infinite;
+  box-shadow: 0 0 6px rgba(163, 0, 0, 0.35);
+  animation: statCriticalGlow 0.9s ease-out 1;
 }
 @keyframes statCriticalGlow {
-  0%, 100% { box-shadow: 0 0 4px rgba(163, 0, 0, 0.35); }
-  50% { box-shadow: 0 0 14px rgba(224, 122, 122, 0.5); }
+  0% { box-shadow: 0 0 16px rgba(224, 122, 122, 0.75); }
+  100% { box-shadow: 0 0 6px rgba(163, 0, 0, 0.35); }
 }
 @media (prefers-reduced-motion: reduce) {
   .wh-stat-critical { animation: none; }

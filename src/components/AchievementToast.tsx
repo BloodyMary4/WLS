@@ -36,7 +36,7 @@ export function AchievementToast({ achievementId }: AchievementToastProps) {
     >
       <div className="wh-panel wh-frame px-6 py-4 shadow-2xl backdrop-blur-sm border !border-[#c9a227]/70">
         <div className="flex items-center gap-4">
-          <div className="text-4xl animate-pulse shrink-0 drop-shadow-[0_0_12px_rgba(201,162,39,0.6)]">
+          <div className="text-4xl shrink-0 drop-shadow-[0_0_12px_rgba(201,162,39,0.6)]">
             {achievement.icon}
           </div>
           <div>
