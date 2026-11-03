@@ -14,6 +14,11 @@ export function CompanionsWindow({ npcs }: CompanionsWindowProps) {
     <WindowPane title="Встреченные души" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">{npcs.length}</span>}>
       <div className="space-y-1.5">
+        {npcs.length === 0 && (
+          <div className="text-[10px] text-gray-400 italic leading-snug">
+            Пока ты один — судьба ещё не сводила тебя ни с одной душой.
+          </div>
+        )}
         {npcs.slice(0, 8).map((npc) => (
           <div key={npc.id} className="rounded-sm border border-gray-700/50 bg-black/25 px-2 py-1.5">
             <div className="flex items-baseline justify-between gap-2">

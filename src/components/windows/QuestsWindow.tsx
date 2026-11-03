@@ -20,6 +20,11 @@ export function QuestsWindow({ quests }: QuestsWindowProps) {
     <WindowPane title="Испытания судьбы" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">{quests.length}</span>}>
       <div className="space-y-1.5">
+        {quests.length === 0 && (
+          <div className="text-[10px] text-gray-400 italic leading-snug">
+            Судьба молчит — активных испытаний пока нет.
+          </div>
+        )}
         {quests.map((quest) => (
           <div key={quest.id} className="rounded-sm border border-yellow-600/30 bg-black/25 px-2 py-1.5">
             <div className="text-xs font-bold text-wh-caution">{quest.name}</div>

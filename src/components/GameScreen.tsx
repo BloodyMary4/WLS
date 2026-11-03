@@ -123,12 +123,14 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             {(character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
               <InventoryWindow character={character} />
             )}
-            {(character.npcs.length > 0 || activeQuests.length > 0) && (
-              <div className="codex-pair">
-                {character.npcs.length > 0 ? <CompanionsWindow npcs={character.npcs} /> : <span className="codex-pair-fill" aria-hidden="true" />}
-                {activeQuests.length > 0 ? <QuestsWindow quests={activeQuests} /> : <span className="codex-pair-fill" aria-hidden="true" />}
-              </div>
-            )}
+            {/* v0.3.65: окна «Встреченные души» и «Испытания судьбы» видны
+                с самого начала игры (как «Снаряжение») — пустые состояния
+                показывают заглушку внутри окна. Идут плотной стопкой сверху
+                вниз до «Скрытых свойств», без растягивания и наложений. */}
+            <div className="codex-pair">
+              <CompanionsWindow npcs={character.npcs} />
+              <QuestsWindow quests={activeQuests} />
+            </div>
             <HiddenStatsWindow character={character} />
           </aside>
 
