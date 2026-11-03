@@ -1,7 +1,8 @@
 import { CharacterStats, GameEvent, Race } from './types';
 import { rng } from './rng';
 import { 
-  getHumanEvent, 
+  getHumanEvent,
+  getHumanLoreEvent, 
   getOrkEvent, 
   getEldarEvent, 
   getDarkEldarEvent, 
@@ -186,7 +187,12 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
     if (augEvent) return augEvent;
   }
   switch (character.race) {
-    case 'human': return getHumanEvent(age, character);
+    case 'human': {
+      // Лорное событие по типу планеты/контексту персонажа — живее шаблонных годовщин.
+      const lore = getHumanLoreEvent(age, character);
+      if (lore) return lore;
+      return getHumanEvent(age, character);
+    }
     case 'ork': return getOrkEvent(age, character);
     case 'eldar': return getEldarEvent(age, character);
     case 'dark_eldar': return getDarkEldarEvent(age, character);
