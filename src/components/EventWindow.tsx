@@ -22,8 +22,10 @@ interface EventWindowProps {
 }
 
 export function EventWindow({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventWindowProps) {
-  // v0.3.42: скролл в окне события отключён всегда (требование игрока).
-  // Счётчик строк текста события — подсказка объёма в шапке окна.
+  /* v0.3.45: окно события скроллится ВНУТРИ своей рамки — как и все окна
+     «мостика». Текст года печатается полным читаемым кеглем целиком; если
+     он длиннее окна — появляется золотой скроллбар внутри пергамента, а
+     кнопки выборов всегда остаются на виду внизу окна (fit-режим). */
   const [lines, setLines] = useState<number | null>(null);
 
   useEffect(() => {
@@ -45,7 +47,6 @@ export function EventWindow({ event, age, phase, resultText, lastChoice, lastDel
           {age} лет · М41.{String(age).padStart(3, '0')}
         </span>
       }
-      scroll={false}
       stretch
       className="animate-scale-in"
     >

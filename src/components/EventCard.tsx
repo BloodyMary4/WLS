@@ -123,12 +123,10 @@ function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number
 }
 
 /**
- * Пергамент с текстом события/исхода (v0.3.44, «документ»):
- * текст печатается полным читаемым кеглем (16px, Spectral) — без авторезки
- * и без line-clamp: весь текст виден ЦЕЛИКОМ сразу, как страница кодекса.
- * Блок занимает ровно столько вертикали, сколько нужно тексту; выборы идут
- * сразу под ним в потоке документа. Скролла НЕТ НИГДЕ: ни у текста, ни у
- * окна — если контент выше экрана, разрастается сам документ.
+ * Пергамент с текстом события/исхода (v0.3.45): текст печатается полным
+ * читаемым кеглем (16px, Spectral). Если текста больше, чем вмещает окно,
+ * пергамент прокручивается ВНУТРИ своей рамки (золотой скроллбар .wh-scroll) —
+ * он физически не может наползти на кнопки выборов или выйти за окно.
  */
 function EventParchment({ text, icon, extra, miracle }: {
   text: string;
@@ -141,9 +139,9 @@ function EventParchment({ text, icon, extra, miracle }: {
       className={`event-parchment wh-parchment-simple rounded-sm px-4 py-3 ${miracle ? 'wh-miracle' : ''}`}
       style={{ borderColor: miracle || icon === '⚔️' || icon === '🕊️' ? 'rgba(201,162,39,0.7)' : undefined }}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 flex-1 min-h-0">
         {icon && <span className="text-xl leading-none pt-0.5 shrink-0">{icon}</span>}
-        <p className="result-text font-event leading-relaxed text-[#e8d9b0] flex-1 min-w-0">
+        <p className="result-text font-event leading-relaxed text-[#e8d9b0] flex-1 min-w-0 event-body-scroll">
           {richText(text)}
         </p>
       </div>
@@ -153,17 +151,17 @@ function EventParchment({ text, icon, extra, miracle }: {
 }
 
 /** Центральная карточка события: текст года или результат выбора.
- *  v0.3.44 (окончательный редизайн): карточка — «документ» с ЕСТЕСТВЕННОЙ
- *  высотой и БЕЗ какого-либо скролла. Текст события/исхода печатается полным
- *  читаемым кеглем целиком, выборы идут сразу под ним в потоке. Если контент
- *  выше экрана — разрастается сам документ (страница), ничего не обрезается,
- *  не наползает и не прячется за полосами прокрутки. */
+ *  v0.3.45 (оконный layout): карточка живёт ВНУТРИ окна-иллюминатора и
+ *  занимает всю его высоту; если текста много — окно прокручивается само
+ *  (золотой скроллбар), кнопки выборов при этом всегда остаются доступными.
+ *  Текст печатается полным читаемым кеглем, ничего не обрезается и не
+ *  наползает: рамка окна держит границы, содержимое скроллится внутри. */
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   const isResult = phase === 'result' && lastChoice;
   return (
     <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col animate-parchment">
       {!isResult && (
-      <div className="event-head mb-2 shrink-0 min-h-0">
+      <div className="event-head mb-2 min-h-0">
         <div className="event-label-row flex items-center gap-2 mb-1.5">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
           <span className="font-gothic text-sm font-bold text-[#e07a7a] uppercase tracking-[0.18em] animate-candle">
@@ -199,9 +197,9 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </button>
         </div>
       ) : (
-        /* v0.3.43: выборы идут СРАЗУ под текстом события в потоке «документа» —
-           текст их физически не перекрывает; блок не прижимается к низу окна. */
-        <div className="choices-block min-h-0 space-y-2">
+        /* Блок выборов: в плотном fit-режиме прижат к низу окна (выборы всегда
+           на виду), в потоке страницы идёт сразу под текстом. */
+        <div className="choices-block min-h-0 space-y-2 lg:flex-1 lg:flex lg:flex-col">
           <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3">
             Твоё решение:
             <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}{event.choices.length <= 4 ? ' / A–D' : ''}</span>
