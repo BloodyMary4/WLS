@@ -895,39 +895,39 @@ p {
 }
 
 /* Карточка события внутри окна (все ширины): растягивается на всю высоту контента */
-.wh-event-card.min-h-full { height: 100%; }
+.wh-event-card.min-h-full { height: auto; }
 
-/* ===== v0.3.43: «Документ» — текст события и выборы в общем потоке =====
-   Правила оформления: информация должна читаться ЦЕЛИКОМ и не накладываться
-   на другие элементы. Карточка события теперь ведёт себя как документ:
-   пергамент с текстом занимает ровно столько места, сколько нужно тексту
-   (полный кегль 16px), выборы идут сразу под ним. Если контент выше окна —
-   скроллится только пергамент (золотой скроллбар .wh-scroll), кнопки выборов
-   прижаты к низу окна и всегда видны. Никакого наползания текста на кнопки
-   больше физически невозможно: все блоки ограничены flex-раскладкой окна. */
+/* ===== v0.3.44: «Документ» — вся информация окна видна ЦЕЛИКОМ =====
+   Твои правила внешнего вида: интерфейс обязан показывать информацию
+   полностью и читаемо. Поэтому карточка события ведёт себя как страница
+   кодекса: пергамент с текстом занимает ровно столько места, сколько
+   нужно тексту полным читаемым кеглем (16px), выборы идут сразу под ним.
+   НИКАКОГО внутреннего скролла у текста больше нет (он был источником
+   «не видно / не читается»). Если контент выше экрана — разрастается сам
+   документ, а страницу можно прокрутить целиком; ничего не обрезается
+   молча и не наползает на соседние панели. */
 .wh-event-card { display: flex; flex-direction: column; min-height: 0; }
-.wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; }
 .wh-event-card .event-parchment {
-  min-height: 0;
-  max-height: 100%;
-  overflow-y: auto;
+  overflow: visible;
   overflow-x: hidden;
 }
 .wh-event-card .result-text { font-size: 16px; line-height: 1.55; }
-.wh-event-card .result-block { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
-.wh-event-card .result-block .event-parchment { flex: 1 1 auto; }
-/* Блок «Твоё решение»: кнопки в потоке после текста; если окно короткое —
-   блок не сжимается и не перекрывается (flex-shrink:0 + собственная прокрутка). */
+.wh-event-card .result-block { display: flex; flex-direction: column; min-height: 0; }
+/* Блок «Твоё решение»: кнопки в потоке сразу после текста. */
 .wh-event-card .choices-block { overflow: visible; min-height: 0; flex-shrink: 0; }
-.game-container:not(.game-fit) .wh-event-card .result-block { max-height: 100%; }
 
 @media (min-width: 1024px) and (min-height: 640px) {
-  /* Сетка тянется на всю высоту main; колонки не выходят за вьюпорт */
-  .game-fit .fit-grid > .fit-col { height: 100%; }
-  .game-fit .wh-event-card { min-height: 0; height: 100%; }
-  .game-fit .wh-event-card .event-head { min-height: 0; flex: 1 1 auto; }
-  .game-fit .wh-event-card .event-parchment { max-height: none; min-height: 0; }
-  .game-fit .wh-event-card .choices-block { flex-shrink: 0; }
+  /* Сетка-мостик: колонки делят экран, но окно события НЕ режет контент —
+     ячейка растёт вместе с документом, страница прокручивается целиком. */
+  .game-fit .fit-grid > .fit-col { height: auto; min-height: 100%; }
+  .game-fit .fit-grid { align-items: start; }
+  .game-fit > main { overflow-y: auto; }
+  .game-fit .wh-window[aria-label="Событие года"],
+  .game-fit .wh-window[aria-label="Исход решения"] { height: auto; }
+  .game-fit .wh-window[aria-label="Событие года"] > div,
+  .game-fit .wh-window[aria-label="Исход решения"] > div { overflow: visible; }
+  .game-fit .wh-event-card { min-height: 0; height: auto; }
   .game-fit .wh-event-card .choice-btn { padding: 0.5rem 0.8rem; min-height: 48px; }
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
 }
@@ -988,6 +988,6 @@ p {
    внутри себя; дополнительные окна (души/квесты/снаряжение/галактика)
    делят нижнюю зону. Ничего не растягивается контентом и не схлопывается. */
 .codex-grid { display: grid; grid-template-columns: 1fr; gap: 8px; min-height: 0; }
-.game-fit .codex-grid { grid-template-rows: auto auto minmax(150px, 1fr); height: 100%; overflow: hidden; }
+.game-fit .codex-grid { grid-template-rows: auto auto minmax(150px, 1fr); height: 100%; overflow: visible; }
 .game-container:not(.game-fit) .codex-grid { grid-auto-rows: min-content; }
 .game-container:not(.game-fit) .codex-grid > .wh-window { min-height: 120px; }

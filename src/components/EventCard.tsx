@@ -138,7 +138,7 @@ function EventParchment({ text, icon, extra, miracle }: {
 }) {
   return (
     <div
-      className={`event-parchment wh-parchment-simple wh-scroll rounded-sm px-4 py-3 ${miracle ? 'wh-miracle' : ''}`}
+      className={`event-parchment wh-parchment-simple rounded-sm px-4 py-3 ${miracle ? 'wh-miracle' : ''}`}
       style={{ borderColor: miracle || icon === '⚔️' || icon === '🕊️' ? 'rgba(201,162,39,0.7)' : undefined }}
     >
       <div className="flex items-start gap-3">
@@ -161,7 +161,7 @@ function EventParchment({ text, icon, extra, miracle }: {
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
   const isResult = phase === 'result' && lastChoice;
   return (
-    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col min-h-full animate-parchment">
+    <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col animate-parchment">
       {!isResult && (
       <div className="event-head mb-2 shrink-0 min-h-0">
         <div className="event-label-row flex items-center gap-2 mb-1.5">

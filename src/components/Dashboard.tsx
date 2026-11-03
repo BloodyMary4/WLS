@@ -25,7 +25,8 @@ interface WindowPaneProps {
  *  v0.3.43: параметр scroll оставлен для совместимости — теперь ВСЕ окна
  *  показывают контент полностью (прокрутка внутри окна при переполнении),
  *  ничего не обрезается молча. */
-export function WindowPane({ title, icon, extra, children, className = '', stretch = false }: WindowPaneProps) {
+export function WindowPane({ title, icon, extra, children, className = '', stretch = false, scroll = true }: WindowPaneProps) {
+  const noScroll = scroll === false;
   return (
     <section
       className={`wh-window flex flex-col min-h-0 overflow-hidden ${stretch ? 'h-full' : ''} ${className}`}
@@ -42,7 +43,11 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
           (scroll={false}) НЕ скроллится никогда — контент сам разрастается
           («документ»), поэтому информация нигде не прячется за полосами
           прокрутки и не наползает на соседние панели. */}
-      <div className={`flex-1 min-h-[160px] p-2 ${noScroll ? '' : 'overflow-y-auto wh-scroll'}`}>{children}</div>
+      {/* v0.3.44: контент окна всегда виден ЦЕЛИКОМ. Окно тянется на всю
+          ячейку сетки, но никогда не обрезает содержимое молча: при
+          переполнении показывается тонкий золотой скроллбар (wh-scroll),
+          а в окне события — контент разрастается сам («документ»). */}
+      <div className={`flex-1 min-h-[160px] p-2 ${noScroll ? '' : 'overflow-y-auto wh-scroll overscroll-contain'}`}>{children}</div>
     </section>
   );
 }
