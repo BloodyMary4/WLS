@@ -240,3 +240,9 @@
 - Шанс микро-событий: вес / MICRO_EVENTS.TRIGGER_DIVISOR (без магического *2).
 - Достижение за 2+ чуда «Император защищает» (intercessionCount).
 - Тег v0.3.0 → GitHub Actions Desktop Build собирает Windows setup.exe + portable.exe и публикует GitHub Release.
+
+## v0.3.45–v0.3.46 (2026-11-03)
+- v0.3.45 (9f662a1e): окно события года — контент строго внутри рамки, текст 16px, кнопки выборов всегда видны. ВНИМАНИЕ: GitHub Pages закэшировал index.html со СТАРЫМ бандлом (index-BmpD9V80.js) — CSS/JS на CDN уже новые (cmp IDENTICAL), но HTML не переиздан.
+- v0.3.46 (8f8e811e): ротация версии для принудительной пересборки; деплой success, но index.html всё ещё отдаёт старый BmpD9V80 (кэш Pages).
+- ПРИЧИНА «не видно изменений»: браузер пользователя грузит index-BmpD9V80.js из-за кэша index.html на fastly. Лечится Ctrl+F5 либо ждать инвалидации CDN.
+- Desktop Build отменён по правилу (cancel через API).
