@@ -1363,13 +1363,21 @@ p {
 .game-fit .left-column > section.wh-window:not([aria-label="Хроника жизни"]) .wh-window-body {
   min-height: 0;
 }
-.game-container:not(.game-fit) .left-column > .bridge-chronicle > section[aria-label="Хроника жизни"],
-.game-container:not(.game-fit) .left-column .codex-pair > .wh-window {
+.game-container:not(.game-fit) .left-column > .bridge-chronicle > section[aria-label="Хроника жизни"] {
   height: auto !important;
   min-height: 140px;
   max-height: 320px;
 }
-.game-container:not(.game-fit) .left-column .codex-pair > .wh-window { overflow-y: auto; }
+/* v0.3.66: «Встреченные души» и «Испытания судьбы» — полноценные окна в
+   потоке левой колонки (как «Снаряжение»), а не тесная пара-сетка: раньше
+   из-за .codex-pair они сжимались в маленькие окошки между Снаряжением и
+   Скрытыми свойствами. Теперь у каждого своя строка колонки, содержимое
+   показывается целиком по высоте контента (скролл внутри при переполнении). */
+.game-container:not(.game-fit) .left-column > section[aria-label="Встреченные души"],
+.game-container:not(.game-fit) .left-column > section[aria-label="Испытания судьбы"] {
+  height: auto;
+  flex: 0 0 auto;
+}
 @media (max-width: 1023px) {
   .left-column > .codex-pair { grid-template-columns: 1fr; }
 }
