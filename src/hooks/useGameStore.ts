@@ -89,7 +89,15 @@ export function useGameStore() {
     }
   };
 
-  const handleChoice = (choice: GameUiState['lastChoice'] & {}) => dispatchTracked({ type: 'CHOOSE', choice });
+  const handleChoice = (choice: GameUiState['lastChoice'] & {}) => {
+    dispatchTracked({ type: 'CHOOSE', choice });
+    // v0.3.41: после клика по выбору окно события перематывается к началу —
+    // игрок сразу видит «Исход решения» сверху, а не остаётся прокрученным
+    // к нижней кнопке списка выборов.
+    if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { /* no-op */ }
+    }
+  };
   const proceedToNextYear = () => dispatchTracked({ type: 'PROCEED_TO_NEXT_YEAR' });
   const startNewGame = (seedStr?: string, race?: Race) => dispatchTracked({ type: 'START_NEW_GAME', seedStr, race });
 

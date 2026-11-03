@@ -132,7 +132,12 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
   return (
     <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col min-h-full animate-parchment">
       {!isResult && (
-      <div className="event-head mb-2">
+      /* v0.3.41: текст года — фиксированная полоса (shrink-0), выборы —
+         отдельная скроллящаяся область ниже. Раньше пергамент события имел
+         flex:1 и при длинном тексте съедал почти всю высоту окна: кнопки
+         выборов уезжали за нижнюю рамку, и чтобы их нажать, приходилось
+         крутить колесо вслепую («выборы делать неудобно»). */
+      <div className="event-head mb-2 shrink-0 min-h-0">
         <div className="event-label-row flex items-center gap-2 mb-1.5">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
           <span className="font-gothic text-sm font-bold text-[#e07a7a] uppercase tracking-[0.18em] animate-candle">
@@ -181,11 +186,14 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
       ) : (
         /* v0.3.40: блок выборов скроллится внутри окна, если не умещается —
            раньше при низком окне кнопки выходили за нижнюю рамку и обрезались
-           overflow-hidden'ом WindowPane (информация «уходила» за пределы). */
-        <div className="choices-block flex-1 min-h-0 overflow-y-auto space-y-2 mt-auto wh-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#8b6914 rgba(10,10,10,.6)' }}>
+           overflow-hidden'ом WindowPane (информация «уходила» за пределы).
+           v0.3.41: padding-bottom 44px — под кнопками всегда остаётся чистое
+           место: полоса прокрутки окна больше не перекрывает нижний выбор,
+           последняя кнопка гарантированно доступна клику целиком. */
+        <div className="choices-block flex-1 min-h-0 overflow-y-auto space-y-2 mt-auto wh-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#8b6914 rgba(10,10,10,.6)', paddingBottom: '44px' }}>
           <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg, rgba(24,21,14,0.98) 70%, rgba(24,21,14,0))', padding: '2px 0 6px' }}>
             Твоё решение:
-            <span className="hidden lg:inline text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–4 / A–D</span>
+            <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}{event.choices.length <= 4 ? ' / A–D' : ''}</span>
           </p>
           {event.choices.map((choice, index) => {
             const mark = choiceRiskMark(choice.effects);

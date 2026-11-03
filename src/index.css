@@ -959,6 +959,23 @@ p {
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
 }
 
+/* ===== v0.3.41: выборы в окне «Событие года» — удобные и всегда доступные =====
+   Текст года — фиксированная полоса сверху (не больше половины окна), область
+   выборов скроллится под ней целиком. Раньше пергамент имел flex:1 и при
+   длинном тексте съедал всю высоту: кнопки уезжали за нижнюю рамку окна, и
+   выбор можно было нажать только колесом вслепую. */
+.wh-event-card .event-head { flex: 0 1 auto; }
+.wh-event-card .event-parchment { max-height: 38vh; }
+.game-fit .wh-event-card .event-head { flex: 0 1 auto; }
+.game-fit .wh-event-card .event-parchment { max-height: none; height: min(100%, calc(50vh - 170px)); }
+/* Крупные тач-кнопки выборов: весь текст видим (без обрезки в 2 строки),
+   увеличенные отступы — попадать мышью/пальцем легче. */
+.wh-event-card .choice-btn { padding: 0.6rem 0.9rem; }
+.wh-event-card .choice-text { font-size: 15px; line-height: 1.4; }
+@media (min-width: 1024px) and (min-height: 640px) {
+  .game-fit .wh-event-card .choice-btn { padding: 0.6rem 0.9rem; min-height: 48px; }
+}
+
 /* ===== v0.3.29: «Кодекс» — плотная стопка окон-карточек левого отсека ===== */
 .wh-window-closed { border-bottom-width: 1px; }
 .wh-window-closed .wh-window-head { border-bottom: none; }
