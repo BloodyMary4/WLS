@@ -256,3 +256,8 @@
 - Текст года и исход решения — 16px Spectral, скролл ВНУТРИ пергамента (.event-scroll/.result-text + золотой .wh-scroll).
 - choice-btn стилизованы в CSS (металлик-градиент, hover-свечение золота) вместо inline-tailwind-классов.
 - typecheck ✅, 240/240 тестов ✅, build ✅ (index-DcS86cpV.js / index-Bc0RQ92F.css).
+
+## v0.3.48 — задеплоено ✅ (коммит 7841c4c1, тег v0.3.48)
+- Deploy success; живой сайт отдаёт index-C-JYnjlq.js + index-Bc0RQ92F.css (CI пересобирает с base=/WLS/, имена бандлов отличаются от локальных dist/ — это нормально).
+- Проверено на живом CDN: choices-title/sticky панель выборов, event-scroll (скролл текста внутри пергамента), новые choice-btn (уголь+золото+кровавая кромка) — все правила присутствуют байт-в-байт.
+- Лишний Desktop Build отменён по правилу пользователя.
