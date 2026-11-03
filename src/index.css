@@ -1319,3 +1319,114 @@ p {
    без наложений (position:absolute нигде нет). */
 .game-container:not(.game-fit) .left-column > section.wh-window { margin-bottom: 0; }
 
+/* ===== v0.3.62 «Готическое железо»: чисто графические улучшения окон =====
+   Компонуктовка НЕ тронута — только оформление: кованые шапки окон с
+   заклёпками, готическая арочная скобка у центрального события,
+   аксис-маркер вместо засечки, тиснёные разделители, латунные уголки. */
+
+/* Тонкая латунь для рамок и уголков — новый переменный акцент палитры */
+:root { --wh-brass: #d9b64a; }
+
+/* Шапка окна — полоса потемневшего железа с золотой заклёпкой справа */
+.wh-window-head {
+  background: linear-gradient(180deg, rgba(56, 47, 30, 0.92) 0%, rgba(28, 24, 15, 0.95) 100%);
+  box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+}
+/* Заклёпка по правому краю шапки */
+.wh-window-head::after {
+  content: '';
+  position: absolute;
+  right: 8px; top: 50%;
+  width: 5px; height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e8c96a 0%, #8b6914 60%, #3a2f14 100%);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+/* Маркер шапки — золотая аксис-засечка (молот Императора): вертикальный
+   стержень с перекладиной, вписан в левый край каждой шапки окна */
+.wh-window-head::before {
+  content: '';
+  left: 7px; top: 22%; bottom: 22%;
+  width: 2px;
+  transform: none;
+  background: linear-gradient(180deg, rgba(232, 201, 106, 0.95), rgba(139, 105, 20, 0.35));
+  box-shadow: 0 0 4px rgba(201, 162, 39, 0.4);
+}
+/* Перекладина аксиса */
+.wh-window-head h3 { position: relative; margin-left: 4px; }
+.wh-window-head h3::before {
+  content: '';
+  position: absolute;
+  left: -8px; top: 45%;
+  width: 8px; height: 2px;
+  background: linear-gradient(90deg, rgba(232, 201, 106, 0.9), rgba(232, 201, 106, 0.2));
+}
+
+/* Латунные уголки-скобы на всех железных окнах (крюк — .wh-window) */
+.wh-window::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(135deg, transparent 5px, rgba(217, 182, 74, 0.5) 5px, rgba(217, 182, 74, 0.5) 6px, transparent 6px),
+    linear-gradient(-45deg, transparent 5px, rgba(217, 182, 74, 0.5) 5px, rgba(217, 182, 74, 0.5) 6px, transparent 6px),
+    linear-gradient(45deg, transparent 5px, rgba(217, 182, 74, 0.35) 5px, rgba(217, 182, 74, 0.35) 6px, transparent 6px),
+    linear-gradient(-135deg, transparent 5px, rgba(217, 182, 74, 0.35) 5px, rgba(217, 182, 74, 0.35) 6px, transparent 6px);
+  background-size: 12px 12px;
+  background-repeat: no-repeat;
+  background-position: top left, top right, bottom left, bottom right;
+}
+.wh-window { position: relative; }
+
+/* Готическая арочная скобка сверху окна события (центральный иллюминатор) */
+section[aria-label="Событие года"]::after,
+section[aria-label="Исход решения"]::after {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 64px; height: 10px;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  border-bottom: none;
+  border-radius: 32px 32px 0 0;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.16), rgba(201, 162, 39, 0));
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Тиснёная золотая линия под шапкой вместо плоского бордера */
+.wh-window-head {
+  border-bottom: 1px solid rgba(201, 162, 39, 0.45) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Лёгкая коррозия по углам железных окон — едва заметная ржавая дымка */
+.wh-window {
+  background-image:
+    radial-gradient(ellipse 90px 60px at 0% 100%, rgba(110, 54, 18, 0.10), transparent 70%),
+    radial-gradient(ellipse 90px 60px at 100% 0%, rgba(110, 54, 18, 0.08), transparent 70%),
+    linear-gradient(180deg, rgba(27, 24, 17, 0.96) 0%, rgba(15, 13, 9, 0.97) 100%);
+}
+
+/* Хроника жизни: записи ленты разделяются тонкой золотистой риской */
+.wh-chronicle > * + * {
+  border-top: 1px solid rgba(201, 162, 39, 0.10);
+}
+
+/* Кнопки выборов А–Г: фаска-блиска сверху и тиснёный текст поверх стали */
+.wh-event-card .choice-btn {
+  box-shadow: inset 0 1px 0 rgba(232, 201, 106, 0.14), inset 0 -2px 5px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+.wh-event-card .choice-btn:hover,
+.wh-event-card .choice-btn:focus-visible {
+  border-color: rgba(232, 201, 106, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wh-window-head::before { animation: none; }
+}
+
