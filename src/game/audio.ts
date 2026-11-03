@@ -7,8 +7,15 @@ export class GrimdarkAmbience {
   private lfoGain: GainNode | null = null;
   private noiseNode: AudioBufferSourceNode | null = null;
   private noiseGain: GainNode | null = null;
+  // Буферные источники слоёв «ветер» и «шёпоты» — раньше не сохранялись и не
+  // останавливались в stop(): при выкл/вкл музыки старые слои оставались
+  // играть поверх новых → дублирование звука.
+  private windNode: AudioBufferSourceNode | null = null;
+  private whisperNode: AudioBufferSourceNode | null = null;
   /** Слой «хор шёпотов» (см. createWhisperLayer) — громкость зависит от настроения */
   private whisperGainNode: GainNode | null = null;
+  /** true, когда игрок сам выключил музыку кнопкой — автозапуск от жестов не должен её включать */
+  private userPaused = false;
   // Ссылка на bandpass-фильтр шумового слоя — чтобы mood-переходы могли
   // сдвигать тембр «гула улья» (danger = выше и резче, normal = ниже и мягче).
   private noiseFilter: BiquadFilterNode | null = null;
@@ -41,15 +48,31 @@ export class GrimdarkAmbience {
     this.volume = saved <= 0 ? 0.55 : Math.max(0.1, saved);
   }
 
+  /**
+   * Разблокировать AudioContext для ОДНОРАЗОВЫХ звуков (колокол года, клики)
+   * из обработчика реального пользовательского жеста. Фоновую музыку НЕ
+   * запускает — она управляется только кнопкой вкл/выкл (v0.3.69).
+   */
+  resumeContextOnly(): void {
+    if (!this.init()) return;
+    const ctx = this.audioContext;
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => { /* попробуем при следующем жесте */ });
+    }
+  }
+
   // Универсальная разблокировка звука: вызывать из обработчиков реальных
   // пользовательских жестов (клик/нажатие клавиши). Идемпотентно.
+  // v0.3.69: если игрок сам выключил музыку кнопкой (userPaused) — жесты её
+  // больше НЕ включают. Музыка управляется только кнопкой вкл/выкл.
   unlockOnUserGesture(): void {
+    if (this.userPaused) return;
     if (!this.init()) return;
     const ctx = this.audioContext;
     if (!ctx) return;
     if (ctx.state === 'suspended') {
       ctx.resume().then(() => {
-        if (!this.isPlaying) this.start();
+        if (!this.isPlaying && !this.userPaused) this.start();
       }).catch(() => { /* попробуем при следующем жесте */ });
     } else if (!this.isPlaying) {
       this.start();
@@ -101,10 +124,11 @@ export class GrimdarkAmbience {
 
   private armGestureAutostart() {
     if (typeof window === 'undefined' || this.pendingGestureStart) return;
+    if (this.userPaused) return; // игрок выключил музыку — не включаем её жестами
     this.pendingGestureStart = true;
     this.gestureListener = () => {
       this.disarmGestureAutostart();
-      if (!this.isPlaying) {
+      if (!this.isPlaying && !this.userPaused) {
         this.start();
       }
     };
@@ -123,6 +147,8 @@ export class GrimdarkAmbience {
 
   start() {
     if (this.isPlaying) return;
+    // v0.3.69: игрок явно выключил музыку кнопкой — не стартуем сами.
+    if (this.userPaused) return;
 
     this.init();
 
@@ -396,6 +422,7 @@ export class GrimdarkAmbience {
     windGain.connect(this.masterGain);
 
     windNode.start();
+    this.windNode = windNode;
     this.oscillators.push(windLfo, panLfo);
   }
 
@@ -439,6 +466,7 @@ export class GrimdarkAmbience {
     this.whisperGainNode = whisperGain;
 
     whisperNode.start();
+    this.whisperNode = whisperNode;
     this.oscillators.push(whisperLfo);
   }
 
@@ -1727,14 +1755,30 @@ export class GrimdarkAmbience {
     }
     this.noiseGain = null;
 
+    // v0.3.69: останавливаем и слои «ветер»/«шёпоты» — раньше они продолжали
+    // играть после stop(), и каждый вкл/выкл добавлял новый слой поверх
+    // старых → звук дублировался.
+    if (this.windNode) {
+      try { this.windNode.stop(); } catch (e) { /* */ }
+      this.windNode = null;
+    }
+    if (this.whisperNode) {
+      try { this.whisperNode.stop(); } catch (e) { /* */ }
+      this.whisperNode = null;
+    }
+
     this.whisperGainNode = null;
   }
 
   toggle(): boolean {
     if (this.isPlaying) {
+      // Игрок выключил музыку кнопкой — запоминаем это, чтобы автозапуск от
+      // жестов пользователя не включал её обратно.
+      this.userPaused = true;
       this.stop();
       return false;
     } else {
+      this.userPaused = false;
       if (!this.audioContext) {
         this.init();
       }

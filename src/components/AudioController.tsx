@@ -20,22 +20,13 @@ export function AudioController() {
     setTimeout(() => setIsPlaying(ambience.getIsPlaying()), 0);
   }, [ambience]);
 
-  // Звуки событий/достижений тоже требуют «разблокированного» контекста —
-  // при первом жесте пользователя стартуем фоновую музыку, если она не играет.
-  useEffect(() => {
-    const unlock = () => {
-      ambience.unlockOnUserGesture();
-      syncStatus();
-    };
-    window.addEventListener('pointerdown', unlock);
-    window.addEventListener('keydown', unlock);
-    return () => {
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
-    };
-  }, [ambience, syncStatus]);
-
+  // Звуки событий/достижений тоже требуют «разблокированного» контекста, но
+  // фоновую музыку мы больше НЕ включаем автоматически по любому клику —
+  // только через кнопку вкл/выкл (по просьбе игрока, v0.3.69).
   const handleToggle = useCallback(() => {
+    // Кнопка находится внутри обработчика pointerdown на window — если не
+    // остановить всплытие, unlockAudio-эффект хода мог бы перехватить этот же
+    // клик и включить музыку сразу после выключения.
     const playing = ambience.toggle();
     setIsPlaying(playing);
     if (playing) {

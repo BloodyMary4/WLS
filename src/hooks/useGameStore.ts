@@ -27,7 +27,10 @@ function runEffects(effects: GameEffect[], stateRef: React.MutableRefObject<Game
   for (const fx of effects) {
     switch (fx.kind) {
       case 'unlockAudio':
-        ambience.unlockOnUserGesture();
+        // v0.3.69: эффект приходит при каждом ходе игры — теперь он только
+        // разблокирует контекст для звуковых сигналов, но НЕ включает фоновую
+        // музыку автоматически (музыка — только кнопкой).
+        ambience.resumeContextOnly();
         break;
       case 'setMood':
         ambience.setMood(fx.mood);
