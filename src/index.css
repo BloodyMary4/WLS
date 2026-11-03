@@ -1081,6 +1081,23 @@ p {
   .game-fit .wh-event-card .choices-block { flex: 0 1 auto; max-height: 45%; }
   .game-fit .wh-event-card .choice-btn { padding: 0.5rem 0.8rem; min-height: 48px; }
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
+
+  /* v0.3.57 «Компоновка по краям» (fit): каждое окно стоит на своём месте,
+     не в притирку; всё видно сразу без прокрутки страницы.
+     Хроника (крайний левый отсек) тянется на всю высоту и скроллит только
+     свою ленту; все окна левого отсека — плотные полосы по содержимому;
+     центральное окно события делит высоту с компактным «Прогрессом жизни». */
+  .game-fit .codex-grid { gap: 10px; }
+  /* v0.3.57: в лево-среднем отсеке ВСЕ окна — плотные полосы по содержимому,
+     «Скрытые свойства» НЕ тянется на остаток (иначе разрывалась колонка);
+     лишняя высота отсека остаётся свободной — окна стоят на своих местах. */
+  .game-fit .codex-grid > .wh-window { flex: 0 0 auto; }
+  .game-fit .codex-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* В узких отсеках (хроника 2/12, кодекс 3/12) пары складываются столбиком,
+     чтобы показания читались целиком. */
+  .game-fit .lg\:col-span-2 .codex-pair,
+  .game-fit .lg\:col-span-3 .codex-pair { grid-template-columns: 1fr; }
+  .game-fit .wh-window { box-shadow: inset 0 0 18px rgba(0,0,0,.45), 0 3px 10px rgba(0,0,0,.55); }
 }
 
 /* Крупные тач-кнопки выборов: весь текст видим, металлические акценты. */
@@ -1179,21 +1196,18 @@ p {
    скроллит шкалы внутри себя — колонка целиком НЕ прокручивается, всё
    видно сразу. */
 .game-fit .codex-grid { grid-template-rows: none; grid-auto-rows: min-content; align-content: start; overflow-y: hidden; }
-.game-fit .codex-grid > section[aria-label="Скрытые свойства"] { grid-row: span 1; min-height: 140px; flex: 1 1 auto; }
 
 /* ===== v0.3.55 «Вахтенная компоновка»: всё на экране сразу =====
    На широких экранах левый отсек делится на фиксированные полосы:
    Досье и Снабжение+Галактика — по содержимому, «Скрытые свойства» —
    растягивающаяся полоса с внутренним скроллом шкал. Парные окна
-   стоят бок о бок в одной полосе и равны по высоте. Правый отсек:
-   хроника ~72%, «Прогресс жизни» — компактное окно внизу. */
-.codex-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; min-width: 0; }
+   стоят бок о бок в одной полосе и равны по высоте. */
+/* Пары окон стоят бок о бок только в широких отсеках (центр/левый при
+   полной ширине); в узких колонках (2–3 из 12) окна складываются столбиком,
+   чтобы текст не резался. */
+.codex-pair { display: grid; grid-template-columns: 1fr; gap: 8px; min-width: 0; }
 .codex-pair > .wh-window { min-width: 0; margin-bottom: 0; }
 .codex-pair-fill { display: none; }
-@media (min-width: 1024px) and (min-height: 640px) {
-  /* Одна колонка левого отсека слишком узка для пары — складываем в столбик */
-  .game-fit .codex-pair:not(:has(~ .codex-pair-fill)) { grid-template-columns: 1fr; }
-}
 .game-container:not(.game-fit) .codex-pair { grid-template-columns: 1fr; }
 .game-container:not(.game-fit) .codex-pair > .wh-window { min-height: 120px; }
 /* Хроника тянется, прогресс — компактная полоса снизу (оба режима) */

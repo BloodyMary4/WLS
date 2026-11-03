@@ -92,10 +92,21 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
     <main className={`flex-1 ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
       <div className={`mx-auto w-full max-w-[1700px] px-2 xl:px-3 ${fit ? 'h-full' : ''}`}>
         <div className={`fit-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
-          {/* Левый отсек (v0.3.55): три полосы фиксированной высоты —
-              Досье / Снабжение+Галактика в паре бок о бок / Скрытые свойства.
-              Всё умещается на экране сразу без прокрутки колонки;
-              дополнительные окна делят нижнюю зону двумя рядами. */}
+          {/* Крайний левый отсек (v0.3.57): ХРОНИКА ЖИЗНИ — узкое боковое
+              окно у левого края экрана, тянется на всю высоту и скроллится
+              только внутри себя. */}
+          <div className="lg:col-span-2 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
+            <ChroniclePanel
+              history={history}
+              logRef={logRef}
+              chroniclePinned={chroniclePinned}
+              onJumpToLatest={jumpToLatest}
+            />
+          </div>
+
+          {/* Левый отсек (v0.3.57): сверху Досье, ПОД НИМ — все остальные
+              окна (Снабжение+Галактика в паре, Скрытые свойства, компаньоны,
+              квесты, инвентарь). Каждое окно на своём месте, не в притирку. */}
           <div className="lg:col-span-3 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
             <div className="codex-grid flex-1 min-h-0">
               <DossierWindow character={character} raceInfo={raceInfo} />
@@ -124,21 +135,9 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             </div>
           </div>
 
-          {/* Центр: главное окно события — решения всегда на экране */}
-          <div className="lg:col-span-6 md:col-span-1 col-span-1 fit-col gap-1.5 min-h-0">
+          {/* Центр: главное окно события + панель прогресса жизни */}
+          <div className="lg:col-span-7 md:col-span-2 col-span-1 fit-col gap-1.5 min-h-0">
             {center}
-          </div>
-
-          {/* Правый отсек (v0.3.55): хроника занимает верх ~70% высоты,
-              «Прогресс жизни» — отдельное аккуратное окно внизу вместо
-              тонкой строки футера; обе ленты скроллятся только внутри себя. */}
-          <div className="lg:col-span-3 md:col-span-2 col-span-1 fit-col animate-slide-in-right min-h-0">
-            <ChroniclePanel
-              history={history}
-              logRef={logRef}
-              chroniclePinned={chroniclePinned}
-              onJumpToLatest={jumpToLatest}
-            />
             <section className="wh-window shrink-0" aria-label="Прогресс жизни">
               <header className="wh-window-head flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
                 <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Прогресс жизни</h3>
