@@ -119,14 +119,12 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
               <p
                 key={`${chronicleFilter}-${i}`}
                 title={text}
-                className={`text-xs leading-snug border-l-2 pl-2.5 py-0.5 transition-colors animate-fade-in ${
-                  isFate
-                    ? 'border-l-[#d4af37] text-[#e8d9a0] italic'
-                    : 'border-yellow-600/50 text-gray-400 hover:border-yellow-500'
+                className={`wh-chron-entry text-xs leading-snug pl-2.5 py-0.5 transition-colors animate-fade-in ${
+                  isFate ? 'wh-chron-entry-fate' : ''
                 }`}
               >
                 {isFate && (
-                  <span aria-hidden="true" className="mr-1 text-[#d4af37]" title="Судьбоносный выбор">🏵</span>
+                  <span aria-hidden="true" className="wh-chron-seal" title="Судьбоносный выбор"></span>
                 )}
                 {text}
               </p>
