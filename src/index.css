@@ -1210,7 +1210,31 @@ p {
 .codex-pair-fill { display: none; }
 .game-container:not(.game-fit) .codex-pair { grid-template-columns: 1fr; }
 .game-container:not(.game-fit) .codex-pair > .wh-window { min-height: 120px; }
-/* Хроника тянется, прогресс — компактная полоса снизу (оба режима) */
+/* ===== v0.3.58 «Лист CHARACTER» (по мотивам Pathfinder/D&D sheet) =====
+   Ровная трёхзонная компоновка на весь экран: левый отсек — структурированный
+   лист персонажа (Досье → Снабжение+Галактика парой → Скрытые свойства),
+   где шкалы свойств растягиваются на остаток высоты и скроллятся ВНУТРИ окна;
+   центр — событие на всю высоту с выборами А–Г, всегда видимыми внизу.
+   Никакой прокрутки страницы и никаких пустых дыр в колонках. */
+/* Хроника тянется на всю высоту своей колонки, «Прогресс жизни» —
+   компактная приборная полоса под ней (оба режима). */
 .fit-col > .wh-chronicle-wrap,
 .fit-col > section[aria-label="Хроника жизни"] { flex: 1 1 auto; min-height: 0; }
 .fit-col > section[aria-label="Прогресс жизни"] { flex: 0 0 auto; }
+.codex-sheet { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.game-fit .codex-sheet > .wh-window { flex: 0 0 auto; }
+.game-fit .codex-sheet > .codex-pair { flex: 0 0 auto; }
+
+/* «Скрытые свойства» — последняя полоса отсека: занимает всё оставшееся
+   пространство колонки, шкалы скроллятся только внутри него. */
+.game-fit .codex-sheet > section[aria-label="Скрытые свойства"] {
+  flex: 1 1 auto; min-height: 0; overflow: hidden;
+}
+.game-fit .codex-sheet > section[aria-label="Скрытые свойства"] > div {
+  min-height: 0; height: auto; flex: 1 1 auto;
+}
+@media (min-width: 1280px) {
+  /* В широком отсеке (3/12 при 1700px ≈ 400px) пара стоит бок о бок */
+  .game-fit .codex-sheet > .codex-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+

@@ -95,20 +95,46 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
           {/* Крайний левый отсек (v0.3.57): ХРОНИКА ЖИЗНИ — узкое боковое
               окно у левого края экрана, тянется на всю высоту и скроллится
               только внутри себя. */}
-          <div className="lg:col-span-2 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
+          <div className="lg:col-span-2 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0 gap-2">
             <ChroniclePanel
               history={history}
               logRef={logRef}
               chroniclePinned={chroniclePinned}
               onJumpToLatest={jumpToLatest}
             />
+            {/* v0.3.58: компактная приборная полоса «Прогресс жизни» — под
+                хроникой, у левого края; событие в центре занимает всю высоту */}
+            <section className="wh-window shrink-0" aria-label="Прогресс жизни">
+              <header className="wh-window-head flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
+                <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Прогресс жизни</h3>
+                <span className="ml-auto text-xs text-gray-300 font-bold tabular-nums whitespace-nowrap">{character.age} / ~{maxExpectedAge} лет</span>
+              </header>
+              <div className="p-2 space-y-1.5">
+                <div className="wh-bar overflow-hidden" style={{ height: '6px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет — за чертой начинается стариковская пора`}>
+                  <div
+                    className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000]"
+                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%' }}
+                  ></div>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-[#b8a878]/80">
+                  <span title={`Достижения: открыто ${uiState.unlockedAchievements.length} из ${ACHIEVEMENTS.length}`}>
+                    Достижения: <span className="text-[#e8c85a] font-bold tabular-nums">{uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}</span>
+                  </span>
+                  <span className="hidden 2xl:flex items-center gap-1.5">
+                    <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">1–4</kbd>
+                    выбор
+                  </span>
+                </div>
+              </div>
+            </section>
           </div>
 
-          {/* Левый отсек (v0.3.57): сверху Досье, ПОД НИМ — все остальные
-              окна (Снабжение+Галактика в паре, Скрытые свойства, компаньоны,
-              квесты, инвентарь). Каждое окно на своём месте, не в притирку. */}
+          {/* Левый отсек (v0.3.58 «Лист CHARACTER»): ровно три полосы на всю
+              высоту колонки — Досье сверху, Снабжение+Галактика бок о бок,
+              «Скрытые свойства» растягивается на остаток и скроллит шкалы
+              только внутри себя. Колонка целиком не прокручивается. */}
           <div className="lg:col-span-3 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
-            <div className="codex-grid flex-1 min-h-0">
+            <div className="codex-sheet flex-1 min-h-0">
               <DossierWindow character={character} raceInfo={raceInfo} />
               <div className="codex-pair">
                 <SuppliesWindow character={character} />
@@ -135,34 +161,11 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             </div>
           </div>
 
-          {/* Центр: главное окно события + панель прогресса жизни */}
+          {/* Центр (v0.3.58): событие занимает ВСЮ высоту — выборы А–Г всегда
+              внизу и видны без скролла; «Прогресс жизни» переехал в правый
+              отсек под хронику. */}
           <div className="lg:col-span-7 md:col-span-2 col-span-1 fit-col gap-1.5 min-h-0">
             {center}
-            <section className="wh-window shrink-0" aria-label="Прогресс жизни">
-              <header className="wh-window-head flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
-                <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Прогресс жизни</h3>
-                <span className="ml-auto text-xs text-gray-300 font-bold tabular-nums whitespace-nowrap">{character.age} / ~{maxExpectedAge} лет</span>
-              </header>
-              <div className="p-2 space-y-1.5">
-                <div className="wh-bar overflow-hidden" style={{ height: '6px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет — за чертой начинается стариковская пора`}>
-                  <div
-                    className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000]"
-                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%' }}
-                  ></div>
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-[#b8a878]/80">
-                  <span title={`Достижения: открыто ${uiState.unlockedAchievements.length} из ${ACHIEVEMENTS.length}`}>
-                    Достижения: <span className="text-[#e8c85a] font-bold tabular-nums">{uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}</span>
-                  </span>
-                  <span className="hidden xl:flex items-center gap-1.5">
-                    <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">1–4</kbd>
-                    выбор
-                    <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">Space</kbd>
-                    дальше
-                  </span>
-                </div>
-              </div>
-            </section>
           </div>
         </div>
       </div>
