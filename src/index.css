@@ -897,56 +897,44 @@ p {
 /* Карточка события внутри окна (все ширины): растягивается на всю высоту контента */
 .wh-event-card.min-h-full { height: 100%; }
 
-/* ===== v0.3.42: СКРОЛЛ В ОКНЕ СОБЫТИЙ УБРАН ПОЛНОСТЬЮ (требование игрока).
-   Текст года и «Исход решения» печатаются авторегулируемым кеглем прямо
-   внутри EventCard (FitParchment) — целиком, без полос прокрутки; при
-   экстремально длинном тексте включается мягкая обрезка многоточием,
-   но никогда — скролл. Блоки event-parchment / result-text / choices-block
-   с overflow-y:auto из v0.3.38–v0.3.41 удалены: они и делали выборы
-   «неудобными» (крутишь колесо вместо клика). */
-.wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; }
-.wh-event-card .event-parchment { overflow: hidden; }
-.wh-event-card .result-parchment { min-height: 0; }
-.wh-event-card .result-text { overflow: hidden; }
+/* ===== v0.3.43: «Документ» — текст события и выборы в общем потоке =====
+   Правила оформления: информация должна читаться ЦЕЛИКОМ и не накладываться
+   на другие элементы. Карточка события теперь ведёт себя как документ:
+   пергамент с текстом занимает ровно столько места, сколько нужно тексту
+   (полный кегль 16px), выборы идут сразу под ним. Если контент выше окна —
+   скроллится только пергамент (золотой скроллбар .wh-scroll), кнопки выборов
+   прижаты к низу окна и всегда видны. Никакого наползания текста на кнопки
+   больше физически невозможно: все блоки ограничены flex-раскладкой окна. */
+.wh-event-card { display: flex; flex-direction: column; min-height: 0; }
+.wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.wh-event-card .event-parchment {
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.wh-event-card .result-text { font-size: 16px; line-height: 1.55; }
+.wh-event-card .result-block { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.wh-event-card .result-block .event-parchment { flex: 1 1 auto; }
+/* Блок «Твоё решение»: кнопки в потоке после текста; если окно короткое —
+   блок не сжимается и не перекрывается (flex-shrink:0 + собственная прокрутка). */
+.wh-event-card .choices-block { overflow: visible; min-height: 0; flex-shrink: 0; }
 .game-container:not(.game-fit) .wh-event-card .result-block { max-height: 100%; }
-/* Блок «Твоё решение»: кнопки всегда на экране, без прокрутки. */
-.wh-event-card .choices-block { overflow: visible; min-height: 0; }
-.game-container:not(.game-fit) .wh-event-card .choices-block,
-.game-container:not(.game-fit) .wh-event-card .result-block { flex-shrink: 0; }
-/* В fit-режиме результат занимает всю свободную высоту окна (текст года скрыт) */
-.game-fit .wh-event-card .result-block { margin-top: 0; }
 
-/* ===== v0.3.28: экран-мостик без «воздуха» — вся вертикаль у окон ===== */
 @media (min-width: 1024px) and (min-height: 640px) {
   /* Сетка тянется на всю высоту main; колонки не выходят за вьюпорт */
   .game-fit .fit-grid > .fit-col { height: 100%; }
-  /* Карточка события: текст сверху, решения прижаты к низу окна.
-     v0.3.42: скролл пергамента УБРАН — текст вписывается авторегулируемым
-     кеглём (FitParchment), полоса прокрутки не появляется никогда. */
   .game-fit .wh-event-card { min-height: 0; height: 100%; }
-  .game-fit .wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; flex: 0 1 auto; }
-  .game-fit .wh-event-card .event-parchment { overflow: hidden; min-height: 0; }
-  .game-fit .wh-event-card .choices-block,
-  .game-fit .wh-event-card .result-block { flex-shrink: 0; }
-  /* Кнопки решений: чуть плотнее по вертикали, чтобы 4 варианта влезали всегда */
-  .game-fit .wh-event-card .choice-btn { padding: 0.45rem 0.75rem; }
+  .game-fit .wh-event-card .event-head { min-height: 0; flex: 1 1 auto; }
+  .game-fit .wh-event-card .event-parchment { max-height: none; min-height: 0; }
+  .game-fit .wh-event-card .choices-block { flex-shrink: 0; }
+  .game-fit .wh-event-card .choice-btn { padding: 0.5rem 0.8rem; min-height: 48px; }
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
 }
 
-/* ===== v0.3.42: скролл в окне событий убран полностью (требование игрока).
-   Текст года ограничен по высоте и печатается компактным кеглем целиком;
-   никаких overflow-y:auto / max-height с автопрокруткой здесь больше нет. */
-.wh-event-card .event-head { flex: 0 1 auto; }
-.wh-event-card .event-parchment { max-height: 38vh; }
-.game-fit .wh-event-card .event-head { flex: 0 1 auto; }
-.game-fit .wh-event-card .event-parchment { max-height: none; }
-/* Крупные тач-кнопки выборов: весь текст видим (без обрезки в 2 строки),
-   увеличенные отступы — попадать мышью/пальцем легче. */
+/* Крупные тач-кнопки выборов: весь текст видим, увеличенные отступы. */
 .wh-event-card .choice-btn { padding: 0.6rem 0.9rem; }
 .wh-event-card .choice-text { font-size: 15px; line-height: 1.4; }
-@media (min-width: 1024px) and (min-height: 640px) {
-  .game-fit .wh-event-card .choice-btn { padding: 0.6rem 0.9rem; min-height: 48px; }
-}
 
 /* ===== v0.3.29: «Кодекс» — плотная стопка окон-карточек левого отсека ===== */
 .wh-window-closed { border-bottom-width: 1px; }

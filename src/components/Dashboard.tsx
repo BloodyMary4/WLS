@@ -21,8 +21,11 @@ interface WindowPaneProps {
   stretch?: boolean;
 }
 
-/** Одно окно приборного отсека: золотая рамка + тонкая плашка заголовка. */
-export function WindowPane({ title, icon, extra, children, className = '', scroll = false, stretch = false }: WindowPaneProps) {
+/** Одно окно приборного отсека: золотая рамка + тонкая плашка заголовка.
+ *  v0.3.43: параметр scroll оставлен для совместимости — теперь ВСЕ окна
+ *  показывают контент полностью (прокрутка внутри окна при переполнении),
+ *  ничего не обрезается молча. */
+export function WindowPane({ title, icon, extra, children, className = '', stretch = false }: WindowPaneProps) {
   return (
     <section
       className={`wh-window flex flex-col min-h-0 overflow-hidden ${stretch ? 'h-full' : ''} ${className}`}
@@ -34,19 +37,20 @@ export function WindowPane({ title, icon, extra, children, className = '', scrol
         <span className="ml-auto flex items-center gap-1.5 shrink-0">{extra}</span>
       </header>
       {/* Базовая высота контента (v0.3.32): даже без растянутого родителя
-          (схлопнутый flex-контейнер, странный вьюпорт) в окне всегда видна
-          содержательная часть — экран физически не может стать «пустым».
-          v0.3.38: overflow-hidden обязателен — без него длинный контент
-          выползает за рамку окна наружу и накладывается на соседние панели
-          (текст события года становился нечитаемым). Скролл внутри окна
-          включается параметром scroll; для карточки события прокрутка
-          настроена у её собственного пергамента. */}
-      <div className={`flex-1 min-h-[160px] p-2 overflow-hidden ${scroll ? 'overflow-y-auto wh-scroll' : ''}`}>{children}</div>
+          в окне всегда видна содержательная часть — экран физически не может
+          стать «пустым». v0.3.43: контент НЕ обрезается молча — длинные списки
+          скроллятся внутри окна (золотой скроллбар .wh-scroll) либо окно
+          разрастается по содержимому (вне fit-режима). Это гарантирует, что
+          информация во всех окнах показывается полностью и ничего не
+          наползает на соседние панели. */}
+      <div className={`flex-1 min-h-[160px] p-2 overflow-y-auto wh-scroll`}>{children}</div>
     </section>
   );
 }
 
-/** Строка показателя «метка — число» для тесных окон-приборов. */
+/** Строка показателя «метка — число» для тесных окон-приборов.
+ *  v0.3.43: значение больше не усекается посреди слова — перенос по словам,
+ *  метка занимает минимум ширины, длинное значение читается целиком. */
 export function ReadoutRow({ label, value, hint, tone = 'default' }: {
   label: ReactNode;
   value: ReactNode;
@@ -55,9 +59,9 @@ export function ReadoutRow({ label, value, hint, tone = 'default' }: {
 }) {
   const cls = tone === 'good' ? 'text-[#7fc97f]' : tone === 'bad' ? 'text-[#e07a7a]' : 'text-[#e8d9b0]';
   return (
-    <div className="flex items-baseline justify-between gap-2 text-xs leading-tight py-0.5" title={hint}>
-      <span className="text-[#b8a878] truncate">{label}</span>
-      <span className={`font-bold tabular-nums whitespace-nowrap ${cls}`}>{value}</span>
+    <div className="flex items-baseline justify-between gap-2 text-xs leading-snug py-0.5" title={hint}>
+      <span className="text-[#b8a878] shrink-0">{label}</span>
+      <span className={`font-bold tabular-nums text-right break-words ${cls}`}>{value}</span>
     </div>
   );
 }
