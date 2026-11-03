@@ -898,6 +898,22 @@ p {
 /* Карточка события внутри окна (все ширины): растягивается на всю высоту контента */
 .wh-event-card.min-h-full { height: 100%; }
 
+/* ===== v0.3.38: текст события года всегда читаем (все режимы) =====
+   Раньше пергамент скроллился только в fit-режиме (lg+); вне него длинный
+   текст вылезал за рамку и ложился поверх соседних окон. Теперь прокрутка
+   включена во всех режимах; flex-минимумы сняты, чтобы пергамент честно
+   занимал свободную высоту окна и скроллил себя. */
+.wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.wh-event-card .event-parchment {
+  overflow-y: auto; min-height: 0;
+  scrollbar-width: thin; scrollbar-color: #8b6914 rgba(10,10,10,.6);
+}
+.wh-event-card .event-parchment::-webkit-scrollbar { width: 8px; }
+.wh-event-card .event-parchment::-webkit-scrollbar-track { background: rgba(10, 10, 10, 0.6); border-radius: 4px; }
+.wh-event-card .event-parchment::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37 0%, #8b6914 100%); border-radius: 4px; }
+.game-container:not(.game-fit) .wh-event-card .choices-block,
+.game-container:not(.game-fit) .wh-event-card .result-block { flex-shrink: 0; }
+
 /* ===== v0.3.28: экран-мостик без «воздуха» — вся вертикаль у окон ===== */
 @media (min-width: 1024px) and (min-height: 640px) {
   /* Сетка тянется на всю высоту main; колонки не выходят за вьюпорт */
@@ -953,6 +969,10 @@ p {
 .fit-col > .wh-window { flex: 1 1 auto; min-height: 0; }
 /* Минимальная высота окон в обычном потоке (страница скроллится целиком) */
 .game-container:not(.game-fit) .fit-col > .wh-window { min-height: 340px; }
+/* v0.3.38: окно события — приоритетная колонка: не ужимается ниже комфортной
+   высоты, чтобы пергамент с текстом года всегда имел рабочую область. */
+.game-container:not(.game-fit) .fit-col > .wh-window[aria-label="Событие года"],
+.game-container:not(.game-fit) .fit-col > .wh-window[aria-label="Исход решения"] { min-height: 520px; flex: 2 1 auto; }
 .game-container:not(.game-fit) .fit-col > .wh-event-card { min-height: 420px; }
 /* Хроника и кодекс скроллятся внутри своих окон и вне fit-режима */
 .game-container:not(.game-fit) .wh-chronicle-wrap,
