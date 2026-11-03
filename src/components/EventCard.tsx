@@ -128,8 +128,10 @@ function DeltaSummary({ deltas }: { deltas: Partial<Record<PublicStatKey, number
  *  v0.3.27: карточка тянется на всю высоту окна (текст сверху, решения прижаты
  *  к низу) — пустоты между пергаментом и кнопками больше нет. */
 export function EventCard({ event, age, phase, resultText, lastChoice, lastDeltas, onChoice, onProceed }: EventCardProps) {
+  const isResult = phase === 'result' && lastChoice;
   return (
     <div key={`${age}-${event.text.slice(0, 24)}`} className="wh-event-card flex flex-col min-h-full animate-parchment">
+      {!isResult && (
       <div className="event-head mb-2">
         <div className="event-label-row flex items-center gap-2 mb-1.5">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
@@ -143,13 +145,18 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </p>
         </div>
       </div>
+      )}
 
       {phase === 'result' && lastChoice ? (
         <div className="result-block space-y-2.5 animate-fade-in mt-auto" aria-live="polite">
           <div className={`result-parchment wh-parchment-simple rounded-sm px-4 py-3 ${isMiracle(resultText) ? 'wh-miracle' : ''}`} style={{ borderColor: 'rgba(201,162,39,0.7)' }}>
             <div className="flex items-start gap-3">
-              <span className="text-xl leading-none pt-0.5">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
-              <p className="font-event text-[15px] leading-snug text-[#e8d9b0] flex-1 italic">{richText(resultText)}</p>
+              <span className="text-xl leading-none pt-0.5 shrink-0">{isMiracle(resultText) ? '🕊️' : '⚔️'}</span>
+              {/* v0.3.39: результат решения скроллится внутри пергамента —
+                  раньше у .result-parchment не было overflow, и при высоком
+                  тексте в низком окне строки выходили за рамку и сливались
+                  с кнопкой «Продолжить» (текст становился нечитаемым). */}
+              <p className="result-text font-event text-[15px] leading-snug text-[#e8d9b0] flex-1 min-w-0 italic">{richText(resultText)}</p>
             </div>
             {/* Фактический итог хода: точные дельты характеристик после выбора */}
             <DeltaSummary deltas={lastDeltas} />

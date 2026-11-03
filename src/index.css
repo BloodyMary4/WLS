@@ -911,8 +911,26 @@ p {
 .wh-event-card .event-parchment::-webkit-scrollbar { width: 8px; }
 .wh-event-card .event-parchment::-webkit-scrollbar-track { background: rgba(10, 10, 10, 0.6); border-radius: 4px; }
 .wh-event-card .event-parchment::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37 0%, #8b6914 100%); border-radius: 4px; }
+/* v0.3.39: пергамент «Исход решения» скроллится так же, как пергамент события.
+   Раньше у него не было overflow — при длинном тексте строки вылезали за
+   рамку, наползали на кнопку «Продолжить» и становились нечитаемыми. */
+.wh-event-card .result-parchment { min-height: 0; }
+.wh-event-card .result-text {
+  overflow-y: auto; max-height: 45vh; min-height: 0;
+  scrollbar-width: thin; scrollbar-color: #8b6914 rgba(10,10,10,.6);
+}
+.wh-event-card .result-text::-webkit-scrollbar { width: 8px; }
+.wh-event-card .result-text::-webkit-scrollbar-track { background: rgba(10, 10, 10, 0.6); border-radius: 4px; }
+.wh-event-card .result-text::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37 0%, #8b6914 100%); border-radius: 4px; }
 .game-container:not(.game-fit) .wh-event-card .choices-block,
 .game-container:not(.game-fit) .wh-event-card .result-block { flex-shrink: 0; }
+/* В fit-режиме результат занимает почти всю высоту окна (текст года скрыт) */
+.game-fit .wh-event-card .result-block { margin-top: 0; }
+@media (min-width: 1024px) and (min-height: 640px) {
+  .game-fit .wh-event-card .result-text { max-height: none; flex: 1 1 auto; }
+  .game-fit .wh-event-card .result-parchment { display: flex; flex-direction: column; }
+  .game-fit .wh-event-card .result-parchment > div:first-child { display: flex; flex: 1 1 auto; min-height: 0; }
+}
 
 /* ===== v0.3.28: экран-мостик без «воздуха» — вся вертикаль у окон ===== */
 @media (min-width: 1024px) and (min-height: 640px) {
