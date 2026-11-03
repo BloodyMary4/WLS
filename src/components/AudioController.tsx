@@ -89,7 +89,7 @@ export function AudioController() {
           {/* v0.3.73: настроение саундтрека — четыре направления гримдарка */}
           {isPlaying && (
             <div className="mt-3 pt-3 border-t border-yellow-600/30 flex items-center justify-between">
-              <span className="font-cinzel text-xs tracking-widest uppercase text-yellow-600/80">Настроение</span>
+              <span className="font-gothic text-xs tracking-widest uppercase text-yellow-600/80">Настроение</span>
               <span className="text-sm text-wh-parchment">{MOOD_NAMES[mood] ?? 'Пустота'}</span>
             </div>
           )}
