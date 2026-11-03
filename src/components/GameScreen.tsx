@@ -84,25 +84,45 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
   /** Активные испытания судьбы (квесты) — для отдельного окна левого отсека. */
   const activeQuests = game.activeQuests ?? [];
 
-  /* Строгая двухколоночная компоновка (v0.3.59, по ТЗ игрока):
-     ЛЕВая колонка (фикс. ширина, сайдбар): сверху «Досье», снизу «Снабжение».
-     ПРАВАЯ главная область: верхний ряд — «Хроника жизни» слева и
-     «Состояние Галактики» справа бок о бок; посередине — большое текстовое
-     окно события (главный фокус экрана); внизу — «Твоё решение» строго под
-     текстом. Всё на одном экране, без вертикальной бесконечной прокрутки,
-     блоки не растягиваются длинным списком. Стиль сохранён: уголь + золото,
-     Cinzel на заголовках, чистый sans в тексте. */
+  /* Строгая трёхколоночная CSS Grid компоновка (v0.3.60, по ТЗ игрока).
+     Полностью сохранён дизайн: цвета, фоны блоков, золотой текст, рамки и
+     разделительные линии — нетронуты. Изменена только геометрия раскладки.
+
+     Структура сетки:
+     1. Header (100% ширины) — статус-бар с полосками здоровья/рассудка/порчи
+        (рендерится отдельно до этой функции, оставлен как есть).
+     2. Основной контент — grid-template-columns: 25% 50% 25%, gap 20px:
+        • ЛЕВАЯ колонка (25%): сверху «Досье», строго под ним «Хроника жизни»
+          (скролл ленты — только внутри окна, наложения текста больше нет).
+        • ЦЕНТРАЛЬНАЯ колонка (50%): наверху «Событие года» с художественным
+          текстом сюжета, строго под текстом — «Твоё решение» с кнопками
+          выборов (выборы всегда видны без скролла).
+        • ПРАВАЯ колонка (25%): сверху «Снабжение», строго под ним
+          «Состояние Галактики».
+     3. Footer (100% ширины) — строка «Прогресс жизни» и ачивки, прижат к
+        самому низу экрана через общую flex-сетку страницы (без position:
+        absolute и лишних margin-top, из-за которых блоки налезали друг на
+        друга в районе Снаряжения и Хроники жизни).
+
+     Весь интерфейс помещается на одном экране без вертикального скролла
+     страницы: длинные ленты скроллятся только внутри своих окон. */
   const bayGrid = (center: ReactNode) => (
     <main className={`flex-1 ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
       <div className={`mx-auto w-full max-w-[1700px] px-2 xl:px-3 ${fit ? 'h-full' : ''}`}>
-        <div className={`fit-grid bridge-2col grid grid-cols-1 md:grid-cols-12 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
-          {/* ЛЕВая колонка — сайдбар фиксированной ширины: Досье сверху,
-              Снабжение снизу. Ниже — второстепенные отсеки (компаньоны,
-              квесты, инвентарь, скрытые свойства), когда они появляются. */}
-          <aside className="md:col-span-4 lg:col-span-3 col-span-1 fit-col animate-slide-in-left min-h-0">
+        <div className={`fit-grid bridge-3col grid grid-cols-1 lg:grid-cols-4 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
+          {/* ЛЕВАЯ колонка (25%): Досье сверху, строго под ним Хроника жизни;
+              ниже — второстепенные отсеки, когда они появляются. */}
+          <aside className="col-span-1 fit-col animate-slide-in-left min-h-0">
             <div className="codex-sheet flex-1 min-h-0">
               <DossierWindow character={character} raceInfo={raceInfo} />
-              <SuppliesWindow character={character} />
+              <div className="bridge-chronicle min-h-0 flex-1">
+                <ChroniclePanel
+                  history={history}
+                  logRef={logRef}
+                  chroniclePinned={chroniclePinned}
+                  onJumpToLatest={jumpToLatest}
+                />
+              </div>
               {(character.npcs.length > 0 || activeQuests.length > 0 ||
                 character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
                 <div className="codex-pair">
@@ -117,39 +137,32 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
             </div>
           </aside>
 
-          {/* ПРАВАя главная область: [Хроника | Галактика] → событие →
-              выборы уже внутри окна события, прижаты к низу. */}
-          <div className="md:col-span-8 lg:col-span-9 col-span-1 fit-col min-h-0 gap-2">
-            {/* Верхний ряд: бортовой журнал слева, состояние галактики справа */}
-            <div className="bridge-toprow shrink-0">
-              <div className="bridge-chronicle min-h-0">
-                <ChroniclePanel
-                  history={history}
-                  logRef={logRef}
-                  chroniclePinned={chroniclePinned}
-                  onJumpToLatest={jumpToLatest}
-                />
-              </div>
-              <div className="bridge-galaxy min-h-0">
-                {character.worldEvent ? (
-                  <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />
-                ) : (
-                  <section className="wh-window h-full" aria-label="Состояние Галактики">
-                    <header className="wh-window-head px-2 py-1 border-b border-[#c9a227]/40">
-                      <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Состояние Галактики</h3>
-                    </header>
-                    <p className="p-2 text-xs text-[#b8a878]/80">Тишина варпа — ничего не происходит.</p>
-                  </section>
-                )}
-              </div>
-            </div>
-
-            {/* Центральный блок: главное текстовое окно события на всю
-                оставшуюся высоту; «Твоё решение» — внизу того же окна */}
+          {/* ЦЕНТРАЛЬНАЯ колонка (50%): главное текстовое окно события на всю
+              высоту; «Твоё решение» с кнопками — строго под текстом внутри
+              того же окна, прижато к низу и видно без скролла. */}
+          <div className="lg:col-span-2 col-span-1 fit-col min-h-0 gap-2">
             <div className="fit-col flex-1 min-h-0 gap-1.5">
               {center}
             </div>
           </div>
+
+          {/* ПРАВАЯ колонка (25%): Снабжение сверху, строго под ним
+              Состояние Галактики. */}
+          <aside className="col-span-1 fit-col animate-slide-in-right min-h-0">
+            <SuppliesWindow character={character} />
+            <div className="bridge-galaxy min-h-0">
+              {character.worldEvent ? (
+                <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />
+              ) : (
+                <section className="wh-window h-full" aria-label="Состояние Галактики">
+                  <header className="wh-window-head px-2 py-1 border-b border-[#c9a227]/40">
+                    <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Состояние Галактики</h3>
+                  </header>
+                  <p className="p-2 text-xs text-[#b8a878]/80">Тишина варпа — ничего не происходит.</p>
+                </section>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
     </main>

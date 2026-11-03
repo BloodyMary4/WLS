@@ -1238,46 +1238,42 @@ p {
   .game-fit .codex-sheet > .codex-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* ===== v0.3.59 «Мостик: строгие две колонки» (по ТЗ игрока) =====
-   ЛЕВый сайдбар: Досье сверху, Снабжение снизу (скролл только внутри
-   колонок, страница целиком не прокручивается). ПРАВАя область: верхний
-   ряд из двух горизонтальных окон — «Хроника жизни» слева и «Состояние
-   Галактики» справа; ниже — большое текстовое окно события (главный
-   фокус); выборы прижаты к низу того же окна. Ровные рамки, аккуратные
-   отступы, ничего не растягивается длинным вертикальным списком. */
-.bridge-toprow {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  min-width: 0;
+/* ===== v0.3.60 «Мостик: строгие три колонки» (по ТЗ игрока) =====
+   Современная CSS Grid компоновка, дизайн (цвета, фоны, золото, рамки)
+   сохранён без изменений — изменена только геометрия:
+   • bridge-3col — основной grid контейнер: 25% | 50% | 25%, gap 20px;
+   • ЛЕВАЯ колонка: Досье сверху, строго под ним Хроника жизни (скролл
+     ленты только внутри окна — наложения текста больше нет);
+   • ЦЕНТР: «Событие года» + «Твоё решение» (выборы прижаты к низу окна,
+     всегда видны без скролла);
+   • ПРАВАЯ колонка: Снабжение сверху, строго под ним Состояние Галактики;
+   • Footer прижат ко дну через flex-сетку страницы (без position:absolute
+     и лишних margin-top). Никакого вертикального скролла страницы. */
+.bridge-3col { gap: 20px; }
+@media (max-width: 1023px) {
+  .bridge-3col { gap: 8px; }
 }
-@media (min-width: 900px) {
-  .bridge-toprow { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
-}
-/* Верхний ряд компактный: хроника и галактика занимают фиксированную
-   полосу, событие получает почти всю высоту главной области. */
-.game-fit .bridge-toprow { flex: 0 0 auto; height: clamp(120px, 16vh, 190px); }
-.bridge-toprow > div { display: flex; flex-direction: column; min-height: 0; }
-/* Хроника и галактика ВНУТРИ верхнего ряда растягиваются на его высоту;
-   их ленты скроллятся только в своих окнах. */
-.bridge-toprow section[aria-label="Хроника жизни"],
-.bridge-toprow section[aria-label="Состояние Галактики"] {
+/* Хроника жизни в левой колонке: занимает остаток высоты после Досье,
+   лента скроллится строго внутри своего окна (overflow-y:auto у .wh-scroll
+   контейнера WindowPane), рамка держит границы — наложений нет. */
+.bridge-chronicle { display: flex; flex-direction: column; min-height: 0; }
+.bridge-chronicle > section[aria-label="Хроника жизни"] {
   flex: 1 1 auto; min-height: 0; margin-bottom: 0; overflow: hidden;
 }
-.bridge-toprow section[aria-label="Хроника жизни"] > div,
-.bridge-toprow section[aria-label="Состояние Галактики"] > div {
-  min-height: 0; height: auto; flex: 1 1 auto;
-}
-.game-fit .bridge-toprow .wh-chronicle { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
-/* Снаружи ряда хроника больше НЕ тянется на всю высоту колонки */
+.game-fit .bridge-chronicle .wh-chronicle { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+/* Правая колонка: Снабжение сверху по содержимому, Галактика растягивается
+   на остаток высоты; её лента скроллится внутри окна. */
+.bridge-galaxy { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.bridge-galaxy > section { flex: 1 1 auto; min-height: 0; margin-bottom: 0; overflow: hidden; }
+/* В левой колонке хронике отдаём гибкую высоту, остальные окна — по содержимому. */
+.game-fit .codex-sheet > .bridge-chronicle { flex: 1 1 auto; min-height: 0; }
 .game-fit .fit-col > .wh-chronicle-wrap,
 .game-fit .fit-col > section[aria-label="Хроника жизни"] { flex: 0 0 auto; }
-/* Обычный поток (узкие экраны): ряд складывается столбиком с фиксированной
-   высотой окон, чтобы текст не резался и страница не разъезжалась */
-.game-container:not(.game-fit) .bridge-toprow { grid-template-columns: 1fr; }
-.game-container:not(.game-fit) .bridge-toprow > div { min-height: 0; }
-.game-container:not(.game-fit) .bridge-toprow section[aria-label="Хроника жизни"],
-.game-container:not(.game-fit) .bridge-toprow section[aria-label="Состояние Галактики"] {
-  height: 180px; flex: 0 0 auto; overflow: hidden;
+/* Обычный поток (узкие экраны): колонки складываются столбиком с
+   фиксированными высотами окон, чтобы текст не резался. */
+.game-container:not(.game-fit) .bridge-chronicle > section[aria-label="Хроника жизни"] {
+  height: 240px; flex: 0 0 auto; overflow: hidden;
 }
+.game-container:not(.game-fit) .bridge-galaxy { flex: 0 0 auto; }
+.game-container:not(.game-fit) .bridge-galaxy > section { height: 180px; }
 
