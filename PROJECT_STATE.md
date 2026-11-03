@@ -295,3 +295,7 @@
 - Фикс: src/index.css — base-слой с appearance:none/background:transparent/color:inherit/font:inherit для button,[type=button] + страховочный селектор button:not([class*=btn]); дизайн-классы (btn-modern/btn-wh-primary/choice-btn) не затронуты.
 - Коммит 5f93d2be + hotfix appearance:none, тег v0.3.68, Deploy to GitHub Pages success; живой CSS index-Cb6Mpqa3.css проверен curl — правила присутствуют.
 - typecheck ✅, 240/240 тестов ✅, сборка ✅. Desktop Build отменён по правилу.
+
+## v0.3.69–v0.3.70 (2026-11-03)
+- v0.3.69: музыка включается только кнопкой (убран автозапуск по жестам), stop() корректно глушит wind/whisper слои — дублирование звука при вкл/выкл исчезло.
+- v0.3.70 (коммит 84320806, тег v0.3.70): удалена подсказка «🔈 Нажмите любую клавишу или кликните — включим музыку» из AudioController.tsx; горячие клавиши выборов — ТОЛЬКО цифры 1–4: из useKeyboardControls убраны обработчики a/b/c/d и а/б/в/г, из EventCard — текст «/ A–D» и буква на плашке выбора (осталась только цифра). typecheck ✅, 240/240 тестов ✅, сборка ✅ (index-CwXNV2Zo.js). CI + Deploy success; живой JS проверен curl: «включим музыку» = 0 вхождений, «A–D» = 0, «клавиши 1–» присутствует. Desktop Build отменён по правилу.
