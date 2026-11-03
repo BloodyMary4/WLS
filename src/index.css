@@ -905,20 +905,53 @@ p {
    выборов прижаты к низу окна и доступны ВСЕГДА. Никакого наползания
    текста на выборы больше физически невозможно: у каждого блока своя
    область, всё обрезается только рамками окон. */
-/* ===== v0.3.47: скролл ВНУТРИ текстового блока пергамента =====
-   Раньше overflow-y стоял на всей колонке «иконка+текст+итоги», из-за чего
-   в фазе результата иконка ⚔️ обрезалась сверху, а текст уходил за нижнюю
-   рамку пергамента прямо под кнопки — «текст уходит за выборы, не читается».
-   Теперь скроллится только сам текст внутри своей рамки; пергамент тянется
-   на всю свободную высоту окна, рамки блоков держат границы. */
+/* ===== v0.3.48: нормальный layout окна события (по правилам стиля) =====
+   Все блоки — флекс-колонки с min-height:0 и внутренним скроллом:
+   ни один блок физически не может наползть на другой; информация всегда
+   доходит до пользователя (скролл золотым HUD-ползунком вместо обрезки).
+   Палитра/рамки: уголь + золото + кровавый акцент, готические шрифты
+   (Cinzel — заголовки, Spectral — основной текст). */
 .wh-event-card { display: flex; flex-direction: column; min-height: 0; }
 .wh-event-card .event-head { display: flex; flex-direction: column; min-height: 0; }
-.wh-event-card .event-parchment { overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
-.wh-event-card .result-text { font-size: 16px; line-height: 1.55; }
+.wh-event-card .event-parchment {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.55);
+}
+/* Текст года / исход решения — скроллится ВНУТРИ своего пергамента */
+.wh-event-card .event-scroll,
+.wh-event-card .result-text {
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
 .wh-event-card .result-block { display: flex; flex-direction: column; min-height: 0; }
-/* Блок «Твоё решение»: прижат к низу контента; если выборов много —
-   скроллится ВНУТРИ своего блока, не вылезая за окно. */
-.wh-event-card .choices-block { overflow-y: auto; overscroll-behavior: contain; min-height: 0; flex-shrink: 1; }
+/* Блок «Твоё решение» — отдельная панель: заголовок закреплён,
+   список кнопок скроллится внутри панели, никогда не залезает на текст. */
+.wh-event-card .choices-block {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: linear-gradient(180deg, rgba(28, 25, 18, 0.85) 0%, rgba(16, 14, 10, 0.92) 100%);
+  border-radius: 2px;
+  padding: 0.6rem 0.7rem;
+}
+.wh-event-card .choices-title {
+  position: sticky;
+  top: -0.6rem;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(20, 17, 11, 0.97) 70%, rgba(20, 17, 11, 0));
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.06em;
+  padding-top: 0.2rem;
+  margin-top: -0.2rem;
+}
 
 @media (min-width: 1024px) and (min-height: 640px) {
   /* Сетка-мостик остаётся строго во вьюпорте: колонки делят экран,
@@ -926,14 +959,36 @@ p {
   .game-fit .wh-event-card { height: 100%; }
   .game-fit .wh-event-card .event-head { flex: 1 1 auto; }
   .game-fit .wh-event-card .event-parchment { min-height: 0; }
-  /* Кнопки выборов — внизу окна, всегда кликабельны. */
-  .game-fit .wh-event-card .choices-block { flex: 0 1 auto; max-height: 55%; }
+  /* Пергамент текста занимает основную часть окна; блок выборов —
+     свою полосу внизу (до 45%), со своим внутренним скроллом. */
+  .game-fit .wh-event-card .choices-block { flex: 0 1 auto; max-height: 45%; }
   .game-fit .wh-event-card .choice-btn { padding: 0.5rem 0.8rem; min-height: 48px; }
   .game-fit .wh-event-card .choices-block .choice-btn + .choice-btn { margin-top: 0.4rem; }
 }
 
-/* Крупные тач-кнопки выборов: весь текст видим, увеличенные отступы. */
-.wh-event-card .choice-btn { padding: 0.6rem 0.9rem; }
+/* Крупные тач-кнопки выборов: весь текст видим, металлические акценты. */
+.wh-event-card .choice-btn {
+  display: block;
+  min-height: 48px;
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+  width: 100%;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  border-left: 3px solid rgba(139, 0, 0, 0.85);
+  background: linear-gradient(180deg, rgba(34, 30, 21, 0.9) 0%, rgba(18, 16, 11, 0.95) 100%);
+  color: #e8d9b0;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.wh-event-card .choice-btn:hover,
+.wh-event-card .choice-btn:focus-visible {
+  border-left-color: #c9a227;
+  background: linear-gradient(180deg, rgba(48, 42, 28, 0.95) 0%, rgba(24, 21, 14, 0.97) 100%);
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.25), inset 0 0 12px rgba(0, 0, 0, 0.5);
+}
+.wh-event-card .choice-btn:active { transform: translateY(1px); }
 .wh-event-card .choice-text { font-size: 15px; line-height: 1.4; }
 
 /* ===== v0.3.29: «Кодекс» — плотная стопка окон-карточек левого отсека ===== */

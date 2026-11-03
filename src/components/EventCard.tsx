@@ -146,7 +146,7 @@ function EventParchment({ text, icon, extra, miracle }: {
           под кнопки («не читается, текст уходит за выборы»). */}
       <div className="flex items-stretch gap-3 flex-1 min-h-0">
         {icon && <span className="text-xl leading-none pt-0.5 shrink-0">{icon}</span>}
-        <p className="result-text font-event leading-relaxed text-[#e8d9b0] flex-1 min-w-0 min-h-0 overflow-y-auto overscroll-contain pr-2 wh-scroll">
+        <p className="result-text font-event leading-relaxed text-[#e8d9b0] event-scroll flex-1 min-w-0 min-h-0 pr-2 wh-scroll">
           {richText(text)}
         </p>
       </div>
@@ -204,10 +204,12 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
           </button>
         </div>
       ) : (
-        /* Блок выборов: в плотном fit-режиме прижат к низу окна (выборы всегда
-           на виду), в потоке страницы идёт сразу под текстом. */
-        <div className="choices-block min-h-0 space-y-2 lg:flex-1 lg:flex lg:flex-col">
-          <p className="font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3">
+        /* Блок выборов: отдельная панель со своим внутренним скроллом.
+           v0.3.48: заголовок «Твоё решение» sticky — всегда видно, где выборы;
+           список кнопок скроллится внутри панели и физически не может
+           наползть на пергамент текста события. */
+        <div className="choices-block wh-scroll min-h-0 space-y-2 lg:flex-1 lg:flex lg:flex-col">
+          <p className="choices-title font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3 shrink-0">
             Твоё решение:
             <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}{event.choices.length <= 4 ? ' / A–D' : ''}</span>
           </p>
@@ -219,7 +221,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
             <button
               key={choice.letter}
               onClick={() => onChoice(choice)}
-              className="choice-btn btn-modern w-full min-h-[44px] text-left px-3 py-2 bg-gradient-to-br from-[#1c1913] to-[#12100b] hover:from-[#2a2517] hover:to-[#1c1913] border border-[#c9a227]/40 hover:border-[#e8c85a] rounded-sm transition-all shadow-lg hover:shadow-[0_0_18px_rgba(201,162,39,0.3)] hover:scale-[1.01] active:scale-[0.99] animate-slide-in-left"
+              className="choice-btn btn-modern animate-slide-in-left"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-2.5">
