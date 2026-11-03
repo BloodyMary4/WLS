@@ -1602,3 +1602,91 @@ section[aria-label="Исход решения"] > .wh-window-head::after {
    как стойки готического свода (не влияют на раскладку) */
 .left-column  { border-left:  1px solid rgba(201,162,39,0.10); padding-left: 6px; }
 .right-column { border-right: 1px solid rgba(201,162,39,0.10); padding-right: 6px; }
+
+/* ===== v0.3.74 «Апотекарий»: графическая полировка без изменения компоновки ===== */
+
+/* Пергамент события — тёплая чернильная кожа: мягкий верхний свет,
+   двойная золотая нить по кромке (внешняя рамка + внутренний контур) */
+.wh-parchment-simple {
+  position: relative;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(201, 162, 39, 0.07), transparent 60%),
+    linear-gradient(180deg, #1d1810 0%, #14110b 100%);
+}
+.wh-parchment-simple::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(201, 162, 39, 0.16);
+  pointer-events: none;
+}
+
+/* Чернильный рубрикатор: первая строка текста года — как буквица в кодексе */
+.wh-event-card .event-scroll > p:first-of-type::first-line {
+  color: #e8d9a0;
+  letter-spacing: 0.01em;
+}
+
+/* Печать чистоты на блоке «Твоё решение» — восковой медальон в углу панели */
+.wh-event-card .choices-block { position: relative; }
+.wh-event-card .choices-block::after {
+  content: '';
+  position: absolute;
+  right: 8px; top: 8px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b03030 0%, #7c1d1d 55%, #4a1010 100%);
+  box-shadow: 0 0 4px rgba(124, 29, 29, 0.6), inset 0 1px 1px rgba(255, 180, 180, 0.25);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* Плашка с цифрой выбора — красная печать рядом с золотым медальоном буквы */
+.wh-event-card .choice-btn:hover .wh-choice-letter {
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 10px rgba(212, 175, 55, 0.45);
+}
+
+/* Шапки окон: тиснёный металл — диагональная насечка брони поверх железа */
+.wh-window-head {
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, rgba(56, 47, 30, 0.92) 0%, rgba(28, 24, 15, 0.95) 100%);
+}
+
+/* Заклёпки по нижним углам окон — через ::marker-обёртку нельзя,
+   поэтому вешаем пару точек на body-псевдоэлемент окна (не конфликтует
+   с арочной скобкой события, которая занимает ::after самого окна) */
+.wh-window .wh-window-body::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -14px;
+  height: 4px;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 8px 2px, rgba(217, 182, 74, 0.4) 0 1.4px, transparent 2.4px),
+    radial-gradient(circle at calc(100% - 8px) 2px, rgba(217, 182, 74, 0.4) 0 1.4px, transparent 2.4px);
+  background-repeat: no-repeat;
+}
+
+/* Строки показаний (метка — значение): тонкая рисковая линия-разделитель,
+   как графление в приборных таблицах Адептус Механикус */
+.wh-readout > * + *,
+.codex-readout > * + * {
+  border-top: 1px dotted rgba(201, 162, 39, 0.14);
+}
+
+/* Шкалы статов: стеклянный блиск по верхней трети полосы + матовое дно */
+.wh-bar {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+/* Футер-прибор и шапка HUD: та же насечка брони для единства металла */
+.wh-hud-panel, .wh-hud-strip {
+  background-blend-mode: overlay, normal, normal;
+}
+
+/* Аквила-маркер в заголовках хроники/снаряжения не дублируем — оставляем
+   аксис; но сам текст заголовков получает лёгкое золотое тиснение */
+.wh-window-head h3 {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.9), 0 0 10px rgba(201, 162, 39, 0.12);
+}
