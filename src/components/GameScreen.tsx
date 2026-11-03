@@ -84,67 +84,25 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
   /** Активные испытания судьбы (квесты) — для отдельного окна левого отсека. */
   const activeQuests = game.activeQuests ?? [];
 
-  /* Единая оконная сетка (v0.3.31): один и тот же остов экрана и в fit-режиме,
-     и в обычном потоке. Вне lg+ колонки складываются стеком, а .game-fit
-     перестаёт ограничивать высоту (CSS), так что ничего не схлопывается и
-     не обрезается — экран есть всегда, при любом размере окна. */
+  /* Строгая двухколоночная компоновка (v0.3.59, по ТЗ игрока):
+     ЛЕВая колонка (фикс. ширина, сайдбар): сверху «Досье», снизу «Снабжение».
+     ПРАВАЯ главная область: верхний ряд — «Хроника жизни» слева и
+     «Состояние Галактики» справа бок о бок; посередине — большое текстовое
+     окно события (главный фокус экрана); внизу — «Твоё решение» строго под
+     текстом. Всё на одном экране, без вертикальной бесконечной прокрутки,
+     блоки не растягиваются длинным списком. Стиль сохранён: уголь + золото,
+     Cinzel на заголовках, чистый sans в тексте. */
   const bayGrid = (center: ReactNode) => (
     <main className={`flex-1 ${fit ? 'min-h-0 py-1.5' : 'py-3'}`}>
       <div className={`mx-auto w-full max-w-[1700px] px-2 xl:px-3 ${fit ? 'h-full' : ''}`}>
-        <div className={`fit-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
-          {/* Крайний левый отсек (v0.3.57): ХРОНИКА ЖИЗНИ — узкое боковое
-              окно у левого края экрана, тянется на всю высоту и скроллится
-              только внутри себя. */}
-          <div className="lg:col-span-2 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0 gap-2">
-            <ChroniclePanel
-              history={history}
-              logRef={logRef}
-              chroniclePinned={chroniclePinned}
-              onJumpToLatest={jumpToLatest}
-            />
-            {/* v0.3.58: компактная приборная полоса «Прогресс жизни» — под
-                хроникой, у левого края; событие в центре занимает всю высоту */}
-            <section className="wh-window shrink-0" aria-label="Прогресс жизни">
-              <header className="wh-window-head flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
-                <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Прогресс жизни</h3>
-                <span className="ml-auto text-xs text-gray-300 font-bold tabular-nums whitespace-nowrap">{character.age} / ~{maxExpectedAge} лет</span>
-              </header>
-              <div className="p-2 space-y-1.5">
-                <div className="wh-bar overflow-hidden" style={{ height: '6px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет — за чертой начинается стариковская пора`}>
-                  <div
-                    className="wh-bar-fill bg-gradient-to-r from-[#6e5a12] via-[#c9a227] to-[#a30000]"
-                    style={{ width: `${Math.min(100, (character.age / maxExpectedAge) * 100)}%`, height: '100%' }}
-                  ></div>
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-[#b8a878]/80">
-                  <span title={`Достижения: открыто ${uiState.unlockedAchievements.length} из ${ACHIEVEMENTS.length}`}>
-                    Достижения: <span className="text-[#e8c85a] font-bold tabular-nums">{uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}</span>
-                  </span>
-                  <span className="hidden 2xl:flex items-center gap-1.5">
-                    <kbd className="px-1.5 py-0.5 bg-[#1c1913] border border-[#c9a227]/40 rounded-sm text-[#e8c85a] font-mono text-[10px]">1–4</kbd>
-                    выбор
-                  </span>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* Левый отсек (v0.3.58 «Лист CHARACTER»): ровно три полосы на всю
-              высоту колонки — Досье сверху, Снабжение+Галактика бок о бок,
-              «Скрытые свойства» растягивается на остаток и скроллит шкалы
-              только внутри себя. Колонка целиком не прокручивается. */}
-          <div className="lg:col-span-3 md:col-span-1 col-span-1 fit-col animate-slide-in-left min-h-0">
+        <div className={`fit-grid bridge-2col grid grid-cols-1 md:grid-cols-12 gap-2 ${fit ? 'h-full min-h-0' : ''}`}>
+          {/* ЛЕВая колонка — сайдбар фиксированной ширины: Досье сверху,
+              Снабжение снизу. Ниже — второстепенные отсеки (компаньоны,
+              квесты, инвентарь, скрытые свойства), когда они появляются. */}
+          <aside className="md:col-span-4 lg:col-span-3 col-span-1 fit-col animate-slide-in-left min-h-0">
             <div className="codex-sheet flex-1 min-h-0">
               <DossierWindow character={character} raceInfo={raceInfo} />
-              <div className="codex-pair">
-                <SuppliesWindow character={character} />
-                {character.worldEvent ? (
-                  <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />
-                ) : (
-                  <span className="codex-pair-fill" aria-hidden="true" />
-                )}
-              </div>
-              <HiddenStatsWindow character={character} />
+              <SuppliesWindow character={character} />
               {(character.npcs.length > 0 || activeQuests.length > 0 ||
                 character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
                 <div className="codex-pair">
@@ -153,19 +111,44 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
                 </div>
               )}
               {(character.inventory.length > 0 || character.augmentics.length > 0 || character.traits.length > 0) && (
-                <div className="codex-pair">
-                  <InventoryWindow character={character} />
-                  <span className="codex-pair-fill" aria-hidden="true" />
-                </div>
+                <InventoryWindow character={character} />
               )}
+              <HiddenStatsWindow character={character} />
             </div>
-          </div>
+          </aside>
 
-          {/* Центр (v0.3.58): событие занимает ВСЮ высоту — выборы А–Г всегда
-              внизу и видны без скролла; «Прогресс жизни» переехал в правый
-              отсек под хронику. */}
-          <div className="lg:col-span-7 md:col-span-2 col-span-1 fit-col gap-1.5 min-h-0">
-            {center}
+          {/* ПРАВАя главная область: [Хроника | Галактика] → событие →
+              выборы уже внутри окна события, прижаты к низу. */}
+          <div className="md:col-span-8 lg:col-span-9 col-span-1 fit-col min-h-0 gap-2">
+            {/* Верхний ряд: бортовой журнал слева, состояние галактики справа */}
+            <div className="bridge-toprow shrink-0">
+              <div className="bridge-chronicle min-h-0">
+                <ChroniclePanel
+                  history={history}
+                  logRef={logRef}
+                  chroniclePinned={chroniclePinned}
+                  onJumpToLatest={jumpToLatest}
+                />
+              </div>
+              <div className="bridge-galaxy min-h-0">
+                {character.worldEvent ? (
+                  <GalaxyWindow worldEvent={character.worldEvent} seenCount={character.worldEventsSeen?.length ?? 0} />
+                ) : (
+                  <section className="wh-window h-full" aria-label="Состояние Галактики">
+                    <header className="wh-window-head px-2 py-1 border-b border-[#c9a227]/40">
+                      <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a]">Состояние Галактики</h3>
+                    </header>
+                    <p className="p-2 text-xs text-[#b8a878]/80">Тишина варпа — ничего не происходит.</p>
+                  </section>
+                )}
+              </div>
+            </div>
+
+            {/* Центральный блок: главное текстовое окно события на всю
+                оставшуюся высоту; «Твоё решение» — внизу того же окна */}
+            <div className="fit-col flex-1 min-h-0 gap-1.5">
+              {center}
+            </div>
           </div>
         </div>
       </div>
