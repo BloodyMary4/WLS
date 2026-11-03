@@ -1319,6 +1319,61 @@ p {
    без наложений (position:absolute нигде нет). */
 .game-container:not(.game-fit) .left-column > section.wh-window { margin-bottom: 0; }
 
+/* ===== v0.3.63 «Левая колонка: строгий поток» (фикс наложения) =====
+   Гарантии по ТЗ игрока: все элементы внутри .left-column идут строго друг
+   за другом сверху вниз и НИКОГДА не накладываются — в том числе окно
+   «Испытания судьбы», которое появляется позже остальных. Никаких
+   position:absolute/fixed/sticky у блоков колонки; высоты — только по
+   содержимому или flex, без фиксированных px. */
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: auto;
+}
+.left-column > div,
+.left-column > section {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+}
+/* Фиксированные высоты окон левой колонки отменяются: окно «Испытания
+   судьбы» (внутри .codex-pair) и хроника растягиваются по месту в потоке,
+   а не наезжают на соседей. Внутри колонок высота остаётся управляемой
+   через min-height:0 + flex, чтобы скролл жил в самом окне. */
+.game-fit .left-column { overflow-y: auto; overflow-x: hidden; }
+.game-fit .left-column > .bridge-chronicle { flex: 1 1 200px; min-height: 120px; }
+.game-fit .left-column > .bridge-chronicle > section[aria-label="Хроника жизни"] {
+  height: auto !important;
+}
+.game-fit .left-column > .codex-pair,
+.left-column > .codex-pair { flex: 0 0 auto; }
+/* В fit-режиме окна «Испытания судьбы»/«Компаньоны» и Снаряжение не должны
+   раздуваться фиксированной базовой высотой тела — только по содержимому,
+   иначе они выталкивают соседей и наезжают на хронику. */
+.game-fit .left-column .codex-pair > .wh-window,
+.game-fit .left-column > section.wh-window:not([aria-label="Хроника жизни"]) {
+  height: auto;
+  max-height: 45%;
+}
+.game-fit .left-column .codex-pair > .wh-window .wh-window-body,
+.game-fit .left-column > section.wh-window:not([aria-label="Хроника жизни"]) .wh-window-body {
+  min-height: 0;
+}
+.game-container:not(.game-fit) .left-column > .bridge-chronicle > section[aria-label="Хроника жизни"],
+.game-container:not(.game-fit) .left-column .codex-pair > .wh-window {
+  height: auto !important;
+  min-height: 140px;
+  max-height: 320px;
+}
+.game-container:not(.game-fit) .left-column .codex-pair > .wh-window { overflow-y: auto; }
+@media (max-width: 1023px) {
+  .left-column > .codex-pair { grid-template-columns: 1fr; }
+}
+
 /* ===== v0.3.62 «Готическое железо»: чисто графические улучшения окон =====
    Компонуктовка НЕ тронута — только оформление: кованые шапки окон с
    заклёпками, готическая арочная скобка у центрального события,

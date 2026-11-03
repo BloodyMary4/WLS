@@ -50,7 +50,7 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
           ячейку сетки, но никогда не обрезает содержимое молча: при
           переполнении показывается тонкий золотой скроллбар (wh-scroll),
           а в окне события — контент разрастается сам («документ»). */}
-      <div className={`flex-1 min-h-0 p-2 ${fillBody ? 'flex flex-col' : 'min-h-[160px]'} ${noScroll ? '' : 'overflow-y-auto wh-scroll overscroll-contain'}`}>{children}</div>
+      <div className={`wh-window-body flex-1 min-h-0 p-2 ${fillBody ? "flex flex-col" : "min-h-[160px]"} ${noScroll ? "" : "overflow-y-auto wh-scroll overscroll-contain"}`}>{children}</div>
     </section>
   );
 }

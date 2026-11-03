@@ -278,3 +278,9 @@
 - Палитра заменена на гайдлайновую: неон-акценты text/bg-wh-health (#6fe3b1 Necron), wh-plasma (#58c4e8), wh-caution (#c9a227 золото), wh-blood (#a32020/#e05a52), wh-warp-* ; хром-классы tailwind (green/blue/purple/orange/red/yellow) замаплены во всех компонентах.
 - CSS: убраны clip-path-скосы (съедали рамки), заклёпки реже/тусклее, labels 0.64rem ls .06em, полосы без свечения.
 - typecheck ✅ 240/240 ✅ build ✅; CI success, Deploy Pages success, Desktop Build отменён. Live проверен: index-C0Rpdlyf.js содержит «Кредиты/Провизия», CSS содержит wh-health #6fe3b1.
+
+## v0.3.63 — Фикс наложения в левой колонке (ТЗ игрока)
+- .left-column приведён к строгому flex-потоку: gap 20px, height auto; все дочерние блоки — position:relative!important, top/bottom/left/right auto, width auto — физически не могут налезать друг на друга (в т.ч. «Испытания судьбы» на «Хронику жизни»).
+- Убраны фиксированные высоты окон в левой колонке: в fit-режиме окна по содержимому (max-height 45%, скролл внутри), хроника — гибкая; в обычном потоке min/max heights с внутренним скроллом.
+- Body окон WindowPane получил класс .wh-window-body для точечного переопределения min-height в левой колонке.
+- Проверки: typecheck ✅, 240/240 тестов ✅, build ✅.
