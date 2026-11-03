@@ -49,7 +49,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
           <div className="wh-panel wh-frame p-8 mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-start gap-4">
               <div className="w-9 h-9 shrink-0 mt-1 opacity-80">
-                <RaceEmblem race="human" className="w-full h-full" />
+                <RaceEmblem race="human" className="w-9 h-9" />
               </div>
               <div className="flex-1">
                 <p className="text-lg leading-relaxed text-gray-200 mb-4">

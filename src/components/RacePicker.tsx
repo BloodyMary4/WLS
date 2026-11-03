@@ -63,7 +63,7 @@ export function RacePicker({ race, onSelect }: RacePickerProps) {
             >
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 shrink-0">
-                  <RaceEmblem race={key} className="w-full h-full opacity-90" />
+                  <RaceEmblem race={key} className="w-8 h-8 opacity-90" />
                 </div>
                 <h3 className="font-gothic text-lg font-bold text-[#e8c85a] uppercase tracking-wide leading-tight">
                   {info.name}
