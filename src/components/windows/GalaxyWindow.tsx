@@ -12,7 +12,7 @@ interface GalaxyWindowProps {
  */
 export function GalaxyWindow({ worldEvent, seenCount = 0 }: GalaxyWindowProps) {
   return (
-    <WindowPane title="Состояние Галактики" icon="🌍"
+    <WindowPane title="Состояние Галактики"
       extra={seenCount > 1 ? <span className="text-[10px] text-gray-400 tabular-nums">{seenCount} зап.</span> : undefined}>
       <p className="text-xs text-blue-200/90 italic leading-snug">{worldEvent}</p>
     </WindowPane>

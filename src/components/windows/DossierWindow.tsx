@@ -15,15 +15,18 @@ interface DossierWindowProps {
  */
 export function DossierWindow({ character, raceInfo }: DossierWindowProps) {
   return (
-    <WindowPane title="Досье" icon="⚜️">
-      <ReadoutRow label="Раса" value={raceInfo.name} hint={`${raceInfo.emoji} ${raceInfo.description}`} />
-      <ReadoutRow label="Сословие" value={character.caste} hint="Сословие определяет доступные события и профессии." />
-      <ReadoutRow label="Положение" value={character.status} hint="Твоё место в жизни меняется судьбоносными выборами." />
-      <ReadoutRow label="Планета" value={character.planet} hint="Место рождения — там начинался твой путь." />
-      <div className="grid grid-cols-2 gap-x-3 mt-1">
-        <BarStat label="Влияние" value={character.influence} max={100} icon="⭐" color="bg-wh-caution"
+    <WindowPane title="Досье">
+      {/* v0.3.53: ровная таблица «метка — значение» вместо разбросанных строк */}
+      <dl className="wh-readout">
+        <ReadoutRow label="Раса" value={raceInfo.name} hint={`${raceInfo.emoji} ${raceInfo.description}`} />
+        <ReadoutRow label="Сословие" value={character.caste} hint="Сословие определяет доступные события и профессии." />
+        <ReadoutRow label="Положение" value={character.status} hint="Твоё место в жизни меняется судьбоносными выборами." />
+        <ReadoutRow label="Планета" value={character.planet} hint="Место рождения — там начинался твой путь." />
+      </dl>
+      <div className="mt-1 border-t border-[#c9a227]/15 pt-1">
+        <BarStat label="Влияние" value={character.influence} max={100} color="bg-wh-caution"
           hint="Влияние в имперских кругах: открывает связи, торг и покровительство." />
-        <BarStat label="Удача" value={character.luck} max={10} icon="🍀" color="bg-wh-health" danger={character.luck <= 2}
+        <BarStat label="Удача" value={character.luck} max={10} color="bg-wh-health" danger={character.luck <= 2}
           hint="Удача: ниже 2 — звёзды против тебя, торг и взятки дают сбой." />
       </div>
     </WindowPane>

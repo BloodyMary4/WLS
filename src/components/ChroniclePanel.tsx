@@ -61,7 +61,6 @@ export function ChroniclePanel({ history, logRef, chroniclePinned = true, onJump
   return (
     <WindowPane
       title="Хроника жизни"
-      icon="📜"
       stretch
       className="flex-1 min-h-[240px]"
       extra={

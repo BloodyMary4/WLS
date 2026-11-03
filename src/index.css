@@ -1163,3 +1163,18 @@ p {
 .game-fit .codex-grid { grid-template-rows: auto auto minmax(150px, 1fr); height: 100%; overflow: visible; }
 .game-container:not(.game-fit) .codex-grid { grid-auto-rows: min-content; }
 .game-container:not(.game-fit) .codex-grid > .wh-window { min-height: 120px; }
+
+/* ===== v0.3.53: лаконичный HUD — ровные таблицы показаний ===== */
+/* Единая «приборная таблица»: метка слева, значение в правой колонке.
+   Все окна левого отсека печатают показания по одной сетке — ничего не
+   «раскидано», числа выровнены по разряду (tabular-nums). */
+.wh-readout { display: flex; flex-direction: column; }
+.wh-readout > div {
+  border-bottom: 1px dashed rgba(201, 162, 39, 0.10);
+}
+.wh-readout > div:last-child { border-bottom: none; }
+
+/* Левый отсек в fit-режиме: окна идут плотной стопкой по содержимому,
+   остаток высоты отдаётся скроллируемому окну шкал — никаких пустых дыр. */
+.game-fit .codex-grid { grid-template-rows: none; grid-auto-rows: min-content; align-content: start; overflow-y: auto; }
+.game-fit .codex-grid > section[aria-label="Скрытые свойства"] { grid-row: span 1; min-height: 140px; }

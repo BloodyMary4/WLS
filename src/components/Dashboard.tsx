@@ -37,7 +37,6 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
       aria-label={title}
     >
       <header className="wh-window-head shrink-0 flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
-        {icon && <span className="text-sm leading-none" aria-hidden="true">{icon}</span>}
         <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] truncate">{title}</h3>
         <span className="ml-auto flex items-center gap-1.5 shrink-0">{extra}</span>
       </header>
@@ -74,11 +73,14 @@ export function ReadoutRow({ label, value, hint, tone = 'default' }: {
   );
 }
 
-/** Полоска-шкала 0..max с подписью и подсказкой (окна характеристик). */
+/** Полоска-шкала 0..max с подписью и подсказкой (окна характеристик).
+ *  v0.3.53: метка занимает фиксированную колонку — шкалы идут ровной лесенкой,
+ *  а не «раскиданы» по окну; эмодзи из меток убраны (чистый HUD). */
 export function BarStat({ label, value, max = 10, icon, color, hint, danger }: {
   label: string;
   value: number;
   max?: number;
+  /** Принято для совместимости — в чистом HUD иконки в шкалах не печатаются. */
   icon?: string;
   color: string; // tailwind bg-* класс заполнения
   hint?: string;
@@ -87,17 +89,16 @@ export function BarStat({ label, value, max = 10, icon, color, hint, danger }: {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
     <div className="py-1" title={hint}>
-      <div className="flex items-center justify-between text-[11px] leading-tight mb-0.5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_64px] items-center gap-2 text-[11px] leading-tight mb-1">
         <span className={`font-gothic tracking-wide truncate ${danger ? 'text-[#e07a7a] font-bold' : 'text-[#b8a878]'}`}>
-          {icon && <span aria-hidden="true" className="mr-1">{icon}</span>}
           {label}
         </span>
-        <span className={`font-bold tabular-nums shrink-0 ml-1.5 ${danger ? 'text-[#e07a7a]' : 'text-[#e8d9b0]'}`}>
+        <span className={`font-bold tabular-nums text-right ${danger ? 'text-[#e07a7a]' : 'text-[#e8d9b0]'}`}>
           {value}/{max}
         </span>
-      </div>
-      <div className="wh-bar w-full overflow-hidden" style={{ height: '5px' }} aria-hidden="true">
-        <div className={`wh-bar-fill ${color}`} style={{ width: `${pct}%`, height: '100%' }} />
+        <span className="wh-bar overflow-hidden block" style={{ height: '5px' }} aria-hidden="true">
+          <span className={`wh-bar-fill block h-full ${color}`} style={{ width: `${pct}%` }} />
+        </span>
       </div>
     </div>
   );

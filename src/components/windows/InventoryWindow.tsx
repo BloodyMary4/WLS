@@ -13,7 +13,7 @@ interface InventoryWindowProps {
 export function InventoryWindow({ character }: InventoryWindowProps) {
   const count = character.inventory.length + character.augmentics.length + character.traits.length;
   return (
-    <WindowPane title="Снаряжение" icon="🎒" scroll
+    <WindowPane title="Снаряжение" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">{count} поз.</span>}>
       <div className="space-y-1.5 text-xs">
         <div>
