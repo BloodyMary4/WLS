@@ -68,25 +68,38 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-/** Устанавливает полифиллы + слушатели фатальных ошибок старта. Вызывать до импорта main. */
+// Полифиллы устанавливаются сразу при импорте модуля — main.tsx импортирует
+// bootGuard ПЕРВЫМ, до App/index.css, поэтому React гарантированно получает
+// рабочие matchMedia/scrollTo даже в старых webview.
+installBrowserPolyfills();
+
+/** Показывает запасной экран, только если приложение так и не отрендерилось. */
+function reportIfEmptyRoot(message: string): void {
+  window.setTimeout(() => {
+    const root = typeof document !== 'undefined' ? document.getElementById('root') : null;
+    if (root && root.childElementCount === 0) {
+      showBootFallback(message);
+    }
+  }, 0);
+}
+
+let guardInstalled = false;
+let fallbackShown = false;
+
+/** Слушатели фатальных ошибок старта (пустой экран → читаемое сообщение). */
 export function setupBootGuard(): void {
-  installBrowserPolyfills();
-  if (typeof window === 'undefined') return;
-  let reported = false;
-  const report = (message: string) => {
-    // Только если приложение так и не отрендерилось.
-    setTimeout(() => {
-      if (reported) return;
-      const root = typeof document !== 'undefined' ? document.getElementById('root') : null;
-      if (root && root.childElementCount === 0) {
-        reported = true;
-        showBootFallback(message);
-      }
-    }, 0);
-  };
-  window.addEventListener('error', (e) => report(e.message || 'Неизвестная ошибка загрузки'));
+  if (guardInstalled || typeof window === 'undefined') return;
+  guardInstalled = true;
+  window.addEventListener('error', (e) => {
+    if (!fallbackShown) {
+      fallbackShown = true;
+      reportIfEmptyRoot(e.message || 'Неизвестная ошибка загрузки');
+    }
+  });
   window.addEventListener('unhandledrejection', (e) => {
+    if (fallbackShown) return;
     const reason = e.reason;
-    report(reason instanceof Error ? reason.message : String(reason));
+    fallbackShown = true;
+    reportIfEmptyRoot(reason instanceof Error ? reason.message : String(reason));
   });
 }
