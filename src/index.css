@@ -3,9 +3,42 @@
    разнобойных серифа и делали интерфейс «страшным». */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* v0.3.68: Tailwind v4 по умолчанию НЕ сбрасывает стили нативных элементов
+   (preflight отключён у @import без preflight-слоя в прошлых сборках не было —
+   из-за этого кнопки фильтров хроники и «Скопировать» рендерились белыми
+   кубиками ОС). Включаем base-reset явно + страховочный сброс ниже. */
+@layer base {
+  button, [type='button'], [type='reset'], [type='submit'] {
+    -webkit-appearance: button;
+    appearance: none;
+    background-color: transparent;
+    background-image: none;
+    color: inherit;
+    font: inherit;
+    margin: 0;
+    text-transform: none;
+  }
+}
+
+/* v0.3.68: страховочный сброс нативных кнопок (фильтры хроники «Все/Судьбоносные/
+   Выборы/Мир» и «Скопировать» в летописи рендерились белыми кубиками ОС, потому
+   что Tailwind v4 не включает preflight автоматически). Не перекрывает tailwind-
+   классы: важность ниже утилит, но выше браузерных стилей по умолчанию. */
+button:not([class*="btn"]), [type="button"]:not([class*="btn"]) {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  background-image: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-transform: none;
+  border-radius: 0;
+  box-shadow: none;
+}
 
 /* ===== WARHAMMER 40K СТИЛИСТИКА (Grimdark) ===== */
 :root {
