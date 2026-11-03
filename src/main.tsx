@@ -3,11 +3,16 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 
 try {
   const rootEl = document.getElementById("root");
   if (!rootEl) throw new Error("В index.html отсутствует элемент #root");
-  ReactDOM.createRoot(rootEl).render(<App />);
+  ReactDOM.createRoot(rootEl).render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>,
+  );
 } catch (err) {
   // Страховка от «пустого экрана»: читаемое сообщение вместо чёрной пустоты.
   window.setTimeout(() => {

@@ -5,6 +5,8 @@ import { useGameStore } from './hooks/useGameStore';
 import { useKeyboardControls } from './hooks/useKeyboardControls';
 import { MainMenu } from './components/MainMenu';
 import { GameScreen } from './components/GameScreen';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { clearSave } from './game/saveSystem';
 
 /**
  * Точка входа — только композиция экранов и глобальные подписки.
@@ -68,7 +70,18 @@ function App() {
   }
 
   if (!inGame) {
-    return <div className="text-white p-8">Error: Invalid game state</div>;
+    // Повреждённый сейв больше не должен показывать «Error: Invalid game state» —
+    // чистим его и возвращаем игрока в главное меню.
+    return (
+      <MainMenu
+        hasSave={false}
+        onStartNewGame={(race) => store.startNewGame(undefined, race)}
+        onLoadSavedGame={() => {
+          clearSave();
+          return false;
+        }}
+      />
+    );
   }
 
   return (

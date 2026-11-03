@@ -60,3 +60,12 @@ export function loadGame(): { gameState: GameState; unlockedAchievements: string
 export function hasSave(): boolean {
   return localStorage.getItem(SAVE_KEY) !== null;
 }
+
+/** Полная очистка сохранённой игры (страховка при повреждённом сейве). */
+export function clearSave(): void {
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch (error) {
+    console.error('Failed to clear save:', error);
+  }
+}
