@@ -11,7 +11,7 @@ interface CompanionsWindowProps {
  */
 export function CompanionsWindow({ npcs }: CompanionsWindowProps) {
   return (
-    <WindowPane title="Встреченные души" scroll
+    <WindowPane title="Встреченные души" icon="🕯️" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">{npcs.length}</span>}>
       <div className="space-y-1.5">
         {npcs.length === 0 && (

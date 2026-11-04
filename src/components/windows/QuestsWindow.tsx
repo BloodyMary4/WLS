@@ -17,7 +17,7 @@ interface QuestsWindowProps {
  */
 export function QuestsWindow({ quests }: QuestsWindowProps) {
   return (
-    <WindowPane title="Испытания судьбы" scroll
+    <WindowPane title="Испытания судьбы" icon="⚔️" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">{quests.length}</span>}>
       <div className="space-y-1.5">
         {quests.length === 0 && (

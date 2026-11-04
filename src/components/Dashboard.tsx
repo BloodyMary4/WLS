@@ -36,8 +36,20 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
       className={`wh-window flex flex-col min-h-0 overflow-hidden ${stretch ? 'h-full' : ''} ${className}`}
       aria-label={title}
     >
-      <header className="wh-window-head shrink-0 flex items-center gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
-        <h3 className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] truncate">{title}</h3>
+      <header className="wh-window-head shrink-0 flex items-stretch gap-1.5 px-2 py-1 border-b border-[#c9a227]/40">
+        {/* v0.3.86: иконка окна — плашка во всю высоту заголовка, глиф
+            центрирован по объёму колонки (вертикаль и горизонталь), тонкая
+            золотая грань отделяет его от названия. Композиция 25/50/25 не
+            затронута — меняется только оформление шапки окна. */}
+        {icon && (
+          <span
+            aria-hidden="true"
+            className="shrink-0 grid place-items-center w-[22px] rounded-sm text-[13px] leading-none text-[#e8c85a] border-r border-[#c9a227]/25 bg-[#c9a227]/[0.07]"
+          >
+            {icon}
+          </span>
+        )}
+        <h3 className="self-center font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] truncate">{title}</h3>
         <span className="ml-auto flex items-center gap-1.5 shrink-0">{extra}</span>
       </header>
       {/* Базовая высота контента (v0.3.32): даже без растянутого родителя

@@ -18,7 +18,7 @@ export function HiddenStatsWindow({ character }: HiddenStatsWindowProps) {
   const hp = character.hiddenParams;
   const raceBars = buildRaceBars(character);
   return (
-    <WindowPane title="Скрытые свойства" scroll
+    <WindowPane title="Скрытые свойства" icon="👁️" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">0–10</span>}>
       <BarStat label="Вера" value={hp.faith} color="bg-amber-500" hint={HIDDEN_HINTS.faith} />
       <BarStat label="Хитрость" value={hp.cunning} color="bg-emerald-500" hint={HIDDEN_HINTS.cunning} />

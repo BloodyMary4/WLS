@@ -15,7 +15,7 @@ interface DossierWindowProps {
  */
 export function DossierWindow({ character, raceInfo }: DossierWindowProps) {
   return (
-    <WindowPane title="Досье">
+    <WindowPane title="Досье" icon="🗂️">
       {/* v0.3.53: ровная таблица «метка — значение» вместо разбросанных строк */}
       <dl className="wh-readout">
         <ReadoutRow label="Раса" value={raceInfo.name} hint={`${raceInfo.emoji} ${raceInfo.description}`} />

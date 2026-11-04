@@ -14,7 +14,7 @@ interface SuppliesWindowProps {
 export function SuppliesWindow({ character }: SuppliesWindowProps) {
   const starving = isStarving(character.food);
   return (
-    <WindowPane title="Снабжение">
+    <WindowPane title="Снабжение" icon="📦">
       {/* v0.3.53: чистая таблица припасов — метки выровнены, эмодзи убраны */}
       <dl className="wh-readout">
         <ReadoutRow label="Кредиты" value={`${character.credits} ₡`}
