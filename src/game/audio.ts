@@ -1080,6 +1080,7 @@ export class GrimdarkAmbience {
     bandpass.connect(gain);
     gain.connect(panner);
     panner.connect(this.masterGain);
+    this.sendToReverb(panner, 0.35); // v0.4.3 лязг механизма — с соборным эхом
 
     osc.start(now);
     osc.stop(now + 0.4);
@@ -1183,6 +1184,7 @@ export class GrimdarkAmbience {
     bandpass.connect(gain);
     gain.connect(panner);
     panner.connect(this.masterGain);
+    this.sendToReverb(panner, 0.3); // v0.4.3 скрип металла — в соборный хвост
 
     noise.start(now);
   }
@@ -1404,6 +1406,7 @@ export class GrimdarkAmbience {
     shaper.connect(lp);
     lp.connect(out);
     out.connect(this.masterGain);
+    this.sendToReverb(out, 0.25); // v0.4.3 грязный бас — с соборным рыком
 
     for (let hit = 0; hit < 2; hit++) {
       const t = now + hit * 0.42;
@@ -1453,6 +1456,7 @@ export class GrimdarkAmbience {
       osc.connect(g);
       g.connect(panner);
       panner.connect(this.masterGain);
+      this.sendToReverb(panner, 0.3); // v0.4.3 удары конвейера — в соборный зал
       osc.start(t);
       osc.stop(t + 0.5);
 
@@ -1556,6 +1560,7 @@ export class GrimdarkAmbience {
     filter.connect(gain);
     gain.connect(panner);
     panner.connect(this.masterGain);
+    this.sendToReverb(panner, 0.45); // v0.4.3 сольная нота — в соборный свод
     
     osc.start(now);
     osc.stop(now + duration);
@@ -1732,6 +1737,7 @@ export class GrimdarkAmbience {
     chordDelayFilter.connect(chordFeedback);
     chordFeedback.connect(chordDelay);
     chordDelayFilter.connect(this.masterGain);
+    this.sendToReverb(chordDelayFilter, 0.4); // v0.4.3 аккорд — соборный хвост
   }
 
   private playAtmospheric() {
@@ -1797,6 +1803,7 @@ export class GrimdarkAmbience {
       
       osc2.start(now);
       osc2.stop(now + duration);
+      this.sendToReverb(panner, 0.4); // v0.4.3 атмосферный свист — в собор
     } else if (type < 0.5) {
       const osc = this.audioContext.createOscillator();
       const gain = this.audioContext.createGain();
@@ -2038,6 +2045,7 @@ export class GrimdarkAmbience {
       filter.connect(gain);
       gain.connect(panner);
       panner.connect(this.masterGain);
+      this.sendToReverb(panner, 0.35); // v0.4.3 подземные удары — с гулом зала
       
       osc.start(pulseTime);
       osc.stop(pulseTime + pulseDuration);
@@ -2114,6 +2122,7 @@ export class GrimdarkAmbience {
     noise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
     noiseGain.connect(master);
+    this.sendToReverb(noiseGain, 0.4); // v0.4.3 шумовой удар — соборный хвост
 
     noise.start(now);
   }
@@ -2279,6 +2288,7 @@ export class GrimdarkAmbience {
     noise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
     noiseGain.connect(master);
+    this.sendToReverb(noiseGain, 0.4); // v0.4.3 шумовой удар — соборный хвост
     noise.start(now);
   }
 
@@ -2557,6 +2567,7 @@ export class GrimdarkAmbience {
     noiseFilter.connect(noiseGain);
     noiseGain.connect(noisePanner);
     noisePanner.connect(this.masterGain);
+    this.sendToReverb(noisePanner, 0.5); // v0.4.3 стон гибели — на весь собор
     
     noise.start(now);
 
@@ -2681,6 +2692,7 @@ export class GrimdarkAmbience {
     oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
     osc.connect(oscGain);
     oscGain.connect(this.masterGain);
+    this.sendToReverb(oscGain, 0.45); // v0.4.3 дальний взрыв — гул по собору
     osc.start(now);
     osc.stop(now + 1.0);
 
