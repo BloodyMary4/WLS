@@ -12,20 +12,23 @@ interface DeathScreenProps {
   onNewLife: () => void;
 }
 
-/** Хроника-запись о выборе в событии (формат reducer.handleChoice). */
-const CHOICE_ENTRY_RE = /^\[Год \d+\]/;
+/** Любая осмысленная запись жизни: выборы, чудеса, наследие. */
+const ANY_ENTRY_RE = /^\[(?:Год \d+|Наследие)/;
 /** Метка судьбоносного выбора (событие с effects.keyChoice). */
 const FATE_MARK = '**судьба**';
 
 /**
  * Выборка итоговой летописи жизни: судьбоносные выборы
  * (записи с меткой «судьба») + последние события жизни.
+ * v0.3.85: учитываются не только строки «[Год N]», но и «[Наследие]» /
+ * «[Ключевой …]» — раньше при редких форматах записей летопись могла
+ * оказаться пустой и весь блок исчезал с экрана смерти.
  */
 export function buildLifeChronicle(
   history: string[],
   maxEntries = 8,
 ): string[] {
-  const choiceEntries = history.filter((h) => CHOICE_ENTRY_RE.test(h));
+  const choiceEntries = history.filter((h) => ANY_ENTRY_RE.test(h));
   const fateEntries = choiceEntries.filter((h) => h.includes(FATE_MARK));
   const tail = choiceEntries.slice(-4);
   const merged = [...new Set([...fateEntries, ...tail])];
@@ -64,7 +67,16 @@ export function buildChronicleExport(
 /** Эпитафия: итоги жизни, экспорт летописи и кнопка новой реинкарнации. */
 export function DeathScreen({ character, raceInfo, deathMessage, history, onNewLife }: DeathScreenProps) {
   const miracles = character.intercessionCount ?? 0;
-  const chronicle = buildLifeChronicle(history);
+  // v0.3.85: летопись не должна исчезать с экрана смерти. Если отбор пуст
+  // (например, гибель до первого завершённого выбора) — показываем последние
+  // записи истории, а при полном их отсутствии — запись о рождении и гибели.
+  const chronicle = (() => {
+    const picked = buildLifeChronicle(history);
+    if (picked.length > 0) return picked;
+    const recent = history.slice(-8);
+    if (recent.length > 0) return recent;
+    return [`[Год ${character.age}] ${deathMessage}`];
+  })();
   const [copied, setCopied] = useState(false);
 
   /** Копирование полной летописи жизни в буфер обмена (дорожная карта п.5). */

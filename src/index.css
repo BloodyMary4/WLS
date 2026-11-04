@@ -171,18 +171,22 @@ button:not([class*="btn"]), [type="button"]:not([class*="btn"]) {
   background: linear-gradient(90deg, transparent 0%, rgba(201, 162, 39, 0.7) 20%, rgba(201, 162, 39, 0.7) 80%, transparent 100%);
   position: relative;
 }
-.wh-divider::after {
-  /* v0.3.84: глиф-крест ✙ заменён на ромб-«каплю воска» — тот же декор,
-     но символ гарантированно рендерится в текстовых шрифтах. */
-  content: '\25C6'; /* ◆ */
+/* v0.3.85: «багованная иконка» после разделителя убрана полностью.
+   Ромб ◆ из системного fallback-шрифта рендерился как тофу-квадрат
+   (тот же класс бага, что был с ✠/✛). Вместо глифа — чистая золотая
+   «скрепа» по центру линии: только градиент, никаких символов. */
+.wh-divider::before {
+  content: '';
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: #0b0a08;
-  color: var(--wh-gold);
-  padding: 0 12px;
-  font-size: 0.7rem;
+  width: 56px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(232, 200, 90, 0.9), transparent);
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.35);
+  pointer-events: none;
 }
 
 /* Мерцание «свечи» — только для редких мистических акцентов (клятва Инквизиции).
