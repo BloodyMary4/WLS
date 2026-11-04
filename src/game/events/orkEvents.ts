@@ -12,7 +12,6 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
         { letter: 'Б', text: 'Слушать Горка — хитрость тоже сила', effects: { cunning: 3, sneakiness: 2, keyChoice: 'gork_mork', addTrait: 'Хитрован Горка', description: 'Ты ударяешь исподтишка, как Горк. Тебя называют умным — для орка это почти оскорбление, но работает.' } },
         { letter: 'В', text: 'Драться за обоих сразу', effects: { strength: 1, cunning: 1, waaagh: 2, sanity: -4, keyChoice: 'gork_mork', newStatus: 'Пророк двух богов', description: 'Ты орёшь имена обоих и кидаешься в драку. Гризник позже скажет: «Этот либо гений, либо совсем тронулся». WAAAGH!' } },
         { letter: 'Г', text: 'Боги? Настоящий бог — тот, кто сильнее тебя', effects: { willpower: 2, suspicion: 2, keyChoice: 'gork_mork', description: 'Ты плюёшь на алтарь. Старые орки ворчат, молодые смотрят с опаской. Теперь ты сам себе бог.' } },
-        { letter: 'Д', text: 'Почитать обоих по-своему: собрать под алтарем ящик патронов «для жертвы»', effects: { ammo: 10, waaagh: 1, cunning: 1, keyChoice: 'gork_mork', description: '«Жертва» Горку и Морку — это патроны, сложены горкой у алтаря. Боги не возражают (орки решают, что боги не возражают), а ночью «жертва» переезжает в твой бункер. Религия и логистика в одном флаконе.' } },
       ]
     };
   }
@@ -24,7 +23,7 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
         { letter: 'А', text: 'Стать главным инженером племени', effects: { techSkill: 3, cunning: 2, newStatus: 'Инженер племени', description: 'Ты — главный инженер! Все пушки, все машины — твои. Ты важен!' } },
         { letter: 'Б', text: 'Использовать знания для власти', effects: { cunning: 3, waaagh: 1, description: 'Ты чинишь только для тех, кто платит. Или подчиняется. Ты получаешь власть.' } },
         { letter: 'В', text: 'Обучать других гретчинов', effects: { techSkill: 2, cunning: 1, addTrait: 'Учитель', description: 'Ты учишь гретчинов. Они становятся полезнее. Племя сильнее.' } },
-        { letter: 'Г', text: 'Создать собственное оружие', effects: { techSkill: 3, strength: 1, addItem: 'Уникальная пушка', description: 'Ты создаёшь... нечто новое. Пушка, которая стреляет дважды! WAAAGH!' } },
+        { letter: 'Г', text: 'Создать собственное оружие', effects: { techSkill: 3, strength: 1, ammo: 6, addItem: 'Уникальная пушка', description: 'Ты создаёшь... нечто новое. Пушка, которая стреляет дважды! А заодно и патроны к ней — сам льёшь, сам считает. Первый ящик — твой. WAAAGH!' } },
       ]
     };
   }
@@ -60,7 +59,7 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
         { letter: 'А', text: 'Доказать свою силу в драке', effects: { strength: 2, waaagh: 1, description: 'Ты дерёшься и побеждаешь. Теперь тебя уважают.' } },
         { letter: 'Б', text: 'Следовать за самым сильным', effects: { cunning: 1, waaagh: 1, description: 'Ты учишься у лучших. Мудрость для орка.' } },
         { letter: 'В', text: 'Исследовать окрестности', effects: { cunning: 2, description: 'Ты находишь интересные вещи. Любопытство — не порок.' } },
-        { letter: 'Г', text: 'Есть всё, что найдёшь', effects: { strength: 1, health: 2, description: 'Ты растёшь сильным. Еда — это сила.' } },
+        { letter: 'Г', text: 'Есть всё, что найдёшь', effects: { strength: 1, health: 2, food: 4, description: 'Ты растёшь сильным. Еда — это сила. А ещё — то, что не съедено другими, можно унести с собой: вонючий трофейный мешок освящён на орочьий лад.' } },
       ]
     };
   }
@@ -84,7 +83,7 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
         { letter: 'А', text: 'Вести атаку!', effects: { strength: 3, waaagh: 3, description: 'Ты в авангарде! WAAAGH! Слава и кровь!' } },
         { letter: 'Б', text: 'Стать стратегом', effects: { cunning: 3, waaagh: 1, description: 'Ты планируешь атаку. Умный орк — опасный орк.' } },
         { letter: 'В', text: 'Собрать свою банду', effects: { strength: 2, cunning: 2, newStatus: 'Босс банды', description: 'Теперь у тебя есть свои бойцы. Ты — лидер.' } },
-        { letter: 'Г', text: 'Искать лучшее оружие', effects: { techSkill: 2, strength: 1, description: 'Ты находишь крутую пушку. Теперь ты ещё опаснее.' } },
+        { letter: 'Г', text: 'Искать лучшее оружие', effects: { techSkill: 2, strength: 1, ammo: 5, description: 'Ты находишь крутую пушку — и патронташ к ней, брошенный кем-то, кто уже не постреляет. Теперь ты ещё опаснее.' } },
       ]
     };
   }

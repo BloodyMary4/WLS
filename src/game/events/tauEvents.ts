@@ -68,7 +68,7 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
         { letter: 'А', text: 'Верить в мирное присоединение', effects: { unity: 2, faith: 1, description: 'Высшее Благо — это дар. Все должны его принять.' } },
         { letter: 'Б', text: 'Сомневаться в методах', effects: { willpower: 2, cunning: 1, description: 'Сила... это не путь Тау. Или есть исключения?' } },
         { letter: 'В', text: 'Изучать культуру чужаков', effects: { cunning: 2, techSkill: 1, description: 'Понимание — первый шаг к интеграции.' } },
-        { letter: 'Г', text: 'Готовиться к войне', effects: { strength: 2, unity: 1, description: 'Если они не примут Добро... мы принесём его.' } },
+        { letter: 'Г', text: 'Готовиться к войне', effects: { strength: 2, unity: 1, ammo: 5, description: 'Если они не примут Добро... мы принесём его. Твой взвод получает боекомплект сверх штата — казённый склад умеет «терять» ящики, когда смотрят нужные глаза.' } },
       ]
     };
   }

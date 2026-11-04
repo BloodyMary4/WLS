@@ -7,6 +7,15 @@ export interface MicroEvent {
   probability: number;
   effects: ChoiceEffects;
   race?: string | string[];
+  /**
+   * Вредные привычки (v0.3.82 «Логистика»): списывают ресурс (например, патроны
+   * уходят «на пострелушки»). Применяются только если в эффектах есть positive —
+   * тогда же срабатывает и положительный эффект (клад/трофей). Иначе событие
+   * молча пропускается: игрок никогда не теряет то, чего у него нет.
+   */
+  drains?: Partial<Pick<ChoiceEffects, 'ammo' | 'food'>>;
+  /** Положительный эффект-компаньон (см. drains). */
+  positive?: Partial<Pick<ChoiceEffects, 'ammo' | 'food'>>;
 }
 
 export const MICRO_EVENTS: MicroEvent[] = [
@@ -246,7 +255,62 @@ export const MICRO_EVENTS: MicroEvent[] = [
     probability: 0.07,
     effects: { ammo: 4, techSkill: 1, description: 'Списанное оборудование падает вниз целыми коробками. Учишься различать калибры на ощупь — пригодится раньше, чем кажется.' }
   },
+  // ===== ВРЕДНЫЕ ПРИВЫЧКИ (v0.3.82): боезапас наконец РАСХОДУЕТСЯ =====
+  // drains/positive: срабатывают только когда есть что списывать — игрок
+  // никогда не теряет то, чего у него нет (см. resolveMicroEventEffects).
+  {
+    text: 'Старый ствол в углу шепчет: «Ну ещё один выстрел, только один». И ты стреляешь — в банку, в небо, в прошлое.',
+    probability: 0.06,
+    race: ['human', 'ork', 'gretchin', 'tau'],
+    drains: { ammo: 2 },
+    positive: { ammo: 5 },
+    effects: { luck: 1, sanity: 1, description: 'Гильза звенит на бетоне — маленький колокольчик счастья. Патроны кончаются, а этот звук остаётся в памяти навсегда.' }
+  },
+  {
+    text: 'Напарник по караулу устраивает «честные стрельбища»: кто дальше. Победитель получает табак, проигравший — молчит.',
+    probability: 0.05,
+    race: ['human', 'tau'],
+    drains: { ammo: 3 },
+    positive: { ammo: 6 },
+    effects: { strength: 1, unity: 1, description: 'Ты тратишь заряды, чтобы доказать, что умеешь их беречь. Парадокс караульной жизни — но рука после таких дней стреляет ровнее.' }
+  },
+  {
+    text: 'Ты пересчитываешь припасы и понимаешь: мыши в кладовке работали усерднее налоговиков.',
+    probability: 0.06,
+    drains: { food: 2 },
+    positive: { food: 5 },
+    effects: { cunning: 1, description: 'Порча съедает запас быстрее, чем голод учит экономии. С тех пор прячешь еду надёжнее, чем деньги.' }
+  },
 ];
+
+/**
+ * Разрешение «вредных привычек» (v0.3.82 «Логистика»): из события со связкой
+ * drains/positive применяется и списание, и пополнение — но только если у
+ * персонажа реально есть что списывать. Так боезапас и провизия получают
+ * честный расход без обидных потерь «в никуда» для тех, у кого ресурс пуст.
+ */
+export function resolveMicroEventEffects(
+  event: MicroEvent,
+  character: Pick<CharacterStats, 'ammo' | 'food'>
+): ChoiceEffects {
+  if (!event.drains) return event.effects;
+  const dAmmo = event.drains.ammo ?? 0;
+  const dFood = event.drains.food ?? 0;
+  const hasAmmo = (character.ammo ?? 0) >= dAmmo;
+  const hasFood = (character.food ?? 0) >= dFood;
+  if (!hasAmmo || !hasFood) return { ...event.effects, description: '' };
+  const merged: ChoiceEffects = { ...event.effects };
+  if (dAmmo > 0 && event.positive?.ammo) merged.ammo = event.positive.ammo - dAmmo;
+  if (dFood > 0 && event.positive?.food) merged.food = event.positive.food - dFood;
+  return merged;
+}
+
+/** true, если событие с drains сейчас вообще может произойти (есть что терять). */
+export function microEventDrainAvailable(event: MicroEvent, character: Pick<CharacterStats, 'ammo' | 'food'>): boolean {
+  if (!event.drains) return true;
+  return (character.ammo ?? 0) >= (event.drains.ammo ?? 0) &&
+         (character.food ?? 0) >= (event.drains.food ?? 0);
+}
 
 /**
  * Кулдаун микро-событий: событие может сработать не чаще,
@@ -292,6 +356,9 @@ export function pickMicroEvent(character: CharacterStats): MicroEvent | null {
     if (!inImperium && (event.effects.imperium !== undefined || event.effects.faith !== undefined)) {
       return false;
     }
+    // Вредные привычки со списанием ресурса не предлагаются тем, у кого
+    // терять нечего (v0.3.82 «Логистика»).
+    if (!microEventDrainAvailable(event, character)) return false;
     return true;
   });
 
