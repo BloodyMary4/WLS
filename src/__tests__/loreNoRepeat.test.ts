@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getHumanLoreEvent, stripLoreMarker, loreMarkerIndex } from '../game/events/humanLoreEvents';
+import { getHumanLoreEvent, stripLoreMarker, loreMarkerIndex, commitLoreSeen } from '../game/events/humanLoreEvents';
 import { makeCharacter } from '../game/testHelpers';
 import { CharacterStats } from '../game/types';
 
@@ -26,6 +26,9 @@ describe('Лорный пул: без повторов и детерминиро
       const idx = loreMarkerIndex(ev.text);
       expect(idx).not.toBeNull();
       shown.push(idx!);
+      // Имитируем реальный игровой цикл: reducer вызывает markLoreSeen только
+      // ПОСЛЕ того, как игрок сделал выбор. Функция выбора сама по себе чистая.
+      commitLoreSeen(c, ev.text);
     }
     const dupes = shown.filter((x, i) => shown.indexOf(x) !== i && i < shown.length - shown.length);
     // до сброса колоды повторы невозможны; проверяем, что в префиксе без сброса их нет
