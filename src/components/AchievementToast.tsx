@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { GameIcon, resolveIcon } from './icons';
 import { ACHIEVEMENTS } from '../game/achievements';
 
 interface AchievementToastProps {
@@ -36,12 +37,13 @@ export function AchievementToast({ achievementId }: AchievementToastProps) {
     >
       <div className="wh-panel wh-frame px-6 py-4 shadow-2xl backdrop-blur-sm border !border-[#c9a227]/70">
         <div className="flex items-center gap-4">
-          <div className="text-4xl shrink-0 drop-shadow-[0_0_12px_rgba(201,162,39,0.6)]">
-            {achievement.icon}
+          {/* v0.3.90 «Гравировка»: SVG-медальон достижения вместо эмодзи */}
+          <div className="shrink-0 w-11 h-11 grid place-items-center rounded-full border border-[#c9a227]/60 bg-gradient-to-b from-[#241d10] to-[#14100a] text-[#e8c85a] shadow-[inset_0_1px_2px_rgba(0,0,0,0.8),0_0_10px_rgba(201,162,39,0.35)]">
+            <GameIcon name={resolveIcon(achievement.icon)} className="w-6 h-6" />
           </div>
           <div>
             <div className="font-gothic text-base text-[#e8c85a] font-bold uppercase tracking-widest mb-2">
-              🏆 Достижение разблокировано!
+              Достижение разблокировано!
             </div>
             <div className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
               {achievement.name}

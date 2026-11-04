@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { GameIcon, resolveIcon } from './icons';
 import { clampStat } from '../game/statMeta';
 interface HiddenStatProps {
   label: string;
@@ -27,7 +28,7 @@ export function HiddenStat({ label, value, icon, color, hint }: HiddenStatProps)
       className="relative flex items-center gap-2 group hover:bg-[#c9a227]/5 rounded-sm px-2 py-1 transition-all"
       title={hint}
     >
-      <span className="text-base w-6 text-center transform group-hover:scale-110 transition-transform">{icon}</span>
+      <span className="w-6 flex justify-center text-[#dcb96a] transform group-hover:scale-110 transition-transform"><GameIcon name={resolveIcon(icon)} className="w-4 h-4" /></span>
       <span className="font-gothic text-xs text-[#b8a878] w-24 shrink-0 tracking-wide truncate">{label}</span>
       <div className="wh-bar flex-1 overflow-hidden" style={{ height: '8px' }}>
         <div

@@ -4,6 +4,7 @@ import { describeEffectChips, EffectChip } from '../game/effectLabels';
 import { describeDeltas } from '../game/deltaLabels';
 import { PublicStatKey } from '../game/utils';
 import { stripLoreMarker } from '../game/events/humanLoreEvents';
+import { GameIcon, resolveIcon } from './icons';
 
 /** Стиль метки последствия по «тону» (понятность без догадок). */
 const CHIP_TONE_CLS: Record<EffectChip['tone'], string> = {
@@ -24,7 +25,8 @@ function EffectChipRow({ chips, compact }: { chips: EffectChip[]; compact?: bool
           key={i}
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border text-xs font-semibold tracking-wide ${CHIP_TONE_CLS[chip.tone]} ${compact ? 'opacity-80' : ''}`}
         >
-          <span>{chip.icon}</span>
+          {/* v0.3.90 «Гравировка»: SVG-глиф вместо эмодзи */}
+          <GameIcon name={resolveIcon(chip.icon)} className="w-3 h-3 shrink-0" />
           {chip.label}
         </span>
       ))}
@@ -39,8 +41,8 @@ function EffectChipRow({ chips, compact }: { chips: EffectChip[]; compact?: bool
 
 /** Маркер «веса» решения для кнопки выбора: судьба ⚡ или опасность 💀. */
 const RISK_BADGE: Record<'fate' | 'danger', { icon: string; label: string; cls: string }> = {
-  fate: { icon: '⚡', label: 'Судьбоносный выбор', cls: 'text-[#e8c85a] border-[#e8c85a]/60 bg-[#e8c85a]/10' },
-  danger: { icon: '💀', label: 'Опасно для жизни', cls: 'text-[#e07a7a] border-[#e07a7a]/60 bg-[#e07a7a]/10' },
+  fate: { icon: 'bolt', label: 'Судьбоносный выбор', cls: 'text-[#e8c85a] border-[#e8c85a]/60 bg-[#e8c85a]/10' },
+  danger: { icon: 'skull', label: 'Опасно для жизни', cls: 'text-[#e07a7a] border-[#e07a7a]/60 bg-[#e07a7a]/10' },
 };
 
 interface EventCardProps {
@@ -182,7 +184,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
         <div className="result-block flex flex-col flex-1 min-h-0 space-y-2.5 animate-fade-in" aria-live="polite">
           <EventParchment
             text={resultText}
-            icon={isMiracle(resultText) ? '🕊️' : '⚔️'}
+            icon={isMiracle(resultText) ? 'dove' : 'swords'}
             miracle={isMiracle(resultText)}
             extra={<DeltaSummary deltas={lastDeltas} />}
           />
@@ -248,9 +250,10 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
                   <span
                     title={badge.label}
                     aria-label={badge.label}
-                    className={`flex-shrink-0 mt-0.5 px-1.5 py-0.5 rounded-sm border text-sm leading-none ${badge.cls}`}
+                    className={`flex-shrink-0 mt-0.5 px-1.5 py-0.5 rounded-sm border leading-none ${badge.cls}`}
                   >
-                    {badge.icon}
+                    {/* v0.3.90 «Гравировка»: SVG-глиф бейджа риска */}
+                    <GameIcon name={resolveIcon(badge.icon)} className="w-4 h-4" />
                   </span>
                 )}
               </div>

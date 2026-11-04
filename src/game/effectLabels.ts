@@ -13,14 +13,14 @@ export interface EffectChip {
 
 /** Иконки и подписи для числовых эффектов (в порядке показа). */
 const NUMERIC_META: Array<{ key: keyof ChoiceEffects; icon: string; name: string; good: string; bad: string }> = [
-  { key: 'health', icon: '❤️', name: 'Здоровье', good: 'здоровье', bad: 'ранен(а)' },
-  { key: 'sanity', icon: '🧠', name: 'Рассудок', good: 'рассудок', bad: 'ужас' },
-  { key: 'warpCorruption', icon: '☣️', name: 'Порча', good: 'порча', bad: 'порча' },
-  { key: 'credits', icon: '💰', name: 'Кредиты', good: 'нажива', bad: 'убыток' },
-  { key: 'food', icon: '🍖', name: 'Провизия', good: 'паёк', bad: 'паёк' },
-  { key: 'ammo', icon: '🔫', name: 'Боезапас', good: 'заряды', bad: 'заряды' },
-  { key: 'influence', icon: '⭐', name: 'Влияние', good: 'влияние', bad: 'влияние' },
-  { key: 'luck', icon: '🎲', name: 'Удача', good: 'удача', bad: 'невезение' },
+  { key: 'health', icon: 'heart', name: 'Здоровье', good: 'здоровье', bad: 'ранен(а)' },
+  { key: 'sanity', icon: 'brain', name: 'Рассудок', good: 'рассудок', bad: 'ужас' },
+  { key: 'warpCorruption', icon: 'biohazard', name: 'Порча', good: 'порча', bad: 'порча' },
+  { key: 'credits', icon: 'coin', name: 'Кредиты', good: 'нажива', bad: 'убыток' },
+  { key: 'food', icon: 'bread', name: 'Провизия', good: 'паёк', bad: 'паёк' },
+  { key: 'ammo', icon: 'ammo', name: 'Боезапас', good: 'заряды', bad: 'заряды' },
+  { key: 'influence', icon: 'star', name: 'Влияние', good: 'влияние', bad: 'влияние' },
+  { key: 'luck', icon: 'dice', name: 'Удача', good: 'удача', bad: 'невезение' },
 ];
 
 /** Значимые пороги: ниже — косметика, не показываем. */
@@ -69,17 +69,17 @@ export function describeEffectChips(effects: ChoiceEffects, full = false): Effec
   // Предупреждение: заметный прирост Порчи Варпа
   const corruptionGain = effects.warpCorruption ?? 0;
   if (corruptionGain >= CORRUPTION_WARN) {
-    chips.push({ icon: '⚠️', label: 'Варп замечает тебя', tone: 'bad' });
+    chips.push({ icon: 'warning', label: 'Варп замечает тебя', tone: 'bad' });
   }
 
   // Качественные изменения (без чисел — всегда показываем)
-  if (effects.addItem) chips.push({ icon: '🗡️', label: effects.addItem, tone: 'good' });
-  if (effects.addAugmentic) chips.push({ icon: '⚙️', label: 'Аугметика установлена', tone: 'good' });
-  if (effects.removeItem) chips.push({ icon: '🗑️', label: `Потеря: ${effects.removeItem}`, tone: 'bad' });
-  if (effects.removeAugmentic) chips.push({ icon: '🗑️', label: 'Аугметика утрачена', tone: 'bad' });
-  if (effects.addTrait) chips.push({ icon: '🎭', label: `Черта: ${effects.addTrait}`, tone: 'neutral' });
-  if (effects.removeTrait) chips.push({ icon: '🎭', label: `Утрачено: ${effects.removeTrait}`, tone: 'neutral' });
-  if (effects.newStatus) chips.push({ icon: '📛', label: effects.newStatus, tone: 'neutral' });
+  if (effects.addItem) chips.push({ icon: 'sword', label: effects.addItem, tone: 'good' });
+  if (effects.addAugmentic) chips.push({ icon: 'gear', label: 'Аугметика установлена', tone: 'good' });
+  if (effects.removeItem) chips.push({ icon: 'clipboard', label: `Потеря: ${effects.removeItem}`, tone: 'bad' });
+  if (effects.removeAugmentic) chips.push({ icon: 'clipboard', label: 'Аугметика утрачена', tone: 'bad' });
+  if (effects.addTrait) chips.push({ icon: 'person', label: `Черта: ${effects.addTrait}`, tone: 'neutral' });
+  if (effects.removeTrait) chips.push({ icon: 'person', label: `Утрачено: ${effects.removeTrait}`, tone: 'neutral' });
+  if (effects.newStatus) chips.push({ icon: 'medal', label: effects.newStatus, tone: 'neutral' });
 
   return chips;
 }

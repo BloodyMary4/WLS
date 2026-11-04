@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { GameIcon, resolveIcon } from './icons';
 
 /**
  * Модуль оконной раскладки игрового экрана (v0.3.26).
@@ -49,7 +50,9 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
             aria-hidden="true"
             className="wh-pane-icon shrink-0 grid place-items-center rounded-full"
           >
-            <span className="wh-pane-icon-glyph">{icon}</span>
+            {/* v0.3.90 «Гравировка»: SVG-глиф вместо эмодзи — единый штрих,
+                цвет наследуется от медальона (currentColor). */}
+            <GameIcon name={resolveIcon(icon)} />
           </span>
         )}
         <h3 className="self-center font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] truncate">{title}</h3>
@@ -87,7 +90,7 @@ export function ReadoutRow({ label, value, icon, hint, tone = 'default' }: {
       <span className="flex items-center gap-1.5 text-[#b8a878] shrink-0">
         {icon && (
           <span aria-hidden="true" className="wh-bar-icon shrink-0 grid place-items-center rounded-full">
-            <span className="wh-bar-icon-glyph">{icon}</span>
+            <GameIcon name={resolveIcon(icon)} />
           </span>
         )}
         {label}
@@ -118,7 +121,7 @@ export function BarStat({ label, value, max = 10, icon, color, hint, danger }: {
         <span className={`flex items-center gap-1.5 min-w-0 font-gothic tracking-wide truncate ${danger ? 'text-[#e07a7a] font-bold' : 'text-[#b8a878]'}`}>
           {icon && (
             <span aria-hidden="true" className="wh-bar-icon shrink-0 grid place-items-center rounded-full">
-              <span className="wh-bar-icon-glyph">{icon}</span>
+              <GameIcon name={resolveIcon(icon)} />
             </span>
           )}
           {label}

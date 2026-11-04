@@ -8,10 +8,10 @@ describe('describeEffectChips — понятные метки последств
   it('показывает значимые числовые эффекты с тонировкой', () => {
     const chips = describeEffectChips({ ...base, health: -10, credits: 50 });
     expect(chips).toHaveLength(2);
-    const hp = chips.find((c) => c.icon === '❤️');
+    const hp = chips.find((c) => c.icon === 'heart');
     expect(hp?.label).toBe('−10 Здоровье');
     expect(hp?.tone).toBe('bad');
-    const cr = chips.find((c) => c.icon === '💰');
+    const cr = chips.find((c) => c.icon === 'coin');
     expect(cr?.label).toBe('+50 Кредиты');
     expect(cr?.tone).toBe('good');
   });
@@ -22,7 +22,7 @@ describe('describeEffectChips — понятные метки последств
 
   it('Порча Варпа: рост — плохой тон, +8 и выше даёт предупреждение', () => {
     const chips = describeEffectChips({ ...base, warpCorruption: 10 });
-    const corruption = chips.find((c) => c.icon === '☣️');
+    const corruption = chips.find((c) => c.icon === 'biohazard');
     expect(corruption?.tone).toBe('bad');
     expect(chips.some((c) => c.label === 'Варп замечает тебя')).toBe(true);
     // слабый прирост порчи — без паники
@@ -37,7 +37,7 @@ describe('describeEffectChips — понятные метки последств
 
   it('развёрнутый режим для экрана результата использует лорные слова', () => {
     const chips = describeEffectChips({ ...base, health: -12, sanity: -6 }, true);
-    expect(chips.find((c) => c.icon === '❤️')?.label).toBe('−12 ранен(а)');
-    expect(chips.find((c) => c.icon === '🧠')?.label).toBe('−6 ужас');
+    expect(chips.find((c) => c.icon === 'heart')?.label).toBe('−12 ранен(а)');
+    expect(chips.find((c) => c.icon === 'brain')?.label).toBe('−6 ужас');
   });
 });
