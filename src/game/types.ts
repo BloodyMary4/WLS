@@ -127,6 +127,8 @@ export interface ChoiceEffects {
   removeAugmentic?: string;
   newStatus?: string;
   keyChoice?: string;
+  /** Вера в Императора (люди): конвертируется в imperialCreed (0..10) */
+  creed?: number;
   description: string;
 }
 

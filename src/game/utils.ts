@@ -179,6 +179,11 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
     }
   }
 
+  // Прямое начисление Верности (creed): крупные акты веры в лорных событиях.
+  if (effects.creed !== undefined && effects.creed !== 0 && newChar.race === 'human') {
+    newChar.imperialCreed = Math.max(0, Math.min(10, (newChar.imperialCreed ?? 0) + effects.creed));
+  }
+
   return newChar;
 }
 

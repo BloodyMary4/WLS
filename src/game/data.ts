@@ -182,9 +182,13 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
   }
   // Аугметика: на «пятых» годах после зрелости — предложение импланта
   // из лорного каталога своей фракции (если подходящий ещё не установлен).
+  // Человек после 80 лет получает вместо нового импланта «Век машин» —
+  // сюжетное следствие долголетия на болтах (лорная ветка, v0.4.0).
   if (age >= 15 && age % 5 === 0) {
-    const augEvent = getAugmeticEvent(age, character);
-    if (augEvent) return augEvent;
+    if (!(character.race === 'human' && age >= 80)) {
+      const augEvent = getAugmeticEvent(age, character);
+      if (augEvent) return augEvent;
+    }
   }
   switch (character.race) {
     case 'human': {

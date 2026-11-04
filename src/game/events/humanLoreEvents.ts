@@ -1,5 +1,6 @@
 import { CharacterStats, GameEvent } from '../types';
 import { LORE_POOL_WAVE4 } from './humanLoreEventsWave4';
+import { LORE_POOL_WAVE5 } from './humanLoreEventsWave5';
 
 // ============ ЛОРНЫЕ СОБЫТИЯ ЧЕЛОВЕКА (М41) ============
 // Расширение сюжетной палитры: события завязаны на тип планеты и контекст
@@ -769,7 +770,34 @@ const LORE_POOL: Pool = [
 // взрослая жизнь 25–70, цепочка «Скиталец», десятина) дописывается в конец пула,
 // чтобы индексы первых трёх волн не сдвигались — старые сейвы продолжают
 // корректно отмечать просмотренные события ('loreN').
+// Пятая волна (v0.4.0): следствия аугметических модификаций тела и жизнь
+// после 80 лет — тоже append, индексы первых четырёх волн не сдвигаются.
 LORE_POOL.push(...LORE_POOL_WAVE4);
+LORE_POOL.push(...LORE_POOL_WAVE5);
+
+/**
+ * Гарантированный лорный якорь (v0.4.0): если для возраста/контекста есть
+ * событие с ключевым выбором (keyChoice) или условной веткой (cond), оно
+ * показывается безусловно — так сквозные цепочки («Скиталец», последствия
+ * имплантов, старость после 80) не зависят от случайного ролла и игрок
+ * проходит свой путь целиком. Обычные флейвор-события остаются редкими.
+ */
+function findAnchorEvent(age: number, c: CharacterStats): { e: Pool[number]; i: number } | null {
+  const seen = peekSeen(c);
+  const candidates = LORE_POOL.map((e, i) => ({ e, i })).filter(
+    ({ e, i }) =>
+      age >= e.minAge &&
+      (!e.planet || e.planet.includes(c.planetType)) &&
+      (!e.cond || e.cond(c)) &&
+      !seen.includes('lore' + i) &&
+      // только события-«узлы»: с keyChoice хотя бы одного варианта или cond-условием
+      (!!e.cond || e.ev.choices.some((ch) => ch.effects.keyChoice)),
+  );
+  if (candidates.length === 0) return null;
+  // Детерминированный выбор среди подходящих узлов (тот же год → то же событие)
+  const pick = loreRand(charSeed(c) ^ ((age + 7) * 0x9e3779b1));
+  return candidates[Math.floor(pick() * candidates.length)];
+}
 
 // Анти-повторная машина (v0.3.77): раньше лорные выборы повторялись, потому что
 // пул был маленький и выбирался случайно с возвратом. Теперь:
@@ -823,6 +851,16 @@ function charSeed(c: CharacterStats): number {
 }
 
 export function getHumanLoreEvent(age: number, c: CharacterStats): GameEvent | null {
+  // Якорь сквозных путей (v0.4.0): событие-узел с keyChoice/cond показывается
+  // безусловно — цепочка «Скиталец», следствия имплантов и старость после 80
+  // не зависят от случайного ролла. Если все узлы просмотрены — идем в обычный
+  // редкий флейвор-пул.
+  const anchor = findAnchorEvent(age, c);
+  if (anchor) {
+    const body = anchor.e.ev.text.split('%AGE%').join(String(age));
+    return { ...anchor.e.ev, text: `\u200B${anchor.i}\u200B` + body };
+  }
+
   const all = LORE_POOL.map((e, i) => ({ e, i })).filter(
     ({ e }) => age >= e.minAge && (!e.planet || e.planet.includes(c.planetType)) && (!e.cond || e.cond(c)),
   );
