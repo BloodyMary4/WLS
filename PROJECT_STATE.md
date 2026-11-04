@@ -1,3 +1,7 @@
+# PROJECT_STATE — v0.3.91 (2026-11-05): «Aquila» — имперская геральдика Империума.
+
+**v0.3.91**: новые гравированные SVG-глифы в icons.tsx: aquila (двуглавый орёл с черепом на щите, штрих 1.3), cogwheel (зубчатое колесо Механикус), flamedia (Ignis Aurea). Окна мостика переведены с эмодзи-пропсов на именованные глифы (Снаряжение→cogwheel, Галактика→galaxy, Скрытые→eye, Снабжение→crate, Испытания→swords, Души→candle, Досье→dossier, Хроника→chronicle, Событие/Исход→calendar/scales). CSS plumbata над центральными окнами: абстракция «крылья+ромб» заменена настоящим двуглавым орлом через инлайн-SVG data-URI (никаких шрифтовых глифов — уроки v0.3.84/85). MainMenu: аквила-герб над титулом. GameHeader/StatCard: литеральные ⚠/☠ → SVG warning/skull. tsc 0 ошибок ✅, 257/257 ✅, build ✅. Компоновка 25/50/25 не тронута.
+
 # PROJECT_STATE — v0.3.90 (2026-11-04): «Гравировка» — SVG-глифы вместо эмодзи везде.
 
 **v0.3.90**: src/components/icons.tsx — библиотека из 46 векторных глифов (viewBox 24, единый штрих currentColor, stroke-width 1.6) + GameIcon/resolveIcon (обратная совместимость со старыми эмодзи-пропсами). Переведены на SVG: шапки окон (медальоны v0.3.89 красят глиф золотом), BarStat/ReadoutRow, EffectChipRow, бейджи риска, тост достижений, HiddenStat; effectLabels/achievements хранят имена глифов. Финал: экран смерти (skull/candle/clipboard→bolt/dove/swords) и MainMenu (chronicle/swords) — без эмодзи-литералов. CSS ::before/::after-символов нет. tsc 0 ошибок ✅, 257/257 ✅, build ✅.

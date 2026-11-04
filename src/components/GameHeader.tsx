@@ -6,6 +6,7 @@ import { listCriticalStats } from '../game/critical';
 import { STAT_HINTS, STATUS_HINTS, foodCaption } from '../game/statMeta';
 import { significantDeltas } from '../game/deltaLabels';
 import { PublicStatKey } from '../game/utils';
+import { GameIcon } from './icons';
 import {
   getHealthColor, getHealthBarColor, getSanityColor, getSanityBarColor,
   getWarpCorruptionColor, getWarpCorruptionBarColor,
@@ -49,7 +50,7 @@ function HudChip({ label, value, pct, barClass, danger, hint }: {
       <span className="wh-hud-label !normal-case !tracking-normal">{label}</span>
       <span className={`wh-hud-value${danger ? ' !text-[#e07a7a]' : ''}`}>
         {value}
-        {danger && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+        {danger && <span aria-hidden="true" className="ml-0.5 inline-block w-3 h-3 align-[-2px]"><GameIcon name="warning" className="w-full h-full" /></span>}
       </span>
       <span className="wh-bar overflow-hidden hidden md:block" style={{ width: '44px', height: '3px' }} aria-hidden="true">
         <span className={`block h-full ${barClass}`} style={{ width: `${Math.max(2, Math.min(100, pct))}%` }}></span>
@@ -73,7 +74,7 @@ function HudRow({ label, value, caption, danger, hint }: { label: string; value:
   return (
     <span title={hint}>
       <span className={`font-semibold tabular-nums ${danger ? 'text-wh-blood font-bold' : 'text-[#e8d9b0]'}`}>
-        {label}: {value}{danger && <span aria-hidden="true" className="ml-0.5">⚠</span>}
+        {label}: {value}{danger && <span aria-hidden="true" className="ml-0.5 inline-block w-3 h-3 align-[-2px]"><GameIcon name="warning" className="w-full h-full" /></span>}
       </span>
       {caption && <SupplyCaption text={caption} critical={danger} />}
     </span>
@@ -144,7 +145,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
           {criticals.length > 0 && (
             <div role="alert" title={`Критично: ${criticals.join(', ').toLowerCase()}`}
               className="wh-hud-seg wh-hud-seg-danger !font-gothic !uppercase !tracking-wider !text-[#e07a7a] shrink-0">
-              <span aria-hidden="true">☠</span>
+              <span aria-hidden="true" className="inline-block w-3.5 h-3.5"><GameIcon name="skull" className="w-full h-full" /></span>
               {criticals.join(' • ')}
             </div>
           )}
@@ -195,7 +196,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
               title={`Критично: ${criticals.join(', ').toLowerCase()}`}
               className="hidden md:flex items-center gap-1.5 rounded-sm border border-[#a30000]/70 bg-[#2a0d0d]/80 px-3 py-1.5 text-xs font-gothic uppercase tracking-wider text-[#e07a7a] shrink-0"
             >
-              <span aria-hidden="true">☠</span>
+              <span aria-hidden="true" className="inline-block w-3.5 h-3.5"><GameIcon name="skull" className="w-full h-full" /></span>
               {criticals.join(' • ')}
             </div>
           )}
@@ -267,7 +268,7 @@ export function GameHeader({ character, raceInfo, lastDeltas, onNewGame }: GameH
               <span className="text-wh-caution font-bold tabular-nums">{character.influence}</span>
             </div>
             <div className="flex items-baseline justify-between gap-2 cursor-help" title={STAT_HINTS.luck}>
-              <span className="text-[#b8a878]">Удача{character.luck <= 2 && <span aria-hidden="true" className="ml-0.5 text-wh-blood">⚠</span>}</span>
+              <span className="text-[#b8a878]">Удача{character.luck <= 2 && <span aria-hidden="true" className="ml-0.5 inline-block w-3 h-3 align-[-2px] text-wh-blood"><GameIcon name="warning" className="w-full h-full" /></span>}</span>
               <span className={`font-bold tabular-nums ${character.luck <= 2 ? 'text-wh-blood' : 'text-wh-health'}`}>{character.luck}</span>
             </div>
           </div>

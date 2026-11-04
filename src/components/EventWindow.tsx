@@ -38,7 +38,7 @@ export function EventWindow({ event, age, phase, resultText, lastChoice, lastDel
   return (
     <WindowPane
       title={phase === 'result' ? 'Исход решения' : 'Событие года'}
-      icon={phase === 'result' ? '⚖️' : '📅'}
+      icon={phase === 'result' ? 'scales' : 'calendar'}
       extra={
         <span
           className="wh-event-age-badge tabular-nums"

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { GameIcon } from './icons';
 
 interface StatCardProps {
   label: string;
@@ -46,7 +47,7 @@ export function StatCard({
     <div className={`wh-hud-cell wh-stat-card${danger ? ' wh-stat-critical' : ''}`} title={hint} aria-label={hint ? `${label}: ${hint}` : undefined}>
       <div className="flex items-center justify-between gap-2">
         <span className="wh-hud-label truncate">
-          {danger && <span aria-hidden="true" className="mr-1">⚠</span>}
+          {danger && <span aria-hidden="true" className="mr-1 inline-block w-3 h-3 align-[-2px]"><GameIcon name="warning" className="w-full h-full" /></span>}
           {label}
         </span>
         <span className={`wh-hud-value tabular-nums ${valueClassName}`}>

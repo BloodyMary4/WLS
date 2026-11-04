@@ -34,6 +34,11 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
         <div className="max-w-[1600px] mx-auto">
           {/* Заголовок */}
           <div className="text-center mb-16 animate-fade-in">
+            {/* v0.3.91 «Aquila»: имперский двуглавый орёл над титулом —
+                гравированный герб Кодекса (SVG, без шрифтовых глифов) */}
+            <span aria-hidden="true" className="block w-24 h-20 mx-auto mb-4 text-[#c9a227]/85 drop-shadow-[0_0_14px_rgba(201,162,39,0.35)]">
+              <GameIcon name="aquila" className="w-full h-full" />
+            </span>
             <h1 className="font-gothic text-5xl xl:text-6xl font-bold mb-4 tracking-[0.15em] uppercase bg-gradient-to-b from-[#f0d878] via-[#c9a227] to-[#7a5c10] bg-clip-text text-transparent animate-gold-sheen">
               WARHAMMER LIFE
             </h1>

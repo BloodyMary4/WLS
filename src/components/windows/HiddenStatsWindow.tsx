@@ -18,7 +18,7 @@ export function HiddenStatsWindow({ character }: HiddenStatsWindowProps) {
   const hp = character.hiddenParams;
   const raceBars = buildRaceBars(character);
   return (
-    <WindowPane title="Скрытые свойства" icon="👁️" scroll
+    <WindowPane title="Скрытые свойства" icon="eye" scroll
       extra={<span className="text-[10px] text-gray-400 tabular-nums">0–10</span>}>
       {/* v0.3.89 «Реликварий»: у каждой шкалы — тематический глиф в медальоне
           реликтовой ниши (эмодзи из JSX, гарантированно рендерятся). */}
