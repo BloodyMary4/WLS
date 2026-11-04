@@ -212,7 +212,13 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
         <div className="choices-block wh-scroll min-h-0 space-y-2 lg:flex-1 lg:flex lg:flex-col">
           <p className="choices-title font-gothic text-sm font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-2 flex items-center gap-3 shrink-0">
             Твоё решение:
-            <span className="text-xs font-normal normal-case tracking-normal text-gray-400">клавиши 1–{event.choices.length}</span>
+            {/* v0.3.81: подсказка точная — цифры 1–N (верхний ряд и NumPad),
+                Shift+1…Shift+4 (! @ # $) на клавиатурах без цифр, пробел для
+                «Дальше» и мышь как основной способ. */}
+            <span className="text-xs font-normal normal-case tracking-normal text-gray-400">
+              клавиши 1–{event.choices.length}
+              {event.choices.length >= 4 ? ' (! @ # $)' : ''} · пробел — дальше · или мышь
+            </span>
           </p>
           {event.choices.map((choice, index) => {
             const mark = choiceRiskMark(choice.effects);
@@ -226,8 +232,14 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-2.5">
-                <div className="wh-choice-letter flex-shrink-0 w-8 h-8 flex items-center justify-center shadow-lg leading-none" title={`Клавиша выбора: ${index + 1}`}>
+                <div
+                  className="wh-choice-letter flex-shrink-0 w-8 h-8 flex items-center justify-center shadow-lg leading-none"
+                  title={`Вариант ${choice.letter} · клавиша ${index + 1}${index === 3 ? ' (или $ — Shift+4)' : ''} или клик мышью`}
+                >
+                  {/* v0.3.81: цифра — основная (клавиши 1–4), буква А–Г —
+                      маленький штамп в углу: обе системы отсчёта видно сразу */}
                   <span className="font-bold tabular-nums text-base">{index + 1}</span>
+                  <span className="wh-choice-alt-letter" aria-hidden="true">{choice.letter}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="choice-text font-event text-[15px] text-[#d8c9a3] block leading-snug">{choice.text}</span>
