@@ -1603,22 +1603,9 @@ section[aria-label="Исход решения"]::after {
     radial-gradient(ellipse at 50% 0%, rgba(38,33,22,0.55), rgba(8,7,5,0.0) 60%);
 }
 
-/* Печать-аквила над арочной скобкой центрального окна события —
-   стилизованный двуглавый орёл (крылья-треугольники + голова-ромб), золото */
-section[aria-label="Событие года"] > .wh-window-head::after,
-section[aria-label="Исход решения"] > .wh-window-head::after {
-  content: '';
-  position: absolute;
-  right: 20px; top: 50%;
-  width: 14px; height: 8px;
-  margin-top: -4px;
-  background:
-    linear-gradient(135deg, rgba(217,182,74,0.85) 45%, transparent 46%) left center / 6px 8px no-repeat,
-    linear-gradient(-135deg, rgba(217,182,74,0.85) 45%, transparent 46%) right center / 6px 8px no-repeat,
-    radial-gradient(circle at 50% 40%, #e8c96a 0 2px, transparent 2.6px);
-  opacity: 0.75;
-  pointer-events: none;
-}
+/* v0.3.92: абстрактный CSS-виньет «крылья+ромб» убран — его место занял
+   настоящий гравированный двуглавый орёл (правило h3::after ниже).
+   Прежняя печать дублировала аквилу и выглядела как геометрический мусор. */
 
 /* Полоски здоровья/рассудка/порчи — металл, а не неон:
    диагональная рисковая насечка и блиск по верхней кромке */
@@ -1744,13 +1731,16 @@ section[aria-label="Исход решения"] > .wh-window-head::after {
 
 /* Имперский знак (v0.3.91 «Aquila»): настоящий двуглавый орёл — гравюра
    в духе Кодекса Адептус Терра вместо прежней абстракции «крылья+ромб».
-   Инлайн-SVG через data-URI: никаких шрифтовых глифов (уроки v0.3.84/85). */
+   Инлайн-SVG через data-URI: никаких шрифтовых глифов (уроки v0.3.84/85).
+   v0.3.92: орёл смещён с центра заголовка в правую часть шапки — раньше он
+   лежал ровно по середине над текстом («СОБЫТИЕ ГОДА») и reading-слои
+   перекрывались; теперь герб живёт у правого края, как положено виньету. */
 section[aria-label="Событие года"] > .wh-window-head h3::after,
 section[aria-label="Исход решения"] > .wh-window-head h3::after {
   content: '';
   position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
+  right: -64px; top: 50%;
+  transform: translateY(-50%);
   width: 30px; height: 20px;
   opacity: 0.5;
   pointer-events: none;
@@ -1759,12 +1749,10 @@ section[aria-label="Исход решения"] > .wh-window-head h3::after {
   background-position: center;
 }
 
-/* Заклёпки по нижним углам окон — кованые шляпки: блик сверху, тень снизу */
-.wh-window .wh-window-body::before {
-  background-image:
-    radial-gradient(circle at 7px 1px, rgba(232, 201, 106, 0.55) 0 1px, rgba(217, 182, 74, 0.4) 1px 1.8px, transparent 2.8px),
-    radial-gradient(circle at calc(100% - 7px) 1px, rgba(232, 201, 106, 0.55) 0 1px, rgba(217, 182, 74, 0.4) 1px 1.8px, transparent 2.8px);
-}
+/* Заклёпки по нижним углам окон — кованые шляпки: блик сверху, тень снизу.
+   v0.3.92: вложенный селектор убран — ::before скроллящегося тела окна
+   уезжал вместе с контентом («гуляющие» заклёпки). Общее правило ниже
+   (absolute-потомок relative-окна) рисует их неподвижно у нижней рамки. */
 
 /* Латунные уголки-скобы чуть плотнее к металлу — читаются как ковочные скобы */
 .wh-window::before {
@@ -1870,20 +1858,43 @@ section[aria-label="Исход решения"] > .wh-window-head h3::after {
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Заклёпки по нижним углам окон — через ::marker-обёртку нельзя,
-   поэтому вешаем пару точек на body-псевдоэлемент окна (не конфликтует
-   с арочной скобкой события, которая занимает ::after самого окна) */
-.wh-window .wh-window-body::before {
+/* Заклёпки по нижним углам окон. v0.3.92: раньше псевдоэлемент висел на
+   скроллящемся теле окна (.wh-window-body::before) и уезжал вместе с
+   лентой — «гуляющие» заклёпки, а bottom:-14px вообще ставил их под
+   нижнюю рамку, где overflow:hidden окна их обрезал (заклёпок не было
+   видно ни на одном окне). Теперь ::after самого окна (position:relative)
+   — неподвижные кованые шляпки внутри нижней рамки; арочная скобка
+   центрального окна события переехала на ::before рамки. */
+section.wh-window::before { z-index: 2; }
+.wh-window::after {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: -14px;
+  left: 0; right: 0; bottom: 3px;
   height: 4px;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 8px 2px, rgba(217, 182, 74, 0.4) 0 1.4px, transparent 2.4px),
-    radial-gradient(circle at calc(100% - 8px) 2px, rgba(217, 182, 74, 0.4) 0 1.4px, transparent 2.4px);
+    radial-gradient(circle at 8px 2px, rgba(217, 182, 74, 0.5) 0 1.4px, transparent 2.4px),
+    radial-gradient(circle at calc(100% - 8px) 2px, rgba(217, 182, 74, 0.5) 0 1.4px, transparent 2.4px);
   background-repeat: no-repeat;
 }
+/* Арочная скобка центрального окна события переезжает на ::before рамки —
+   ::after теперь занят заклёпками (визуально идентично прежнему виду). */
+section[aria-label="Событие года"]::before,
+section[aria-label="Исход решения"]::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 64px; height: 10px;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  border-bottom: none;
+  border-radius: 32px 32px 0 0;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.16), rgba(201, 162, 39, 0));
+  pointer-events: none;
+  z-index: 1;
+}
+section[aria-label="Событие года"]::after,
+section[aria-label="Исход решения"]::after { display: none; }
 
 /* Строки показаний (метка — значение): тонкая рисковая линия-разделитель,
    как графление в приборных таблицах Адептус Механикус */

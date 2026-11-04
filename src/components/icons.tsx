@@ -14,6 +14,8 @@ import type { ReactNode } from 'react';
 export type IconName =
   // имперская геральдика (v0.3.91 «Aquila»)
   | 'aquila' | 'cogwheel' | 'flamedia'
+  // системные символы -> гравюры (v0.3.92)
+  | 'hourglass' | 'fleur' | 'chevron' | 'music' | 'mute' | 'skip'
   // окна
   | 'dossier' | 'chronicle' | 'gear' | 'candle' | 'swords' | 'eye' | 'crate'
   | 'galaxy' | 'calendar' | 'scales' | 'skull' | 'clipboard'
@@ -122,6 +124,15 @@ const P: Record<IconName, ReactNode> = {
   cake: (<><path d="M5 12.6h14v5.4a1.4 1.4 0 0 1-1.4 1.4H6.4A1.4 1.4 0 0 1 5 18z" /><path d="M5 12.6c0-2 1.6-3 3.5-3h7c1.9 0 3.5 1 3.5 3" /><path d="M12 9.6V7.4M9.2 9.6V8M14.8 9.6V8" /><circle cx="12" cy="6.2" r=".9" fill="currentColor" stroke="none" /></>),
   dove: (<><path d="M4 14.4c3.6.8 6.8-.2 9-2.6 1.8-1.9 3-4.2 5.4-5.4-.6 2.2-.2 3.8.8 5.2" /><path d="M13 11.8c1.6 2.6 1.2 5.4-.6 7.6" opacity=".85" /><path d="M4 14.4c-.8 1.8 0 3.6 1.6 4.6" opacity=".85" /><circle cx="18.4" cy="6.6" r=".8" fill="currentColor" stroke="none" /></>),
   bolt: (<><path d="M13.4 3.6L6.6 13h4.2l-1.6 7.4 7-9.8h-4.4z" /></>),
+  /* v0.3.92: системные символы из футеров/кнопок переведены на гравюры —
+     единый SVG-штрих вместо эмодзи/питчфонов, которые на части систем
+     рендерились «тофу»-квадратами. */
+  hourglass: (<><path d="M6.6 3.6h10.8M6.6 20.4h10.8" /><path d="M7.8 3.6c0 3.4 1.8 5.2 4.2 7 2.4 1.8 4.2 3.6 4.2 7M16.2 3.6c0 3.4-1.8 5.2-4.2 7-2.4 1.8-4.2 3.6-4.2 7" /><path d="M9.4 18.2c.8-1.3 1.6-2 2.6-2.6 1 .6 1.8 1.3 2.6 2.6z" fill="currentColor" stroke="none" opacity=".85" /></>),
+  fleur: (<><path d="M12 3.4c1.7 2.2 2.5 4.1 2.5 6 0 1.6-.9 2.9-2.5 3.9-1.6-1-2.5-2.3-2.5-3.9 0-1.9.8-3.8 2.5-6z" /><path d="M6.2 8.4c2.1.5 3.5 1.5 4.3 3 .3.7.4 1.4.4 2.1M17.8 8.4c-2.1.5-3.5 1.5-4.3 3-.3.7-.4 1.4-.4 2.1" /><path d="M9.4 16.4h5.2M8.4 19.4h7.2M12 16.4v3" /></>),
+  chevron: (<><path d="M6.8 9.6L12 14.8l5.2-5.2" /></>),
+  music: (<><path d="M9.2 17.4V5.8l8.4-1.8v11" /><circle cx="6.9" cy="17.6" r="2.3" /><circle cx="15.3" cy="15.8" r="2.3" /></>),
+  mute: (<><path d="M4.4 9.4h3.2l4.4-3.4v11.8l-4.4-3.4H4.4z" /><path d="M16 9.6l4.4 4.8M20.4 9.6L16 14.4" /></>),
+  skip: (<><path d="M5.6 5.4L13 12l-7.4 6.6z" /><path d="M17.4 5.2v13.6" /></>),
 };
 
 /** Глиф по имени; неизвестное имя рендерит ромб-заглушку (никогда не «тофу»). */
@@ -159,6 +170,9 @@ const EMOJI_TO_ICON: Record<string, IconName> = {
   '⭐': 'star', '🎲': 'dice', '⚠️': 'warning', '⚠': 'warning', '🗡️': 'sword', '🗡': 'sword',
   '🛡️': 'shield', '🛡': 'shield', '📚': 'book', '🏆': 'trophy', '💎': 'gem', '🎂': 'cake',
   '🕊️': 'dove', '🕊': 'dove', '⚡': 'bolt',
+  // v0.3.92: системные символы из футеров/кнопок — тоже гравюры
+  '⏳': 'hourglass', '⌛': 'hourglass', '⚜': 'fleur', '▾': 'chevron', '▿': 'chevron',
+  '🎵': 'music', '🔇': 'mute', '⏭': 'skip', '⏭️': 'skip',
 };
 
 /** Нормализация: принимает имя глифа или старый эмодзи, всегда возвращает имя глифа. */
