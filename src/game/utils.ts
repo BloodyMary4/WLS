@@ -51,6 +51,19 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
   let newChar = { ...character };
   const hp = { ...newChar.hiddenParams };
 
+  // ===== БОЕЗАПАС КАК ЩИТ (v0.3.82 «Логистика») =====
+  // Если выбор приносит урон здоровью (перестрелка, засада, ближний бой),
+  // часть урона гасится патронами: каждый боеприпас поглощает 1 ед. урона
+  // (не более AMMO_SHIELD_MAX за ход). Боезапас наконец РАСХОДУЕТСЯ по
+  // назначению — иметь ствол и заряды выгоднее, чем подставлять тело.
+  let ammoShield = 0;
+  if (effects.health !== undefined && effects.health < 0 && character.ammo > 0) {
+    ammoShield = Math.min(character.ammo, Math.abs(effects.health), GAME_CONFIG.SUPPLY.AMMO_SHIELD_MAX);
+    if (ammoShield > 0) {
+      effects = { ...effects, health: effects.health + ammoShield };
+    }
+  }
+
   const paramConfigs: Record<string, { target: string; min: number; max: number }> = {
     health: { target: 'health', min: 0, max: newChar.maxHealth },
     credits: { target: 'credits', min: 0, max: Infinity },
@@ -147,6 +160,11 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
     newChar.factionRelations.commoners = Math.max(FACTION_MIN_VALUE, Math.min(FACTION_MAX_VALUE, newChar.factionRelations.commoners + effects.commoners));
   }
 
+  if (ammoShield > 0) {
+    // Патроны израсходованы на подавление огня противника (щит применён выше)
+    newChar.ammo = Math.max(0, newChar.ammo - ammoShield);
+  }
+
   // Вера: эффекты `faith` двигают отношение к Господству Империума (0..100).
   // У людей праведность также конвертируется в Верность (imperialCreed 0..10) —
   // скрытый ресурс заступничества «Император защищает», см. rollImperialIntercession().
@@ -205,6 +223,8 @@ export interface AgeUpdateResult {
   character: CharacterStats;
   /** Новое глобальное событие мира (если сменилось в этом году) — для хроники */
   newWorldEvent?: string;
+  /** Строка логистики снабжения за год (авторазвёртывание пайков/боезапаса) — для хроники */
+  supplyNote?: string;
 }
 
 export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
@@ -272,6 +292,32 @@ export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
     newChar.hiddenParams.suspicion = Math.min(10, newChar.hiddenParams.suspicion + 1);
   }
 
+  // ===== ЛОГИСТИКА СНАБЖЕНИЯ (v0.3.82) =====
+  // Продовольствие и боезапас раньше были «мёртвыми» статами: получить их было
+  // негде, а списывались они каждый год. Теперь рынок работает: персонаж с
+  // кредитами может купить паёк (RATION_PRICE кр.) или пачку патронов.
+  let supplyNote: string | undefined;
+  {
+    const SUP = GAME_CONFIG.SUPPLY;
+    const buys: string[] = [];
+    // Голод страшнее траты: пока еды нет, покупаем паёк до минимального запаса.
+    while (newChar.food < 2 && newChar.credits >= SUP.RATION_PRICE && buys.length < SUP.MAX_AUTO_BUY_PER_YEAR) {
+      newChar.credits -= SUP.RATION_PRICE;
+      newChar.food += 1;
+      buys.push('паёк');
+    }
+    // Боезапас пополняем только если он когда-либо был нужен (nonzero-контекст):
+    // бедняга без оружия не кормит торговцев патронами.
+    if (newChar.ammo < SUP.AMMO_MIN_STOCK && newChar.credits >= SUP.AMMO_PACK_PRICE + 10) {
+      newChar.credits -= SUP.AMMO_PACK_PRICE;
+      newChar.ammo += 10;
+      buys.push('пачка патронов');
+    }
+    if (buys.length > 0) {
+      supplyNote = `Военный рынок: куплено ${buys.join(' и ')}.`;
+    }
+  }
+
   if (newChar.food <= 0) {
     newChar.health = Math.max(0, newChar.health - 5);
   } else {
@@ -298,7 +344,7 @@ export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
     newChar.health = Math.max(0, newChar.health - frailty);
   }
 
-  return { character: newChar, newWorldEvent };
+  return { character: newChar, newWorldEvent, supplyNote };
 }
 
 type ColorThreshold = { threshold: number; color: string };

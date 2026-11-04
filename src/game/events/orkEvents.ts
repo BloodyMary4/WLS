@@ -12,6 +12,7 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
         { letter: 'Б', text: 'Слушать Горка — хитрость тоже сила', effects: { cunning: 3, sneakiness: 2, keyChoice: 'gork_mork', addTrait: 'Хитрован Горка', description: 'Ты ударяешь исподтишка, как Горк. Тебя называют умным — для орка это почти оскорбление, но работает.' } },
         { letter: 'В', text: 'Драться за обоих сразу', effects: { strength: 1, cunning: 1, waaagh: 2, sanity: -4, keyChoice: 'gork_mork', newStatus: 'Пророк двух богов', description: 'Ты орёшь имена обоих и кидаешься в драку. Гризник позже скажет: «Этот либо гений, либо совсем тронулся». WAAAGH!' } },
         { letter: 'Г', text: 'Боги? Настоящий бог — тот, кто сильнее тебя', effects: { willpower: 2, suspicion: 2, keyChoice: 'gork_mork', description: 'Ты плюёшь на алтарь. Старые орки ворчат, молодые смотрят с опаской. Теперь ты сам себе бог.' } },
+        { letter: 'Д', text: 'Почитать обоих по-своему: собрать под алтарем ящик патронов «для жертвы»', effects: { ammo: 10, waaagh: 1, cunning: 1, keyChoice: 'gork_mork', description: '«Жертва» Горку и Морку — это патроны, сложены горкой у алтаря. Боги не возражают (орки решают, что боги не возражают), а ночью «жертва» переезжает в твой бункер. Религия и логистика в одном флаконе.' } },
       ]
     };
   }
