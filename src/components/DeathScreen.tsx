@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CharacterStats } from '../game/types';
 import { RaceEmblem } from './RaceEmblem';
+import { GameIcon } from './icons';
 
 type RaceInfo = { name: string; emoji: string; description: string };
 
@@ -108,7 +109,10 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
     <div className="death-screen flex flex-col text-center animate-fade-in">
       <div className="death-hero shrink-0">
         <div className="relative inline-block mb-4">
-          <div className="text-7xl md:text-8xl drop-shadow-[0_0_18px_rgba(163,0,0,0.5)]">☠️</div>
+          {/* v0.3.90: SVG-череп вместо эмодзи — гравюра Кодекса в кресте смерти */}
+          <span className="block w-24 h-24 md:w-28 md:h-28 mx-auto text-[#c8c2b4] drop-shadow-[0_0_18px_rgba(163,0,0,0.55)]">
+            <GameIcon name="skull" className="w-full h-full" />
+          </span>
           <div className="absolute inset-0 bg-wh-blood/15 rounded-full blur-3xl"></div>
         </div>
         <h2 className="font-gothic text-4xl md:text-5xl font-bold mb-3 uppercase tracking-[0.25em] bg-gradient-to-b from-[#e74c3c] via-[#a30000] to-[#5c0000] bg-clip-text text-transparent">
@@ -121,7 +125,10 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
       {miracles > 0 && (
         <div className="wh-parchment wh-miracle rounded-sm p-5 mb-6 max-w-2xl mx-auto w-full animate-gold-sheen shrink-0">
           <p className="font-event text-lg italic text-[#e8d9b0]">
-            🕊️ Смерть отводила взор {miracles} {miracles === 1 ? 'раз' : miracles < 5 ? 'раза' : 'раз'} — но в последний раз Трон молчал.
+            <span className="inline-block w-5 h-5 align-[-4px] mr-1.5 text-[#e8c85a]" aria-hidden="true">
+              <GameIcon name="dove" className="w-full h-full" />
+            </span>
+            Смерть отводила взор {miracles} {miracles === 1 ? 'раз' : miracles < 5 ? 'раза' : 'раз'} — но в последний раз Трон молчал.
           </p>
           <p className="font-gothic text-sm uppercase tracking-[0.2em] text-[#c9a227] mt-2">
             Чудес заступничества за жизнь: {miracles}
@@ -173,7 +180,9 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
         <div className="wh-parchment rounded-sm p-5 max-w-2xl mx-auto w-full text-left death-chronicle min-h-0 overflow-y-auto">
           <div className="flex items-center justify-between gap-3 mb-3 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg, #1a1610 70%, rgba(26,22,16,0))', paddingTop: '2px' }}>
             <h3 className="font-gothic text-lg font-bold text-[#c9a227] uppercase tracking-[0.15em] flex items-center gap-3">
-              <span className="text-xl" aria-hidden="true">🕯️</span>
+              <span className="w-6 h-6 shrink-0 text-[#c9a227]" aria-hidden="true">
+                <GameIcon name="candle" className="w-full h-full" />
+              </span>
               Летопись жизни
             </h3>
             <button
@@ -181,13 +190,16 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
               onClick={copyChronicle}
               aria-live="polite"
               title="Скопировать летопись в буфер обмена"
-              className={`shrink-0 px-3 py-1.5 rounded-sm text-xs font-gothic uppercase tracking-wider border transition-colors ${
+              className={`shrink-0 px-3 py-1.5 rounded-sm text-xs font-gothic uppercase tracking-wider border transition-colors inline-flex items-center gap-2 ${
                 copied
                   ? 'border-green-500/70 text-green-300 bg-green-900/20'
                   : 'border-[#c9a227]/50 text-[#e8c85a] hover:border-[#c9a227] hover:bg-[#c9a227]/10'
               }`}
             >
-              {copied ? '✓ Скопировано' : '📋 Скопировать'}
+              <span className="w-4 h-4 shrink-0" aria-hidden="true">
+                <GameIcon name={copied ? 'bolt' : 'clipboard'} className="w-full h-full" />
+              </span>
+              {copied ? 'Скопировано' : 'Скопировать'}
             </button>
           </div>
           <ul className="space-y-2">
@@ -214,9 +226,12 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
       </div>{/* /death-body */}
       <button
         onClick={onNewLife}
-        className="btn-wh-primary btn-modern font-bold py-3 px-12 rounded-sm text-lg transition-all hover:scale-105 shrink-0 mx-auto"
+        className="btn-wh-primary btn-modern font-bold py-3 px-12 rounded-sm text-lg transition-all hover:scale-105 shrink-0 mx-auto inline-flex items-center gap-3"
       >
-        ⚔️ Начать новую жизнь
+        <span className="w-6 h-6 shrink-0" aria-hidden="true">
+          <GameIcon name="swords" className="w-full h-full" />
+        </span>
+        Начать новую жизнь
       </button>
     </div>
   );

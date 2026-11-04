@@ -3,6 +3,7 @@ import type { Race } from '../game/types';
 import { getLegacy } from '../game/legacy';
 import { buildLegacySummary } from '../game/legacySummary';
 import { AudioController } from './AudioController';
+import { GameIcon } from './icons';
 import { RaceEmblem } from './RaceEmblem';
 import { RacePicker } from './RacePicker';
 
@@ -96,17 +97,23 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
             {hasSave && (
               <button
                 onClick={onLoadSavedGame}
-                className="btn-modern bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic font-bold py-4 px-12 rounded-sm text-xl border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shadow-lg"
+                className="btn-modern bg-gradient-to-r from-[#1c1913] to-[#2a2517] hover:from-[#2a2517] hover:to-[#38301e] text-[#c9a227] font-gothic font-bold py-4 px-12 rounded-sm text-xl border border-[#c9a227]/50 hover:border-[#e8c85a] transition-all shadow-lg inline-flex items-center gap-3"
               >
-                📜&nbsp;&nbsp;Продолжить игру
+                <span className="w-6 h-6 shrink-0" aria-hidden="true">
+                  <GameIcon name="chronicle" className="w-full h-full" />
+                </span>
+                Продолжить игру
               </button>
             )}
 
             <button
               onClick={() => onStartNewGame(selectedRace ?? undefined)}
-              className="btn-wh-primary btn-modern font-bold py-5 px-16 rounded-sm text-2xl hover:scale-105"
+              className="btn-wh-primary btn-modern font-bold py-5 px-16 rounded-sm text-2xl hover:scale-105 inline-flex items-center gap-3"
             >
-              ⚔️&nbsp;&nbsp;{selectedRace ? `Начать жизнь за ${selectedRace === 'dark_eldar' ? 'друкхаари' : selectedRace === 'tau' ? 'тау' : selectedRace === 'gretchin' ? 'гретчина' : { human: 'человека', ork: 'орка', eldar: 'эльдар' }[selectedRace]}` : 'Начать новую игру'}
+              <span className="w-7 h-7 shrink-0" aria-hidden="true">
+                <GameIcon name="swords" className="w-full h-full" />
+              </span>
+              {selectedRace ? `Начать жизнь за ${selectedRace === 'dark_eldar' ? 'друкхаари' : selectedRace === 'tau' ? 'тау' : selectedRace === 'gretchin' ? 'гретчина' : { human: 'человека', ork: 'орка', eldar: 'эльдар' }[selectedRace]}` : 'Начать новую игру'}
             </button>
 
             <button
