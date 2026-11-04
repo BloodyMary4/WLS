@@ -29,15 +29,16 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-900/10 rounded-full blur-3xl"></div>
       </div>
 
-      <main className="menu-scroll relative z-10 container mx-auto px-6 py-8">
-      <div className="menu-inner">
-        <div className="max-w-[1600px] mx-auto">
+      <main className="menu-scroll relative z-10 container mx-auto px-6 py-8 flex flex-col min-h-0">
+      <div className="menu-inner flex flex-col min-h-0">
+        <div className="max-w-[1600px] mx-auto w-full">
           {/* Заголовок */}
           <div className="text-center animate-fade-in menu-header">
-            {/* v0.4.4 «Аквила в раме»: имперский двуглавый орёл над титулом —
-                гравированный герб Кодекса (SVG) в чётко очерченной латунной
-                рамке фиксированного размера: позиция и габарит детерминированы,
-                орёл центрирован по обеим осям, ничего не наезжает на текст. */}
+            {/* v0.4.5 «Орлиное окно»: имперский двуглавый орёл над титулом —
+                гравированный герб Кодекса (SVG) в латунной раме фиксированного
+                размера с угловыми заклёпками: позиция и габарит полностью
+                детерминированы, орёл центрирован по обеим осям, ничего не
+                наезжает на текст. */}
             <span aria-hidden="true" className="aquila-frame block mx-auto">
               <GameIcon name="aquila" className="w-full h-full" />
             </span>
