@@ -5,10 +5,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твои сомнения в Высшем Благе растут. Ты видишь несправедливость, контроль, манипуляции. Этириды следят за тобой. "Ты... опасен."',
       choices: [
-        { letter: 'А', text: 'Открыто выступить против Этиридов', effects: { willpower: 4, unity: -3, suspicion: 4, description: 'Ты выступаешь. "Высшее Благо — ложь!" Этириды смотрят... холодно. "Арестуйте его."' } },
-        { letter: 'Б', text: 'Создать подпольное движение', effects: { cunning: 4, unity: -1, suspicion: 3, newStatus: 'Революционер', description: 'Ты создаешь подполье. Другие Тау присоединяются. Революция начинается.' } },
-        { letter: 'В', text: 'Сбежать — искать правду в других мирах', effects: { cunning: 3, willpower: 2, newStatus: 'Изгнанник', description: 'Ты сбегаешь. Один. Без Высшего Блага. Но... свободен?' } },
-        { letter: 'Г', text: 'Притвориться лояльным — ждать момента', effects: { cunning: 4, suspicion: -2, description: 'Ты притворяешься. Этириды расслабляются. Но ты ждёшь... момента.' } },
+        { letter: '1', text: 'Открыто выступить против Этиридов', effects: { willpower: 4, unity: -3, suspicion: 4, description: 'Ты выступаешь. "Высшее Благо — ложь!" Этириды смотрят... холодно. "Арестуйте его."' } },
+        { letter: '2', text: 'Создать подпольное движение', effects: { cunning: 4, unity: -1, suspicion: 3, newStatus: 'Революционер', description: 'Ты создаешь подполье. Другие Тау присоединяются. Революция начинается.' } },
+        { letter: '3', text: 'Сбежать — искать правду в других мирах', effects: { cunning: 3, willpower: 2, newStatus: 'Изгнанник', description: 'Ты сбегаешь. Один. Без Высшего Блага. Но... свободен?' } },
+        { letter: '4', text: 'Притвориться лояльным — ждать момента', effects: { cunning: 4, suspicion: -2, description: 'Ты притворяешься. Этириды расслабляются. Но ты ждёшь... момента.' } },
       ]
     };
   }
@@ -17,10 +17,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твоя технология изменила всё. Ты создал нечто... революционное. Этириды хотят контролировать это. "Это опасно," — говорят они. "Это должно быть нашим."',
       choices: [
-        { letter: 'А', text: 'Отдать технологию Этиридам', effects: { unity: 3, techSkill: -1, description: 'Ты отдаёшь. Этириды довольны. Но ты чувствуешь... потерю контроля.' } },
-        { letter: 'Б', text: 'Сохранить контроль — это твоё детище', effects: { techSkill: 3, unity: -2, suspicion: 2, description: 'Ты отказываешься. "Это моё." Этириды смотрят... холодно. "Опасно."' } },
-        { letter: 'В', text: 'Поделиться со всеми кастами', effects: { techSkill: 2, unity: 1, description: 'Ты делишься. Все касты получают доступ. Этириды в ярости. "Хаос!"' } },
-        { letter: 'Г', text: 'Использовать как рычаг власти', effects: { cunning: 4, unity: -1, description: 'Ты используешь технологию как оружие. Этириды... боятся тебя.' } },
+        { letter: '1', text: 'Отдать технологию Этиридам', effects: { unity: 3, techSkill: -1, description: 'Ты отдаёшь. Этириды довольны. Но ты чувствуешь... потерю контроля.' } },
+        { letter: '2', text: 'Сохранить контроль — это твоё детище', effects: { techSkill: 3, unity: -2, suspicion: 2, description: 'Ты отказываешься. "Это моё." Этириды смотрят... холодно. "Опасно."' } },
+        { letter: '3', text: 'Поделиться со всеми кастами', effects: { techSkill: 2, unity: 1, description: 'Ты делишься. Все касты получают доступ. Этириды в ярости. "Хаос!"' } },
+        { letter: '4', text: 'Использовать как рычаг власти', effects: { cunning: 4, unity: -1, description: 'Ты используешь технологию как оружие. Этириды... боятся тебя.' } },
       ]
     };
   }
@@ -29,10 +29,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твои чувства к другому Тау стали... сильнее. Запретными. Этириды узнали. "Личные привязанности ослабляют единство. Вы должны быть... разделены."',
       choices: [
-        { letter: 'А', text: 'Подчиниться — единство важнее', effects: { unity: 3, willpower: -2, description: 'Ты подчиняешься. Вас разделяют. Боль... невыносима. Но ты служишь.' } },
-        { letter: 'Б', text: 'Бежать вместе', effects: { willpower: 3, unity: -3, suspicion: 4, newStatus: 'Беглец', description: 'Вы бежите. Вместе. Этириды преследуют. Но вы... свободны?' } },
-        { letter: 'В', text: 'Доказать, что чувства — часть Высшего Блага', effects: { willpower: 4, unity: 1, description: 'Ты споришь. "Любовь — не слабость." Этириды слушают... но не убеждены.' } },
-        { letter: 'Г', text: 'Скрыть отношения — встречаться тайно', effects: { cunning: 3, suspicion: 2, description: 'Вы встречаетесь тайно. Опасно... но прекрасно. Пока не узнают.' } },
+        { letter: '1', text: 'Подчиниться — единство важнее', effects: { unity: 3, willpower: -2, description: 'Ты подчиняешься. Вас разделяют. Боль... невыносима. Но ты служишь.' } },
+        { letter: '2', text: 'Бежать вместе', effects: { willpower: 3, unity: -3, suspicion: 4, newStatus: 'Беглец', description: 'Вы бежите. Вместе. Этириды преследуют. Но вы... свободны?' } },
+        { letter: '3', text: 'Доказать, что чувства — часть Высшего Блага', effects: { willpower: 4, unity: 1, description: 'Ты споришь. "Любовь — не слабость." Этириды слушают... но не убеждены.' } },
+        { letter: '4', text: 'Скрыть отношения — встречаться тайно', effects: { cunning: 3, suspicion: 2, description: 'Вы встречаетесь тайно. Опасно... но прекрасно. Пока не узнают.' } },
       ]
     };
   }
@@ -41,10 +41,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Ты рождаешься в мире, где царит гармония. Этириды уже определили твою касту. Ты — часть Высшего Блага, великого плана объединения галактики.',
       choices: [
-        { letter: 'А', text: 'Чувствовать единство с другими', effects: { unity: 2, description: 'Ты часть чего-то большего. Это правильно.' } },
-        { letter: 'Б', text: 'Изучать технологии вокруг', effects: { techSkill: 2, description: 'Технологии Тау совершенны. Ты хочешь понять их.' } },
-        { letter: 'В', text: 'Слушать наставления Этиридов', effects: { faith: 2, description: 'Их мудрость ведёт нас к Высшему Благу.' } },
-        { letter: 'Г', text: 'Задавать вопросы', effects: { cunning: 1, willpower: 1, description: 'Любопытство — путь к пониманию. Или к сомнению?' } },
+        { letter: '1', text: 'Чувствовать единство с другими', effects: { unity: 2, description: 'Ты часть чего-то большего. Это правильно.' } },
+        { letter: '2', text: 'Изучать технологии вокруг', effects: { techSkill: 2, description: 'Технологии Тау совершенны. Ты хочешь понять их.' } },
+        { letter: '3', text: 'Слушать наставления Этиридов', effects: { faith: 2, description: 'Их мудрость ведёт нас к Высшему Благу.' } },
+        { letter: '4', text: 'Задавать вопросы', effects: { cunning: 1, willpower: 1, description: 'Любопытство — путь к пониманию. Или к сомнению?' } },
       ]
     };
   }
@@ -53,10 +53,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Тебя обучают в Академии. Наставник говорит: "Каждая каста важна. Огненная защищает, Водная управляет, Воздушная летает, Земляная строит, а каста Этиридов ведёт. А ты?"',
       choices: [
-        { letter: 'А', text: 'Стать воином Огненной касты', effects: { strength: 2, unity: 1, description: 'Ты выбираешь путь защиты. Честь и долг.' } },
-        { letter: 'Б', text: 'Стать учёным Земляной касты', effects: { techSkill: 2, cunning: 1, description: 'Ты выбираешь путь созидания. Знание — сила.' } },
-        { letter: 'В', text: 'Стать дипломатом Водной касты', effects: { cunning: 2, unity: 1, description: 'Ты выбираешь путь переговоров. Слова — оружие.' } },
-        { letter: 'Г', text: 'Мечтать о Воздушной касте', effects: { willpower: 1, description: 'Небо зовёт тебя. Но твоя судьба... где-то там.' } },
+        { letter: '1', text: 'Стать воином Огненной касты', effects: { strength: 2, unity: 1, description: 'Ты выбираешь путь защиты. Честь и долг.' } },
+        { letter: '2', text: 'Стать учёным Земляной касты', effects: { techSkill: 2, cunning: 1, description: 'Ты выбираешь путь созидания. Знание — сила.' } },
+        { letter: '3', text: 'Стать дипломатом Водной касты', effects: { cunning: 2, unity: 1, description: 'Ты выбираешь путь переговоров. Слова — оружие.' } },
+        { letter: '4', text: 'Мечтать о Воздушной касте', effects: { willpower: 1, description: 'Небо зовёт тебя. Но твоя судьба... где-то там.' } },
       ]
     };
   }
@@ -65,10 +65,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Первый контакт с другой расой. Этириды говорят: "Присоединяйтесь к Высшему Благу, или мы принесём его силой." Что ты думаешь?',
       choices: [
-        { letter: 'А', text: 'Верить в мирное присоединение', effects: { unity: 2, faith: 1, description: 'Высшее Благо — это дар. Все должны его принять.' } },
-        { letter: 'Б', text: 'Сомневаться в методах', effects: { willpower: 2, cunning: 1, description: 'Сила... это не путь Тау. Или есть исключения?' } },
-        { letter: 'В', text: 'Изучать культуру чужаков', effects: { cunning: 2, techSkill: 1, description: 'Понимание — первый шаг к интеграции.' } },
-        { letter: 'Г', text: 'Готовиться к войне', effects: { strength: 2, unity: 1, ammo: 5, description: 'Если они не примут Добро... мы принесём его. Твой взвод получает боекомплект сверх штата — казённый склад умеет «терять» ящики, когда смотрят нужные глаза.' } },
+        { letter: '1', text: 'Верить в мирное присоединение', effects: { unity: 2, faith: 1, description: 'Высшее Благо — это дар. Все должны его принять.' } },
+        { letter: '2', text: 'Сомневаться в методах', effects: { willpower: 2, cunning: 1, description: 'Сила... это не путь Тау. Или есть исключения?' } },
+        { letter: '3', text: 'Изучать культуру чужаков', effects: { cunning: 2, techSkill: 1, description: 'Понимание — первый шаг к интеграции.' } },
+        { letter: '4', text: 'Готовиться к войне', effects: { strength: 2, unity: 1, ammo: 5, description: 'Если они не примут Добро... мы принесём его. Твой взвод получает боекомплект сверх штата — казённый склад умеет «терять» ящики, когда смотрят нужные глаза.' } },
       ]
     };
   }
@@ -78,10 +78,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Десялетия службы. Ты видел, как расширяется Империя Тау. Но также видел... сопротивление. Некоторые расы не хотят присоединяться. Почему?',
       choices: [
-        { letter: 'А', text: 'Стать этиридом — вести народ', effects: { unity: 3, faith: 2, newStatus: 'Этиридом', description: 'Ты ведёшь других к Высшему Благу. Великая честь.' } },
-        { letter: 'Б', text: 'Исследовать причины сопротивления', effects: { cunning: 3, willpower: 2, description: 'Ты ищешь ответы. Может, мы не понимаем чего-то?' } },
-        { letter: 'В', text: 'Создавать новые технологии', effects: { techSkill: 4, description: 'Прогресс — наш путь. Ты двигаешь цивилизацию вперёд.' } },
-        { letter: 'Г', text: 'Сомневаться в Высшем Благе', effects: { willpower: 3, unity: -2, suspicion: 2, description: 'Что если... мы не правы? Эта мысль... опасна.' } },
+        { letter: '1', text: 'Стать этиридом — вести народ', effects: { unity: 3, faith: 2, newStatus: 'Этиридом', description: 'Ты ведёшь других к Высшему Благу. Великая честь.' } },
+        { letter: '2', text: 'Исследовать причины сопротивления', effects: { cunning: 3, willpower: 2, description: 'Ты ищешь ответы. Может, мы не понимаем чего-то?' } },
+        { letter: '3', text: 'Создавать новые технологии', effects: { techSkill: 4, description: 'Прогресс — наш путь. Ты двигаешь цивилизацию вперёд.' } },
+        { letter: '4', text: 'Сомневаться в Высшем Благе', effects: { willpower: 3, unity: -2, suspicion: 2, description: 'Что если... мы не правы? Эта мысль... опасна.' } },
       ]
     };
   }
@@ -91,10 +91,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты — один из старейших Тау. Твоя жизнь — пример для молодых. Ты видел рождение Империи Тау. Что ты оставишь после себя?',
       choices: [
-        { letter: 'А', text: 'Написать философский трактат', effects: { unity: 4, cunning: 3, description: 'Твои идеи станут основой для будущих поколений.' } },
-        { letter: 'Б', text: 'Создать великое изобретение', effects: { techSkill: 5, description: 'Твоё изобретение изменит галактику. Прогресс — твой завет.' } },
-        { letter: 'В', text: 'Стать легендой Высшего Блага', effects: { unity: 5, faith: 3, newStatus: 'Легенда', description: 'Твоё имя будут помнить тысячелетия. Ты — воплощение идеалов Тау.' } },
-        { letter: 'Г', text: 'Передать знания следующему поколению', effects: { unity: 3, willpower: 2, description: 'Ты обучаешь молодых. Твоя мудрость живёт в них.' } },
+        { letter: '1', text: 'Написать философский трактат', effects: { unity: 4, cunning: 3, description: 'Твои идеи станут основой для будущих поколений.' } },
+        { letter: '2', text: 'Создать великое изобретение', effects: { techSkill: 5, description: 'Твоё изобретение изменит галактику. Прогресс — твой завет.' } },
+        { letter: '3', text: 'Стать легендой Высшего Блага', effects: { unity: 5, faith: 3, newStatus: 'Легенда', description: 'Твоё имя будут помнить тысячелетия. Ты — воплощение идеалов Тау.' } },
+        { letter: '4', text: 'Передать знания следующему поколению', effects: { unity: 3, willpower: 2, description: 'Ты обучаешь молодых. Твоя мудрость живёт в них.' } },
       ]
     };
   }
@@ -103,10 +103,10 @@ export function getTauEvent(age: number, c: CharacterStats): GameEvent {
   return {
     text: 'Возраст ' + age + '. Ты — бессмертный. Ты видел рождение и падение цивилизаций. Ты помнишь время, когда Тау были маленьким народом. Теперь ты — один из Этиридов. Твоё слово — закон. Но... правильно ли это?',
     choices: [
-      { letter: 'А', text: 'Вести народ к звёздам', effects: { unity: 10, influence: 50, description: 'Ты ведёшь Тау к величию. Империя растёт. Ты — её архитектор.' } },
-      { letter: 'Б', text: 'Реформировать систему', effects: { cunning: 5, unity: -3, suspicion: 5, description: 'Ты меняешь правила. Этириды недовольны. Но ты знаешь... это необходимо.' } },
-      { letter: 'В', text: 'Создать новое Высшее Благо', effects: { techSkill: 8, unity: 5, description: 'Ты переосмысливаешь философию. Новое Высшее Благо... лучше старого?' } },
-      { letter: 'Г', text: 'Уйти в отставку', effects: { willpower: 6, unity: -5, description: 'Ты отказываешься от власти. Этириды в шоке. Но ты... свободен?' } },
+      { letter: '1', text: 'Вести народ к звёздам', effects: { unity: 10, influence: 50, description: 'Ты ведёшь Тау к величию. Империя растёт. Ты — её архитектор.' } },
+      { letter: '2', text: 'Реформировать систему', effects: { cunning: 5, unity: -3, suspicion: 5, description: 'Ты меняешь правила. Этириды недовольны. Но ты знаешь... это необходимо.' } },
+      { letter: '3', text: 'Создать новое Высшее Благо', effects: { techSkill: 8, unity: 5, description: 'Ты переосмысливаешь философию. Новое Высшее Благо... лучше старого?' } },
+      { letter: '4', text: 'Уйти в отставку', effects: { willpower: 6, unity: -5, description: 'Ты отказываешься от власти. Этириды в шоке. Но ты... свободен?' } },
     ]
   };
 }

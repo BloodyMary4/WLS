@@ -226,7 +226,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
             const chips = describeEffectChips(choice.effects);
             return (
             <button
-              key={choice.letter}
+              key={index}
               onClick={() => onChoice(choice)}
               className="choice-btn btn-modern animate-slide-in-left"
               style={{ animationDelay: `${index * 0.1}s` }}
@@ -234,12 +234,10 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
               <div className="flex items-start gap-2.5">
                 <div
                   className="wh-choice-letter flex-shrink-0 w-8 h-8 flex items-center justify-center shadow-lg leading-none"
-                  title={`Вариант ${choice.letter} · клавиша ${index + 1}${index === 3 ? ' (или $ — Shift+4)' : ''} или клик мышью`}
+                  title={`Вариант ${index + 1} · клавиша ${index + 1} или клик мышью`}
                 >
-                  {/* v0.3.81: цифра — основная (клавиши 1–4), буква А–Г —
-                      маленький штамп в углу: обе системы отсчёта видно сразу */}
+                  {/* v0.3.82: только цифры 1–N — буквы А–Г убраны из UI */}
                   <span className="font-bold tabular-nums text-base">{index + 1}</span>
-                  <span className="wh-choice-alt-letter" aria-hidden="true">{choice.letter}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="choice-text font-event text-[15px] text-[#d8c9a3] block leading-snug">{choice.text}</span>

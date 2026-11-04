@@ -5,10 +5,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты живёшь как Изгой уже много лет. Свобода... но и одиночество. Однажды ты встречаешь другого Изгоя — он предлагает создать сообщество. "Вместе мы сильнее," — говорит он.',
       choices: [
-        { letter: 'А', text: 'Создать сообщество Изгоев', effects: { cunning: 3, nobility: 2, newStatus: 'Лидер Изгоев', description: 'Ты собираешь Изгоев. Вместе вы создаёте... нечто новое. Свободное общество.' } },
-        { letter: 'Б', text: 'Отказаться — одиночество лучше', effects: { willpower: 2, description: 'Ты отказываешься. "Я волк-одиночка." Он понимает. Но ты чувствуешь... пустоту?' } },
-        { letter: 'В', text: 'Предложить вернуться на Миро-Корабль', effects: { nobility: 3, faith: 1, description: 'Ты предлагаешь вернуться. Некоторые соглашаются. Но другие... боятся.' } },
-        { letter: 'Г', text: 'Использовать их для своих целей', effects: { cunning: 4, description: 'Ты используешь их. Они не знают. Но ты получаешь... власть над Изгоями.' } },
+        { letter: '1', text: 'Создать сообщество Изгоев', effects: { cunning: 3, nobility: 2, newStatus: 'Лидер Изгоев', description: 'Ты собираешь Изгоев. Вместе вы создаёте... нечто новое. Свободное общество.' } },
+        { letter: '2', text: 'Отказаться — одиночество лучше', effects: { willpower: 2, description: 'Ты отказываешься. "Я волк-одиночка." Он понимает. Но ты чувствуешь... пустоту?' } },
+        { letter: '3', text: 'Предложить вернуться на Миро-Корабль', effects: { nobility: 3, faith: 1, description: 'Ты предлагаешь вернуться. Некоторые соглашаются. Но другие... боятся.' } },
+        { letter: '4', text: 'Использовать их для своих целей', effects: { cunning: 4, description: 'Ты используешь их. Они не знают. Но ты получаешь... власть над Изгоями.' } },
       ]
     };
   }
@@ -17,10 +17,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твоя псионическая сила растёт неконтролируемо. Ты видишь видения, слышишь голоса. Провидцы обеспокоены. "Ты должен выбрать: контроль... или сила."',
       choices: [
-        { letter: 'А', text: 'Выбрать контроль — медитация и дисциплина', effects: { willpower: 3, psi: -1, nobility: 2, description: 'Ты учишься контролировать. Сила уменьшается, но разум ясен. Ты в безопасности.' } },
-        { letter: 'Б', text: 'Выбрать силу — принять дар полностью', effects: { psi: 4, health: -10, suspicion: 2, description: 'Ты принимаешь силу. Видения становятся реальностью. Но ты теряешь... себя?' } },
-        { letter: 'В', text: 'Попросить Провидцев помочь', effects: { faith: 2, psi: 1, description: 'Провидцы учат тебя. Они видят... потенциал. Или опасность?' } },
-        { letter: 'Г', text: 'Сбежать — стать Изгоем', effects: { cunning: 3, willpower: 2, newStatus: 'Изгой', keyChoice: 'eldar_exile_path', description: 'Ты сбегаешь. Свобода... и одиночество. Но ты жив.' } },
+        { letter: '1', text: 'Выбрать контроль — медитация и дисциплина', effects: { willpower: 3, psi: -1, nobility: 2, description: 'Ты учишься контролировать. Сила уменьшается, но разум ясен. Ты в безопасности.' } },
+        { letter: '2', text: 'Выбрать силу — принять дар полностью', effects: { psi: 4, health: -10, suspicion: 2, description: 'Ты принимаешь силу. Видения становятся реальностью. Но ты теряешь... себя?' } },
+        { letter: '3', text: 'Попросить Провидцев помочь', effects: { faith: 2, psi: 1, description: 'Провидцы учат тебя. Они видят... потенциал. Или опасность?' } },
+        { letter: '4', text: 'Сбежать — стать Изгоем', effects: { cunning: 3, willpower: 2, newStatus: 'Изгой', keyChoice: 'eldar_exile_path', description: 'Ты сбегаешь. Свобода... и одиночество. Но ты жив.' } },
       ]
     };
   }
@@ -29,10 +29,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Люди, которым ты помог, помнят тебя. Они предлагают союз — вместе против общего врага. "Эльдар и люди... вместе?" — спрашивают другие.',
       choices: [
-        { letter: 'А', text: 'Принять союз — вместе сильнее', effects: { nobility: 3, cunning: 2, description: 'Ты создаёшь союз. Эльдары и люди... работают вместе. Это... возможно?' } },
-        { letter: 'Б', text: 'Отказаться — эльдары выше этого', effects: { nobility: 2, description: 'Ты отказываешься. "Мы древние. Они... временны." Но ты чувствуешь... сожаление?' } },
-        { letter: 'В', text: 'Использовать их — пусть служат', effects: { cunning: 3, nobility: -1, description: 'Ты используешь людей. Они служат. Но это... правильно?' } },
-        { letter: 'Г', text: 'Предложить им стать частью эльдаров', effects: { psi: 2, nobility: 1, description: 'Ты предлагаешь... ассимиляцию. Люди в шоке. "Это... возможно?"' } },
+        { letter: '1', text: 'Принять союз — вместе сильнее', effects: { nobility: 3, cunning: 2, description: 'Ты создаёшь союз. Эльдары и люди... работают вместе. Это... возможно?' } },
+        { letter: '2', text: 'Отказаться — эльдары выше этого', effects: { nobility: 2, description: 'Ты отказываешься. "Мы древние. Они... временны." Но ты чувствуешь... сожаление?' } },
+        { letter: '3', text: 'Использовать их — пусть служат', effects: { cunning: 3, nobility: -1, description: 'Ты используешь людей. Они служат. Но это... правильно?' } },
+        { letter: '4', text: 'Предложить им стать частью эльдаров', effects: { psi: 2, nobility: 1, description: 'Ты предлагаешь... ассимиляцию. Люди в шоке. "Это... возможно?"' } },
       ]
     };
   }
@@ -41,10 +41,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Ты рождаешься в мире, где каждый звук — музыка, каждый цвет — симфония. Твои родители — древние аэльдар, помнящие Падение — час, когда их цивилизация утонула в крови и пороках. Ты чувствуешь их печаль.',
       choices: [
-        { letter: 'А', text: 'Чувствовать красоту мира', effects: { psi: 1, nobility: 1, description: 'Ты открываешься гармонии. Это путь Провидца.' } },
-        { letter: 'Б', text: 'Чувствовать боль предков', effects: { willpower: 2, description: 'Ты понимаешь груз истории. Это закаляет.' } },
-        { letter: 'В', text: 'Тянуться к звёздам', effects: { cunning: 1, psi: 1, description: 'Космос зовёт тебя. Ты чувствуешь бесконечность.' } },
-        { letter: 'Г', text: 'Плакать без причины', effects: { faith: 1, description: 'Слёзы эльдара — это память о потерянном рае.' } },
+        { letter: '1', text: 'Чувствовать красоту мира', effects: { psi: 1, nobility: 1, description: 'Ты открываешься гармонии. Это путь Провидца.' } },
+        { letter: '2', text: 'Чувствовать боль предков', effects: { willpower: 2, description: 'Ты понимаешь груз истории. Это закаляет.' } },
+        { letter: '3', text: 'Тянуться к звёздам', effects: { cunning: 1, psi: 1, description: 'Космос зовёт тебя. Ты чувствуешь бесконечность.' } },
+        { letter: '4', text: 'Плакать без причины', effects: { faith: 1, description: 'Слёзы эльдара — это память о потерянном рае.' } },
       ]
     };
   }
@@ -53,10 +53,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты учишься контролировать свои эмоции. Наставник говорит: "Страсть — наш дар и наше проклятие. Мы должны владеть ею, а не она нами."',
       choices: [
-        { letter: 'А', text: 'Медитировать каждый день', effects: { willpower: 2, psi: 1, description: 'Ты учишься спокойствию. Разум становится ясным.' } },
-        { letter: 'Б', text: 'Изучать историю эльдар', effects: { cunning: 2, nobility: 1, description: 'Ты понимаешь ошибки прошлого. Знание — защита.' } },
-        { letter: 'В', text: 'Тренировать тело', effects: { strength: 2, description: 'Даже эльдар нуждается в силе. Ты становишься ловким.' } },
-        { letter: 'Г', text: 'Создавать искусство', effects: { psi: 2, description: 'Ты выражаешь чувства через творчество. Это исцеляет.' } },
+        { letter: '1', text: 'Медитировать каждый день', effects: { willpower: 2, psi: 1, description: 'Ты учишься спокойствию. Разум становится ясным.' } },
+        { letter: '2', text: 'Изучать историю эльдар', effects: { cunning: 2, nobility: 1, description: 'Ты понимаешь ошибки прошлого. Знание — защита.' } },
+        { letter: '3', text: 'Тренировать тело', effects: { strength: 2, description: 'Даже эльдар нуждается в силе. Ты становишься ловким.' } },
+        { letter: '4', text: 'Создавать искусство', effects: { psi: 2, description: 'Ты выражаешь чувства через творчество. Это исцеляет.' } },
       ]
     };
   }
@@ -65,10 +65,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Пришло время выбрать Путь. Это решение определит твою судьбу. Провидцы смотрят на тебя: "Кем ты будешь?"',
       choices: [
-        { letter: 'А', text: 'Путь Воина', effects: { strength: 3, willpower: 2, newStatus: 'Воин', description: 'Ты выбираешь меч. Защита народа — твой долг.' } },
-        { letter: 'Б', text: 'Путь Провидца', effects: { psi: 3, cunning: 2, newStatus: 'Провидец', description: 'Ты выбираешь разум. Видеть будущее — твоя судьба.' } },
-        { letter: 'В', text: 'Путь Изгоя', effects: { cunning: 3, willpower: 1, newStatus: 'Изгой', description: 'Ты выбираешь свободу. Идти своим путём — твой выбор.' } },
-        { letter: 'Г', text: 'Отказаться от Пути', effects: { nobility: 2, description: 'Ты не хочешь быть ограниченным. Это... опасно, но честно.' } },
+        { letter: '1', text: 'Путь Воина', effects: { strength: 3, willpower: 2, newStatus: 'Воин', description: 'Ты выбираешь меч. Защита народа — твой долг.' } },
+        { letter: '2', text: 'Путь Провидца', effects: { psi: 3, cunning: 2, newStatus: 'Провидец', description: 'Ты выбираешь разум. Видеть будущее — твоя судьба.' } },
+        { letter: '3', text: 'Путь Изгоя', effects: { cunning: 3, willpower: 1, newStatus: 'Изгой', description: 'Ты выбираешь свободу. Идти своим путём — твой выбор.' } },
+        { letter: '4', text: 'Отказаться от Пути', effects: { nobility: 2, description: 'Ты не хочешь быть ограниченным. Это... опасно, но честно.' } },
       ]
     };
   }
@@ -78,10 +78,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Века пролетели как мгновения. Ты видел многое: падения и победы, потери и обретения. Молодые эльдар смотрят на тебя с уважением.',
       choices: [
-        { letter: 'А', text: 'Стать наставником', effects: { nobility: 3, psi: 1, description: 'Ты передаёшь мудрость следующему поколению.' } },
-        { letter: 'Б', text: 'Исследовать Варп', effects: { psi: 3, willpower: 2, description: 'Ты идёшь туда, где другие боятся. Знание ждёт.' } },
-        { letter: 'В', text: 'Создать нечто великое', effects: { cunning: 2, nobility: 2, description: 'Ты оставляешь наследие. Искусство, которое переживёт века.' } },
-        { letter: 'Г', text: 'Готовиться к уходу', effects: { willpower: 3, description: 'Ты принимаешь конечность. Это не конец, а трансформация.' } },
+        { letter: '1', text: 'Стать наставником', effects: { nobility: 3, psi: 1, description: 'Ты передаёшь мудрость следующему поколению.' } },
+        { letter: '2', text: 'Исследовать Варп', effects: { psi: 3, willpower: 2, description: 'Ты идёшь туда, где другие боятся. Знание ждёт.' } },
+        { letter: '3', text: 'Создать нечто великое', effects: { cunning: 2, nobility: 2, description: 'Ты оставляешь наследие. Искусство, которое переживёт века.' } },
+        { letter: '4', text: 'Готовиться к уходу', effects: { willpower: 3, description: 'Ты принимаешь конечность. Это не конец, а трансформация.' } },
       ]
     };
   }
@@ -91,10 +91,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты — один из старейших аэльдар. Твоя память хранит тысячелетия. Ты помнишь Падение, рождение Слаанес, бесконечную войну. Что ты будешь делать с этим бременем?',
       choices: [
-        { letter: 'А', text: 'Стать Провидцем — вести народ', effects: { psi: 5, nobility: 4, influence: 20, newStatus: 'Провидец', description: 'Ты видишь будущее. Ты ведёшь эльдар через века. Твоя мудрость — их свет.' } },
-        { letter: 'Б', text: 'Создать новое искусство', effects: { psi: 3, nobility: 3, description: 'Ты создаёшь шедевр. Он переживёт тебя на тысячелетия.' } },
-        { letter: 'В', text: 'Исследовать запретные знания', effects: { psi: 4, cunning: 3, mutation: 2, description: 'Ты идёшь туда, где другие боятся. Знание... опасное. Но мощное.' } },
-        { letter: 'Г', text: 'Уйти в изоляцию', effects: { willpower: 5, description: 'Ты уходишь от мира. Медитируешь. Ищешь ответы в тишине.' } },
+        { letter: '1', text: 'Стать Провидцем — вести народ', effects: { psi: 5, nobility: 4, influence: 20, newStatus: 'Провидец', description: 'Ты видишь будущее. Ты ведёшь эльдар через века. Твоя мудрость — их свет.' } },
+        { letter: '2', text: 'Создать новое искусство', effects: { psi: 3, nobility: 3, description: 'Ты создаёшь шедевр. Он переживёт тебя на тысячелетия.' } },
+        { letter: '3', text: 'Исследовать запретные знания', effects: { psi: 4, cunning: 3, mutation: 2, description: 'Ты идёшь туда, где другие боятся. Знание... опасное. Но мощное.' } },
+        { letter: '4', text: 'Уйти в изоляцию', effects: { willpower: 5, description: 'Ты уходишь от мира. Медитируешь. Ищешь ответы в тишине.' } },
       ]
     };
   }
@@ -103,10 +103,10 @@ export function getEldarEvent(age: number, c: CharacterStats): GameEvent {
   return {
     text: 'Возраст ' + age + '. Ты — легенда. Твоё имя знают все эльдар. Ты видел рождение и смерть звёзд. Ты помнишь время до Падения. Но даже вечность имеет конец. Что ты оставишь после себя?',
     choices: [
-      { letter: 'А', text: 'Передать всю мудрость', effects: { nobility: 5, psi: 3, influence: 30, description: 'Ты открываешь все секреты. Твоё знание живёт в других. Ты бессмертен.' } },
-      { letter: 'Б', text: 'Создать новое сообщество', effects: { cunning: 4, nobility: 3, influence: 25, description: 'Ты основываешь новый Миро-Корабль. Твоё наследие — новый дом для эльдар.' } },
-      { letter: 'В', text: 'Войти в Кристаллический Лабиринт', effects: { psi: 6, willpower: 4, description: 'Ты становишься частью Кристаллического Лабиринта. Твоё сознание живёт вечно.' } },
-      { letter: 'Г', text: 'Принять конец с достоинством', effects: { willpower: 6, nobility: 5, description: 'Ты готовишься к уходу. Твоя душа спокойна. Ты прожил достойную жизнь.' } },
+      { letter: '1', text: 'Передать всю мудрость', effects: { nobility: 5, psi: 3, influence: 30, description: 'Ты открываешь все секреты. Твоё знание живёт в других. Ты бессмертен.' } },
+      { letter: '2', text: 'Создать новое сообщество', effects: { cunning: 4, nobility: 3, influence: 25, description: 'Ты основываешь новый Миро-Корабль. Твоё наследие — новый дом для эльдар.' } },
+      { letter: '3', text: 'Войти в Кристаллический Лабиринт', effects: { psi: 6, willpower: 4, description: 'Ты становишься частью Кристаллического Лабиринта. Твоё сознание живёт вечно.' } },
+      { letter: '4', text: 'Принять конец с достоинством', effects: { willpower: 6, nobility: 5, description: 'Ты готовишься к уходу. Твоя душа спокойна. Ты прожил достойную жизнь.' } },
     ]
   };
 }

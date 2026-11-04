@@ -62,7 +62,7 @@ describe('Лорная ветвка «Служба Инквизиции»', () =
       for (const ch of ev.choices) {
         expect(ch.text.length).toBeGreaterThan(3);
         expect(ch.effects.description.length).toBeGreaterThan(3);
-        expect(['А', 'Б', 'В', 'Г']).toContain(ch.letter);
+        expect(['1', '2', '3', '4']).toContain(ch.letter);
       }
     }
   });

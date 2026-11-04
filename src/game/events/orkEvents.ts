@@ -8,10 +8,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ночью ты слышишь два голоса из темноты. Один мелкий и скрежещущий: «Хитрей! Бей в спину!» Другой — низкий, как обвал: «Бей СИЛЬНЕЙ!» Это Горк и Морк, боги орков. Оба с одним глазом, оба требуют, чтобы ты дрался ИМЕННО по-ихнему.',
       choices: [
-        { letter: 'А', text: 'Следовать за Морком — бить в лоб, громче и сильнее', effects: { strength: 2, waaagh: 3, cunning: -1, keyChoice: 'gork_mork', addTrait: 'Чемпион Морка', description: 'Ты бьёшь как Морк — сначала кулаком, потом думаешь. Племя ревет: «ЗА МОРКА!»' } },
-        { letter: 'Б', text: 'Слушать Горка — хитрость тоже сила', effects: { cunning: 3, sneakiness: 2, keyChoice: 'gork_mork', addTrait: 'Хитрован Горка', description: 'Ты ударяешь исподтишка, как Горк. Тебя называют умным — для орка это почти оскорбление, но работает.' } },
-        { letter: 'В', text: 'Драться за обоих сразу', effects: { strength: 1, cunning: 1, waaagh: 2, sanity: -4, keyChoice: 'gork_mork', newStatus: 'Пророк двух богов', description: 'Ты орёшь имена обоих и кидаешься в драку. Гризник позже скажет: «Этот либо гений, либо совсем тронулся». WAAAGH!' } },
-        { letter: 'Г', text: 'Боги? Настоящий бог — тот, кто сильнее тебя', effects: { willpower: 2, suspicion: 2, keyChoice: 'gork_mork', description: 'Ты плюёшь на алтарь. Старые орки ворчат, молодые смотрят с опаской. Теперь ты сам себе бог.' } },
+        { letter: '1', text: 'Следовать за Морком — бить в лоб, громче и сильнее', effects: { strength: 2, waaagh: 3, cunning: -1, keyChoice: 'gork_mork', addTrait: 'Чемпион Морка', description: 'Ты бьёшь как Морк — сначала кулаком, потом думаешь. Племя ревет: «ЗА МОРКА!»' } },
+        { letter: '2', text: 'Слушать Горка — хитрость тоже сила', effects: { cunning: 3, sneakiness: 2, keyChoice: 'gork_mork', addTrait: 'Хитрован Горка', description: 'Ты ударяешь исподтишка, как Горк. Тебя называют умным — для орка это почти оскорбление, но работает.' } },
+        { letter: '3', text: 'Драться за обоих сразу', effects: { strength: 1, cunning: 1, waaagh: 2, sanity: -4, keyChoice: 'gork_mork', newStatus: 'Пророк двух богов', description: 'Ты орёшь имена обоих и кидаешься в драку. Гризник позже скажет: «Этот либо гений, либо совсем тронулся». WAAAGH!' } },
+        { letter: '4', text: 'Боги? Настоящий бог — тот, кто сильнее тебя', effects: { willpower: 2, suspicion: 2, keyChoice: 'gork_mork', description: 'Ты плюёшь на алтарь. Старые орки ворчат, молодые смотрят с опаской. Теперь ты сам себе бог.' } },
       ]
     };
   }
@@ -20,10 +20,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твоя репутация "умного орка" растёт. Другие орки начинают приносить тебе сломанные вещи. "Почини!" — говорят они. Ты становишься... нужным.',
       choices: [
-        { letter: 'А', text: 'Стать главным инженером племени', effects: { techSkill: 3, cunning: 2, newStatus: 'Инженер племени', description: 'Ты — главный инженер! Все пушки, все машины — твои. Ты важен!' } },
-        { letter: 'Б', text: 'Использовать знания для власти', effects: { cunning: 3, waaagh: 1, description: 'Ты чинишь только для тех, кто платит. Или подчиняется. Ты получаешь власть.' } },
-        { letter: 'В', text: 'Обучать других гретчинов', effects: { techSkill: 2, cunning: 1, addTrait: 'Учитель', description: 'Ты учишь гретчинов. Они становятся полезнее. Племя сильнее.' } },
-        { letter: 'Г', text: 'Создать собственное оружие', effects: { techSkill: 3, strength: 1, ammo: 6, addItem: 'Уникальная пушка', description: 'Ты создаёшь... нечто новое. Пушка, которая стреляет дважды! А заодно и патроны к ней — сам льёшь, сам считает. Первый ящик — твой. WAAAGH!' } },
+        { letter: '1', text: 'Стать главным инженером племени', effects: { techSkill: 3, cunning: 2, newStatus: 'Инженер племени', description: 'Ты — главный инженер! Все пушки, все машины — твои. Ты важен!' } },
+        { letter: '2', text: 'Использовать знания для власти', effects: { cunning: 3, waaagh: 1, description: 'Ты чинишь только для тех, кто платит. Или подчиняется. Ты получаешь власть.' } },
+        { letter: '3', text: 'Обучать других гретчинов', effects: { techSkill: 2, cunning: 1, addTrait: 'Учитель', description: 'Ты учишь гретчинов. Они становятся полезнее. Племя сильнее.' } },
+        { letter: '4', text: 'Создать собственное оружие', effects: { techSkill: 3, strength: 1, ammo: 6, addItem: 'Уникальная пушка', description: 'Ты создаёшь... нечто новое. Пушка, которая стреляет дважды! А заодно и патроны к ней — сам льёшь, сам считает. Первый ящик — твой. WAAAGH!' } },
       ]
     };
   }
@@ -32,10 +32,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Тот орк, которого ты пощадил, возвращается. Он привёл друзей. "Ты сильный," — говорят они. "Не только кулаками. Головой. Присоединяйся к нам."',
       choices: [
-        { letter: 'А', text: 'Присоединиться — сила в числах', effects: { cunning: 2, waaagh: 2, newStatus: 'Лидер банды', description: 'Ты ведёшь банду. Вы грабите, дерётесь, побеждаете. Ты — босс!' } },
-        { letter: 'Б', text: 'Отказаться — "Я волк-одиночка"', effects: { strength: 2, willpower: 1, description: 'Ты отказываешься. Они уважают. "Сильный. Приходи, если передумаешь."' } },
-        { letter: 'В', text: 'Предложить свой план', effects: { cunning: 3, waaagh: 1, description: 'Ты предлагаешь план. Они слушают. Ты становишься стратегом.' } },
-        { letter: 'Г', text: 'Использовать их для своих целей', effects: { cunning: 3, description: 'Ты используешь их. Они не знают. Но ты получаешь... всё.' } },
+        { letter: '1', text: 'Присоединиться — сила в числах', effects: { cunning: 2, waaagh: 2, newStatus: 'Лидер банды', description: 'Ты ведёшь банду. Вы грабите, дерётесь, побеждаете. Ты — босс!' } },
+        { letter: '2', text: 'Отказаться — "Я волк-одиночка"', effects: { strength: 2, willpower: 1, description: 'Ты отказываешься. Они уважают. "Сильный. Приходи, если передумаешь."' } },
+        { letter: '3', text: 'Предложить свой план', effects: { cunning: 3, waaagh: 1, description: 'Ты предлагаешь план. Они слушают. Ты становишься стратегом.' } },
+        { letter: '4', text: 'Использовать их для своих целей', effects: { cunning: 3, description: 'Ты используешь их. Они не знают. Но ты получаешь... всё.' } },
       ]
     };
   }
@@ -44,10 +44,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Ты вылупляешься из споры. Мир пахнет кровью и порохом. Вокруг кричат "WAAAGH!". Ты ещё мал, но уже знаешь: сила — это всё.',
       choices: [
-        { letter: 'А', text: 'Кричать вместе с другими', effects: { strength: 1, waaagh: 1, description: 'Твой голос присоединяется к хору. Это правильно.' } },
-        { letter: 'Б', text: 'Смотреть и запоминать', effects: { cunning: 1, description: 'Ты наблюдаешь. Даже маленький орк может учиться.' } },
-        { letter: 'В', text: 'Тянуться к оружию', effects: { strength: 2, description: 'Маленькие руки хватают кусок металла. Будущий боец.' } },
-        { letter: 'Г', text: 'Укусить того, кто рядом', effects: { strength: 1, suspicion: 1, description: 'Больно! Но ты показал характер.' } },
+        { letter: '1', text: 'Кричать вместе с другими', effects: { strength: 1, waaagh: 1, description: 'Твой голос присоединяется к хору. Это правильно.' } },
+        { letter: '2', text: 'Смотреть и запоминать', effects: { cunning: 1, description: 'Ты наблюдаешь. Даже маленький орк может учиться.' } },
+        { letter: '3', text: 'Тянуться к оружию', effects: { strength: 2, description: 'Маленькие руки хватают кусок металла. Будущий боец.' } },
+        { letter: '4', text: 'Укусить того, кто рядом', effects: { strength: 1, suspicion: 1, description: 'Больно! Но ты показал характер.' } },
       ]
     };
   }
@@ -56,10 +56,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты растёшь быстро. Другие малыши уже боятся тебя. Старший орк смотрит на тебя: "Может, из тебя выйдет толк."',
       choices: [
-        { letter: 'А', text: 'Доказать свою силу в драке', effects: { strength: 2, waaagh: 1, description: 'Ты дерёшься и побеждаешь. Теперь тебя уважают.' } },
-        { letter: 'Б', text: 'Следовать за самым сильным', effects: { cunning: 1, waaagh: 1, description: 'Ты учишься у лучших. Мудрость для орка.' } },
-        { letter: 'В', text: 'Исследовать окрестности', effects: { cunning: 2, description: 'Ты находишь интересные вещи. Любопытство — не порок.' } },
-        { letter: 'Г', text: 'Есть всё, что найдёшь', effects: { strength: 1, health: 2, food: 4, description: 'Ты растёшь сильным. Еда — это сила. А ещё — то, что не съедено другими, можно унести с собой: вонючий трофейный мешок освящён на орочьий лад.' } },
+        { letter: '1', text: 'Доказать свою силу в драке', effects: { strength: 2, waaagh: 1, description: 'Ты дерёшься и побеждаешь. Теперь тебя уважают.' } },
+        { letter: '2', text: 'Следовать за самым сильным', effects: { cunning: 1, waaagh: 1, description: 'Ты учишься у лучших. Мудрость для орка.' } },
+        { letter: '3', text: 'Исследовать окрестности', effects: { cunning: 2, description: 'Ты находишь интересные вещи. Любопытство — не порок.' } },
+        { letter: '4', text: 'Есть всё, что найдёшь', effects: { strength: 1, health: 2, food: 4, description: 'Ты растёшь сильным. Еда — это сила. А ещё — то, что не съедено другими, можно унести с собой: вонючий трофейный мешок освящён на орочьий лад.' } },
       ]
     };
   }
@@ -68,10 +68,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Первый бой! Перед тобой стоит другой орк. Все смотрят. Босс кричит: "ДЕРИСЬ!"',
       choices: [
-        { letter: 'А', text: 'Атаковать первым', effects: { strength: 2, waaagh: 2, description: 'Ты бьёшь первым! WAAAGH! Ты побеждаешь.' } },
-        { letter: 'Б', text: 'Защититься и контратаковать', effects: { cunning: 2, strength: 1, description: 'Ты ждёшь момента. Умный бой.' } },
-        { letter: 'В', text: 'Использовать хитрость', effects: { cunning: 3, description: 'Ты бросаешь песок в глаза. Победа любой ценой.' } },
-        { letter: 'Г', text: 'Отказаться драться', effects: { willpower: 2, waaagh: -1, description: 'Ты не трус. Ты просто... думаешь. Но другие так не считают.' } },
+        { letter: '1', text: 'Атаковать первым', effects: { strength: 2, waaagh: 2, description: 'Ты бьёшь первым! WAAAGH! Ты побеждаешь.' } },
+        { letter: '2', text: 'Защититься и контратаковать', effects: { cunning: 2, strength: 1, description: 'Ты ждёшь момента. Умный бой.' } },
+        { letter: '3', text: 'Использовать хитрость', effects: { cunning: 3, description: 'Ты бросаешь песок в глаза. Победа любой ценой.' } },
+        { letter: '4', text: 'Отказаться драться', effects: { willpower: 2, waaagh: -1, description: 'Ты не трус. Ты просто... думаешь. Но другие так не считают.' } },
       ]
     };
   }
@@ -80,10 +80,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. WAAAGH! Время великих битв! Ты уже настоящий боец. Босс зовёт тебя: "Идёшь с нами?"',
       choices: [
-        { letter: 'А', text: 'Вести атаку!', effects: { strength: 3, waaagh: 3, description: 'Ты в авангарде! WAAAGH! Слава и кровь!' } },
-        { letter: 'Б', text: 'Стать стратегом', effects: { cunning: 3, waaagh: 1, description: 'Ты планируешь атаку. Умный орк — опасный орк.' } },
-        { letter: 'В', text: 'Собрать свою банду', effects: { strength: 2, cunning: 2, newStatus: 'Босс банды', description: 'Теперь у тебя есть свои бойцы. Ты — лидер.' } },
-        { letter: 'Г', text: 'Искать лучшее оружие', effects: { techSkill: 2, strength: 1, ammo: 5, description: 'Ты находишь крутую пушку — и патронташ к ней, брошенный кем-то, кто уже не постреляет. Теперь ты ещё опаснее.' } },
+        { letter: '1', text: 'Вести атаку!', effects: { strength: 3, waaagh: 3, description: 'Ты в авангарде! WAAAGH! Слава и кровь!' } },
+        { letter: '2', text: 'Стать стратегом', effects: { cunning: 3, waaagh: 1, description: 'Ты планируешь атаку. Умный орк — опасный орк.' } },
+        { letter: '3', text: 'Собрать свою банду', effects: { strength: 2, cunning: 2, newStatus: 'Босс банды', description: 'Теперь у тебя есть свои бойцы. Ты — лидер.' } },
+        { letter: '4', text: 'Искать лучшее оружие', effects: { techSkill: 2, strength: 1, ammo: 5, description: 'Ты находишь крутую пушку — и патронташ к ней, брошенный кем-то, кто уже не постреляет. Теперь ты ещё опаснее.' } },
       ]
     };
   }
@@ -93,10 +93,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты старый орк. Шрамы покрывают твоё тело. Молодые бойз смотрят на тебя с уважением. "Ты видел многое," — говорят они. Что ты будешь делать?',
       choices: [
-        { letter: 'А', text: 'Стать Мегабоссом — вести племя', effects: { strength: 2, waaagh: 3, willpower: 2, newStatus: 'Мегабосс', description: 'Ты становишься лидером. Твоё слово — закон. WAAAGH!' } },
-        { letter: 'Б', text: 'Рассказывать истории у костра', effects: { cunning: 2, waaagh: 1, description: 'Ты рассказываешь о великих битвах. Молодые слушают с раскрытыми ртами.' } },
-        { letter: 'В', text: 'Последняя великая битва', effects: { strength: 3, waaagh: 4, health: -20, description: 'Ты идёшь в последний бой. Слава или смерть — всё равно WAAAGH!' } },
-        { letter: 'Г', text: 'Учить молодых драться', effects: { willpower: 2, strength: 1, description: 'Ты тренируешь новых бойз. Они становятся сильными. Твоё наследие.' } },
+        { letter: '1', text: 'Стать Мегабоссом — вести племя', effects: { strength: 2, waaagh: 3, willpower: 2, newStatus: 'Мегабосс', description: 'Ты становишься лидером. Твоё слово — закон. WAAAGH!' } },
+        { letter: '2', text: 'Рассказывать истории у костра', effects: { cunning: 2, waaagh: 1, description: 'Ты рассказываешь о великих битвах. Молодые слушают с раскрытыми ртами.' } },
+        { letter: '3', text: 'Последняя великая битва', effects: { strength: 3, waaagh: 4, health: -20, description: 'Ты идёшь в последний бой. Слава или смерть — всё равно WAAAGH!' } },
+        { letter: '4', text: 'Учить молодых драться', effects: { willpower: 2, strength: 1, description: 'Ты тренируешь новых бойз. Они становятся сильными. Твоё наследие.' } },
       ]
     };
   }
@@ -105,10 +105,10 @@ export function getOrkEvent(age: number, c: CharacterStats): GameEvent {
   return {
     text: 'Возраст ' + age + '. Ты — легендарный Варбосс. Твоё имя знают во всём секторе. Даже Космодесант боится тебя. Но время не щадит никого. Твоё тело стареет, но дух орка не сломлен.',
     choices: [
-      { letter: 'А', text: 'Объединить все племена — начать Великий Waaagh!', effects: { waaagh: 10, strength: 5, influence: 20, health: -30, description: 'Ты собираешь все племена. Великий Waaagh! начинается. Ты — легенда!' } },
-      { letter: 'Б', text: 'Построить крепость — создать новый дом', effects: { cunning: 5, techSkill: 3, influence: 15, description: 'Ты строишь великую крепость. Теперь у орков есть дом. Твоё наследие.' } },
-      { letter: 'В', text: 'Передать власть молодому вожаку', effects: { willpower: 4, cunning: 2, description: 'Ты выбираешь преемника. Твоя мудрость живёт в нём. WAAAGH!' } },
-      { letter: 'Г', text: 'Отправиться в последнее плавание', effects: { strength: 3, waaagh: 5, health: -40, description: 'Ты садишься на корабль и уплываешь в космос. Никто не знает, куда. Но ты свободен.' } },
+      { letter: '1', text: 'Объединить все племена — начать Великий Waaagh!', effects: { waaagh: 10, strength: 5, influence: 20, health: -30, description: 'Ты собираешь все племена. Великий Waaagh! начинается. Ты — легенда!' } },
+      { letter: '2', text: 'Построить крепость — создать новый дом', effects: { cunning: 5, techSkill: 3, influence: 15, description: 'Ты строишь великую крепость. Теперь у орков есть дом. Твоё наследие.' } },
+      { letter: '3', text: 'Передать власть молодому вожаку', effects: { willpower: 4, cunning: 2, description: 'Ты выбираешь преемника. Твоя мудрость живёт в нём. WAAAGH!' } },
+      { letter: '4', text: 'Отправиться в последнее плавание', effects: { strength: 3, waaagh: 5, health: -40, description: 'Ты садишься на корабль и уплываешь в космос. Никто не знает, куда. Но ты свободен.' } },
     ]
   };
 }

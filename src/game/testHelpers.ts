@@ -67,7 +67,7 @@ export function makeGameState(characterOverrides: Partial<CharacterStats> = {}):
     currentEvent: {
       text: 'Тестовое событие.',
       choices: [
-        { letter: 'А', text: 'Действовать', effects: { description: 'Ничего не происходит.' } },
+        { letter: '1', text: 'Действовать', effects: { description: 'Ничего не происходит.' } },
       ],
     },
     history: [],

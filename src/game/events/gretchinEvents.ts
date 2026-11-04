@@ -5,10 +5,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты стал лидером среди гретчинов. Другие слушают тебя. У тебя есть план... но орки начинают подозревать. "Что-то не так с этими мелкими уродами."',
       choices: [
-        { letter: 'А', text: 'Начать восстание сейчас', effects: { willpower: 4, cunning: 2, health: -20, newStatus: 'Революционер', description: 'Вы восстаёте! Орки удивлены. Вы маленькие, но вас МНОГО! Свобода... или смерть.' } },
-        { letter: 'Б', text: 'Продолжать тайно готовиться', effects: { cunning: 4, sneakiness: 2, description: 'Ты ждёшь. Готовишься. План совершенствуется. Однажды... вы будете готовы.' } },
-        { letter: 'В', text: 'Сбежать с самыми верными', effects: { sneakiness: 3, willpower: 2, newStatus: 'Свободный', description: 'Ночью вы уходите. Десятки гретчинов. Свобода. Впервые.' } },
-        { letter: 'Г', text: 'Предать своих — получить favour орков', effects: { cunning: 2, health: 10, description: 'Ты сдаёшь своих. Орки довольны. "ХОРОШИЙ ГРЕТЧИН!" Но ты... пуст внутри.' } },
+        { letter: '1', text: 'Начать восстание сейчас', effects: { willpower: 4, cunning: 2, health: -20, newStatus: 'Революционер', description: 'Вы восстаёте! Орки удивлены. Вы маленькие, но вас МНОГО! Свобода... или смерть.' } },
+        { letter: '2', text: 'Продолжать тайно готовиться', effects: { cunning: 4, sneakiness: 2, description: 'Ты ждёшь. Готовишься. План совершенствуется. Однажды... вы будете готовы.' } },
+        { letter: '3', text: 'Сбежать с самыми верными', effects: { sneakiness: 3, willpower: 2, newStatus: 'Свободный', description: 'Ночью вы уходите. Десятки гретчинов. Свобода. Впервые.' } },
+        { letter: '4', text: 'Предать своих — получить favour орков', effects: { cunning: 2, health: 10, description: 'Ты сдаёшь своих. Орки довольны. "ХОРОШИЙ ГРЕТЧИН!" Но ты... пуст внутри.' } },
       ]
     };
   }
@@ -17,10 +17,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твои технологии привлекли внимание. Не только гретчинов... но и орков. "Что это за штуки?" — спрашивает Босс. "Может... полезно?"',
       choices: [
-        { letter: 'А', text: 'Продать технологии оркам', effects: { techSkill: 2, credits: 30, description: 'Ты продаёшь. Орки довольны. Ты получаешь... защиту? Или становишься мишенью?' } },
-        { letter: 'Б', text: 'Использовать как рычаг — "Я нужен"', effects: { cunning: 4, techSkill: 1, description: 'Ты становишься незаменимым. Без тебя — хаос. Орки не смеют тебя тронуть.' } },
-        { letter: 'В', text: 'Скрыть технологии — слишком опасно', effects: { sneakiness: 3, techSkill: 1, description: 'Ты прячешь технологии. Орки не знают. Но ты чувствуешь... силу.' } },
-        { letter: 'Г', text: 'Использовать против орков', effects: { techSkill: 3, sneakiness: 2, suspicion: 3, description: 'Ты создаёшь оружие против орков. Однажды... вы будете готовы.' } },
+        { letter: '1', text: 'Продать технологии оркам', effects: { techSkill: 2, credits: 30, description: 'Ты продаёшь. Орки довольны. Ты получаешь... защиту? Или становишься мишенью?' } },
+        { letter: '2', text: 'Использовать как рычаг — "Я нужен"', effects: { cunning: 4, techSkill: 1, description: 'Ты становишься незаменимым. Без тебя — хаос. Орки не смеют тебя тронуть.' } },
+        { letter: '3', text: 'Скрыть технологии — слишком опасно', effects: { sneakiness: 3, techSkill: 1, description: 'Ты прячешь технологии. Орки не знают. Но ты чувствуешь... силу.' } },
+        { letter: '4', text: 'Использовать против орков', effects: { techSkill: 3, sneakiness: 2, suspicion: 3, description: 'Ты создаёшь оружие против орков. Однажды... вы будете готовы.' } },
       ]
     };
   }
@@ -29,10 +29,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты установил контакт с людьми. Они удивлены — "Гретчин, который говорит?" Они предлагают... сделку. "Помоги нам против орков. Мы дадим свободу."',
       choices: [
-        { letter: 'А', text: 'Принять сделку — свобода важнее', effects: { cunning: 3, willpower: 2, newStatus: 'Разведчик', description: 'Ты становишься разведчиком людей. Свобода... но предательство своего вида?' } },
-        { letter: 'Б', text: 'Отказаться — "Гретчины не предают"', effects: { willpower: 3, description: 'Ты отказываешься. Люди разочарованы. Но ты... честен?' } },
-        { letter: 'В', text: 'Использовать обоих — играть на двух сторонах', effects: { cunning: 5, suspicion: 4, description: 'Ты играешь двойную игру. Опасно... но если получится, ты победишь.' } },
-        { letter: 'Г', text: 'Попросить людей научить гретчинов', effects: { techSkill: 3, cunning: 2, description: 'Ты просишь обучения. Люди соглашаются. Гретчины становятся... сильнее.' } },
+        { letter: '1', text: 'Принять сделку — свобода важнее', effects: { cunning: 3, willpower: 2, newStatus: 'Разведчик', description: 'Ты становишься разведчиком людей. Свобода... но предательство своего вида?' } },
+        { letter: '2', text: 'Отказаться — "Гретчины не предают"', effects: { willpower: 3, description: 'Ты отказываешься. Люди разочарованы. Но ты... честен?' } },
+        { letter: '3', text: 'Использовать обоих — играть на двух сторонах', effects: { cunning: 5, suspicion: 4, description: 'Ты играешь двойную игру. Опасно... но если получится, ты победишь.' } },
+        { letter: '4', text: 'Попросить людей научить гретчинов', effects: { techSkill: 3, cunning: 2, description: 'Ты просишь обучения. Люди соглашаются. Гретчины становятся... сильнее.' } },
       ]
     };
   }
@@ -41,10 +41,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Ты вылупляешься из яйца. Ты мал, слаб, и все вокруг тебя бьют. Орки кричат: "Гретчин! Раб! Служи!" Ты понимаешь своё место... или нет?',
       choices: [
-        { letter: 'А', text: 'Подчиниться сразу', effects: { sneakiness: 1, description: 'Ты учишься быть невидимым. Это помогает выжить.' } },
-        { letter: 'Б', text: 'Попытаться убежать', effects: { cunning: 1, health: -2, description: 'Тебя ловят и бьют. Но ты запомнил: свобода стоит боли.' } },
-        { letter: 'В', text: 'Украсть еду', effects: { sneakiness: 2, description: 'Ты хитёр. Даже маленький может обмануть большого.' } },
-        { letter: 'Г', text: 'Найти другого гретчина', effects: { unity: 1, description: 'Вместе легче. Вы помогаете друг другу выжить.' } },
+        { letter: '1', text: 'Подчиниться сразу', effects: { sneakiness: 1, description: 'Ты учишься быть невидимым. Это помогает выжить.' } },
+        { letter: '2', text: 'Попытаться убежать', effects: { cunning: 1, health: -2, description: 'Тебя ловят и бьют. Но ты запомнил: свобода стоит боли.' } },
+        { letter: '3', text: 'Украсть еду', effects: { sneakiness: 2, description: 'Ты хитёр. Даже маленький может обмануть большого.' } },
+        { letter: '4', text: 'Найти другого гретчина', effects: { unity: 1, description: 'Вместе легче. Вы помогаете друг другу выжить.' } },
       ]
     };
   }
@@ -53,10 +53,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Каждый день — борьба за выживание. Орки пинают тебя, бьют, заставляют работать. Другие гретчины тоже страдают. Но ты замечаешь: самые хитрые выживают дольше.',
       choices: [
-        { letter: 'А', text: 'Стать самым полезным — чинить вещи оркам', effects: { techSkill: 2, sneakiness: 1, description: 'Ты чинишь пушки, собираешь броню. Орки ценят (насколько орки могут ценить). Тебя бьют меньше.' } },
-        { letter: 'Б', text: 'Объединить других гретчинов — вместе легче', effects: { cunning: 2, willpower: 1, addTrait: 'Лидер гретчинов', description: 'Вы — команда. Делите еду, прикрываете друг друга. Орки не замечают... пока.' } },
-        { letter: 'В', text: 'Научиться незаметно воровать у орков', effects: { sneakiness: 3, description: 'Ты воруй еду, инструменты, оружие. Орки не замечают. Ты копишь...' } },
-        { letter: 'Г', text: 'Попытаться понравиться оркам — стать "любимчиком"', effects: { cunning: 1, health: -3, description: 'Ты прислуживаешь. Оркам нравится. Тебе... тоже? Нет. Но ты жив.' } },
+        { letter: '1', text: 'Стать самым полезным — чинить вещи оркам', effects: { techSkill: 2, sneakiness: 1, description: 'Ты чинишь пушки, собираешь броню. Орки ценят (насколько орки могут ценить). Тебя бьют меньше.' } },
+        { letter: '2', text: 'Объединить других гретчинов — вместе легче', effects: { cunning: 2, willpower: 1, addTrait: 'Лидер гретчинов', description: 'Вы — команда. Делите еду, прикрываете друг друга. Орки не замечают... пока.' } },
+        { letter: '3', text: 'Научиться незаметно воровать у орков', effects: { sneakiness: 3, description: 'Ты воруй еду, инструменты, оружие. Орки не замечают. Ты копишь...' } },
+        { letter: '4', text: 'Попытаться понравиться оркам — стать "любимчиком"', effects: { cunning: 1, health: -3, description: 'Ты прислуживаешь. Оркам нравится. Тебе... тоже? Нет. Но ты жив.' } },
       ]
     };
   }
@@ -65,10 +65,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты слышал слухи — ГРЕТЧИН, который сбежал от орков! Он живёт в канализации, свободный. Собирает других беглецов. Говорят, у него даже есть ТЕХНОЛОГИИ. Может, это путь?',
       choices: [
-        { letter: 'А', text: 'Найти его и присоединиться — свобода!', effects: { cunning: 2, willpower: 2, health: -5, newStatus: 'Беглец', keyChoice: 'grot_uprising', description: 'Ты находишь его! "Добро пожаловать, брат." Впервые ты свободен. Но орки ищут...' } },
-        { letter: 'Б', text: 'Донести Кразу — может, наградит?', effects: { sneakiness: -1, health: 5, description: 'Краз доволен. "ХОРОШИЙ ГРЕТЧИН!" Он даёт тебе лишнюю кость. Но другие гретчины смотрят с презрением.' } },
-        { letter: 'В', text: 'Запомнить информацию — знать, что свобода возможна', effects: { willpower: 2, cunning: 1, keyChoice: 'grot_uprising', description: 'Свобода существует. Ты запоминаешь. Однажды... ты тоже сбежишь.' } },
-        { letter: 'Г', text: 'Начать свой план побега — тихо, один', effects: { sneakiness: 3, willpower: 1, description: 'Ты копишь ресурсы. Изучаешь маршруты. Побег — дело времени.' } },
+        { letter: '1', text: 'Найти его и присоединиться — свобода!', effects: { cunning: 2, willpower: 2, health: -5, newStatus: 'Беглец', keyChoice: 'grot_uprising', description: 'Ты находишь его! "Добро пожаловать, брат." Впервые ты свободен. Но орки ищут...' } },
+        { letter: '2', text: 'Донести Кразу — может, наградит?', effects: { sneakiness: -1, health: 5, description: 'Краз доволен. "ХОРОШИЙ ГРЕТЧИН!" Он даёт тебе лишнюю кость. Но другие гретчины смотрят с презрением.' } },
+        { letter: '3', text: 'Запомнить информацию — знать, что свобода возможна', effects: { willpower: 2, cunning: 1, keyChoice: 'grot_uprising', description: 'Свобода существует. Ты запоминаешь. Однажды... ты тоже сбежишь.' } },
+        { letter: '4', text: 'Начать свой план побега — тихо, один', effects: { sneakiness: 3, willpower: 1, description: 'Ты копишь ресурсы. Изучаешь маршруты. Побег — дело времени.' } },
       ]
     };
   }
@@ -78,10 +78,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты уже не просто гретчин. Ты — лидер. Другие слушают тебя. У тебя есть план. Но орки начинают подозревать...',
       choices: [
-        { letter: 'А', text: 'Начать восстание сейчас', effects: { willpower: 3, strength: 2, health: -10, newStatus: 'Революционер', description: 'Свобода или смерть! Вы атакуете. Многие падают. Но некоторые... свободны.' } },
-        { letter: 'Б', text: 'Бежать в ночь', effects: { sneakiness: 4, cunning: 2, newStatus: 'Беглец', description: 'Ты уводишь своих в темноту. Свобода ждёт. Но орки будут преследовать.' } },
-        { letter: 'В', text: 'Саботировать орков изнутри', effects: { cunning: 4, techSkill: 2, description: 'Ты ломаешь их пушки, отравляешь еду. Медленная война.' } },
-        { letter: 'Г', text: 'Искать союзников среди других рас', effects: { cunning: 3, unity: 2, description: 'Враги орков — ваши друзья. Вместе вы можете...' } },
+        { letter: '1', text: 'Начать восстание сейчас', effects: { willpower: 3, strength: 2, health: -10, newStatus: 'Революционер', description: 'Свобода или смерть! Вы атакуете. Многие падают. Но некоторые... свободны.' } },
+        { letter: '2', text: 'Бежать в ночь', effects: { sneakiness: 4, cunning: 2, newStatus: 'Беглец', description: 'Ты уводишь своих в темноту. Свобода ждёт. Но орки будут преследовать.' } },
+        { letter: '3', text: 'Саботировать орков изнутри', effects: { cunning: 4, techSkill: 2, description: 'Ты ломаешь их пушки, отравляешь еду. Медленная война.' } },
+        { letter: '4', text: 'Искать союзников среди других рас', effects: { cunning: 3, unity: 2, description: 'Враги орков — ваши друзья. Вместе вы можете...' } },
       ]
     };
   }
@@ -91,10 +91,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты — старейший гретчин. Ты видел многое. Другие гретчины смотрят на тебя с надеждой. Ты — их последний шанс. Что ты сделаешь?',
       choices: [
-        { letter: 'А', text: 'Создать свободное поселение', effects: { cunning: 4, unity: 3, newStatus: 'Основатель', description: 'Ты находишь место, где гретчины могут жить свободно. Это... мечта.' } },
-        { letter: 'Б', text: 'Передать знания следующему поколению', effects: { techSkill: 4, cunning: 2, description: 'Ты обучаешь молодых. Твоя мудрость живёт в них. Свобода придёт.' } },
-        { letter: 'В', text: 'Стать легендой сопротивления', effects: { willpower: 5, sneakiness: 3, newStatus: 'Легенда', description: 'Твоё имя шепчут все гретчины. Ты — символ надежды.' } },
-        { letter: 'Г', text: 'Принять свою судьбу', effects: { willpower: 3, description: 'Ты устал бороться. Но ты горд. Ты выжил. Это... достаточно.' } },
+        { letter: '1', text: 'Создать свободное поселение', effects: { cunning: 4, unity: 3, newStatus: 'Основатель', description: 'Ты находишь место, где гретчины могут жить свободно. Это... мечта.' } },
+        { letter: '2', text: 'Передать знания следующему поколению', effects: { techSkill: 4, cunning: 2, description: 'Ты обучаешь молодых. Твоя мудрость живёт в них. Свобода придёт.' } },
+        { letter: '3', text: 'Стать легендой сопротивления', effects: { willpower: 5, sneakiness: 3, newStatus: 'Легенда', description: 'Твоё имя шепчут все гретчины. Ты — символ надежды.' } },
+        { letter: '4', text: 'Принять свою судьбу', effects: { willpower: 3, description: 'Ты устал бороться. Но ты горд. Ты выжил. Это... достаточно.' } },
       ]
     };
   }
@@ -103,10 +103,10 @@ export function getGretchinEvent(age: number, c: CharacterStats): GameEvent {
   return {
     text: 'Возраст ' + age + '. Ты — миф. Легенда. Гретчин, который прожил дольше всех. Орки боятся тебя. Гретчины почитают. Ты видел всё... и забыл больше. Что осталось?',
     choices: [
-      { letter: 'А', text: 'Написать историю гретчинов', effects: { cunning: 5, techSkill: 3, description: 'Ты записываешь всё. Чтобы следующие поколения знали... и не повторяли ошибок.' } },
-      { letter: 'Б', text: 'Создать школу для гретчинов', effects: { unity: 5, techSkill: 4, description: 'Ты обучаешь молодых. Они становятся умнее, сильнее. Свобода ближе.' } },
-      { letter: 'В', text: 'Исчезнуть — стать мифом', effects: { sneakiness: 6, willpower: 4, description: 'Ты уходишь в тени. Гретчины говорят, что ты стал духом. Может, это и правда.' } },
-      { letter: 'Г', text: 'Последний акт сопротивления', effects: { strength: 3, willpower: 5, health: -30, description: 'Ты совершаешь последний подвиг. Твоё имя станет легендой. Навсегда.' } },
+      { letter: '1', text: 'Написать историю гретчинов', effects: { cunning: 5, techSkill: 3, description: 'Ты записываешь всё. Чтобы следующие поколения знали... и не повторяли ошибок.' } },
+      { letter: '2', text: 'Создать школу для гретчинов', effects: { unity: 5, techSkill: 4, description: 'Ты обучаешь молодых. Они становятся умнее, сильнее. Свобода ближе.' } },
+      { letter: '3', text: 'Исчезнуть — стать мифом', effects: { sneakiness: 6, willpower: 4, description: 'Ты уходишь в тени. Гретчины говорят, что ты стал духом. Может, это и правда.' } },
+      { letter: '4', text: 'Последний акт сопротивления', effects: { strength: 3, willpower: 5, health: -30, description: 'Ты совершаешь последний подвиг. Твоё имя станет легендой. Навсегда.' } },
     ]
   };
 }

@@ -5,10 +5,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты чувствуешь... что-то странное. Совесть? Слабость? ГОЛОД усиливается, но ты не можешь причинять боль как раньше. Что-то изменилось внутри.',
       choices: [
-        { letter: 'А', text: 'Принять это — искать искупление', effects: { willpower: 4, cruelty: -3, health: -15, description: 'Ты пытаешься измениться. ГОЛОД кричит. Но ты... находишь покой? Или это конец?' } },
-        { letter: 'Б', text: 'Подавить это — вернуться к жестокости', effects: { cruelty: 3, willpower: -2, description: 'Ты заставляешь себя. Боль... возвращается. Но ты чувствуешь пустоту.' } },
-        { letter: 'В', text: 'Найти других таких, как ты', effects: { cunning: 3, cruelty: -1, description: 'Ты ищешь... других Друкхаари с совестью. Их мало. Но они есть.' } },
-        { letter: 'Г', text: 'Использовать это как оружие', effects: { cunning: 4, cruelty: 1, description: 'Ты притворяешься... добрым. Враги доверяют. Ты наносишь удар. Гениально.' } },
+        { letter: '1', text: 'Принять это — искать искупление', effects: { willpower: 4, cruelty: -3, health: -15, description: 'Ты пытаешься измениться. ГОЛОД кричит. Но ты... находишь покой? Или это конец?' } },
+        { letter: '2', text: 'Подавить это — вернуться к жестокости', effects: { cruelty: 3, willpower: -2, description: 'Ты заставляешь себя. Боль... возвращается. Но ты чувствуешь пустоту.' } },
+        { letter: '3', text: 'Найти других таких, как ты', effects: { cunning: 3, cruelty: -1, description: 'Ты ищешь... других Друкхаари с совестью. Их мало. Но они есть.' } },
+        { letter: '4', text: 'Использовать это как оружие', effects: { cunning: 4, cruelty: 1, description: 'Ты притворяешься... добрым. Враги доверяют. Ты наносишь удар. Гениально.' } },
       ]
     };
   }
@@ -17,10 +17,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Твои политические интриги принесли плоды. Ты стоишь на пороге власти. Архонт предлагает тебе стать его наследником. "Прими... или умри."',
       choices: [
-        { letter: 'А', text: 'Принять — стать Архонтом', effects: { cunning: 3, cruelty: 2, newStatus: 'Архонт', description: 'Ты принимаешь. Теперь ты — Архонт. Власть... и бесконечный ГОЛОД.' } },
-        { letter: 'Б', text: 'Отказаться — это ловушка', effects: { willpower: 3, suspicion: 2, description: 'Ты отказываешься. Архонт смотрит... холодно. "Ты пожалеешь."' } },
-        { letter: 'В', text: 'Убить Архонта и занять его место', effects: { strength: 2, cunning: 3, cruelty: 3, newStatus: 'Архонт', description: 'Ты убиваешь его. Быстро. Тихо. Теперь ты — Архонт. Но кто следующий?' } },
-        { letter: 'Г', text: 'Предложить разделить власть', effects: { cunning: 4, description: 'Ты предлагаешь... партнёрство. Архонт смеётся. "Дерзко. Мне нравится."' } },
+        { letter: '1', text: 'Принять — стать Архонтом', effects: { cunning: 3, cruelty: 2, newStatus: 'Архонт', description: 'Ты принимаешь. Теперь ты — Архонт. Власть... и бесконечный ГОЛОД.' } },
+        { letter: '2', text: 'Отказаться — это ловушка', effects: { willpower: 3, suspicion: 2, description: 'Ты отказываешься. Архонт смотрит... холодно. "Ты пожалеешь."' } },
+        { letter: '3', text: 'Убить Архонта и занять его место', effects: { strength: 2, cunning: 3, cruelty: 3, newStatus: 'Архонт', description: 'Ты убиваешь его. Быстро. Тихо. Теперь ты — Архонт. Но кто следующий?' } },
+        { letter: '4', text: 'Предложить разделить власть', effects: { cunning: 4, description: 'Ты предлагаешь... партнёрство. Архонт смеётся. "Дерзко. Мне нравится."' } },
       ]
     };
   }
@@ -29,10 +29,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Ты рождаешься в Комморхе — городе, построенном на боли и удовольствии. Твоя мать — Суккуба, отец — Архонт. Здесь слабость — смертный грех.',
       choices: [
-        { letter: 'А', text: 'Чувствовать голод с рождения', effects: { cruelty: 2, description: 'Ты уже знаешь, что такое ГОЛОД. Это движет тобой.' } },
-        { letter: 'Б', text: 'Наблюдать за страданиями', effects: { cunning: 1, cruelty: 1, description: 'Ты учишься с самого начала. Боль — это искусство.' } },
-        { letter: 'В', text: 'Плакать от ужаса', effects: { willpower: 1, description: 'Даже тьма может испугать. Но ты выживёшь.' } },
-        { letter: 'Г', text: 'Смеяться', effects: { cruelty: 2, suspicion: 1, description: 'Ты уже понимаешь игру. Смех — лучшее оружие.' } },
+        { letter: '1', text: 'Чувствовать голод с рождения', effects: { cruelty: 2, description: 'Ты уже знаешь, что такое ГОЛОД. Это движет тобой.' } },
+        { letter: '2', text: 'Наблюдать за страданиями', effects: { cunning: 1, cruelty: 1, description: 'Ты учишься с самого начала. Боль — это искусство.' } },
+        { letter: '3', text: 'Плакать от ужаса', effects: { willpower: 1, description: 'Даже тьма может испугать. Но ты выживёшь.' } },
+        { letter: '4', text: 'Смеяться', effects: { cruelty: 2, suspicion: 1, description: 'Ты уже понимаешь игру. Смех — лучшее оружие.' } },
       ]
     };
   }
@@ -41,10 +41,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Тебя учат искусству причинения боли. Наставник говорит: "Мы не жестоки. Мы — художники. Каждая слеза — мазок на холсте вечности."',
       choices: [
-        { letter: 'А', text: 'Учиться с энтузиазмом', effects: { cruelty: 3, techSkill: 1, description: 'Ты становишься мастером. Боль — твоя страсть.' } },
-        { letter: 'Б', text: 'Изучать психологию жертв', effects: { cunning: 3, description: 'Ты понимаешь, что ломает разум. Это эффективнее.' } },
-        { letter: 'В', text: 'Создавать новые методы', effects: { techSkill: 3, cruelty: 1, description: 'Ты инноватор. Твои методы... уникальны.' } },
-        { letter: 'Г', text: 'Чувствовать отвращение', effects: { willpower: 2, cruelty: -1, description: 'Что-то внутри протестует. Это слабость... или сила?' } },
+        { letter: '1', text: 'Учиться с энтузиазмом', effects: { cruelty: 3, techSkill: 1, description: 'Ты становишься мастером. Боль — твоя страсть.' } },
+        { letter: '2', text: 'Изучать психологию жертв', effects: { cunning: 3, description: 'Ты понимаешь, что ломает разум. Это эффективнее.' } },
+        { letter: '3', text: 'Создавать новые методы', effects: { techSkill: 3, cruelty: 1, description: 'Ты инноватор. Твои методы... уникальны.' } },
+        { letter: '4', text: 'Чувствовать отвращение', effects: { willpower: 2, cruelty: -1, description: 'Что-то внутри протестует. Это слабость... или сила?' } },
       ]
     };
   }
@@ -53,10 +53,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. ГОЛОД усиливается. Тебе нужно больше, сильнее, изощрённее. Архонт смотрит на тебя: "Покажи, на что ты способен."',
       choices: [
-        { letter: 'А', text: 'Организовать великий рейд', effects: { strength: 2, cunning: 2, cruelty: 2, description: 'Ты ведёшь Кабал в реальный мир. Жатва богата.' } },
-        { letter: 'Б', text: 'Создать новое устройство пыток', effects: { techSkill: 3, cruelty: 3, description: 'Твоё творение... шедевр. Архонт впечатлён.' } },
-        { letter: 'В', text: 'Интриговать против соперника из другого кабала', effects: { cunning: 4, description: 'Ты плетёшь сети. Враг падёт, даже не узнав почему.' } },
-        { letter: 'Г', text: 'Искать запрещённые удовольствия', effects: { cruelty: 2, mutation: 2, description: 'Ты идёшь туда, где другие боятся. Но ГОЛОД... не утихает.' } },
+        { letter: '1', text: 'Организовать великий рейд', effects: { strength: 2, cunning: 2, cruelty: 2, description: 'Ты ведёшь Кабал в реальный мир. Жатва богата.' } },
+        { letter: '2', text: 'Создать новое устройство пыток', effects: { techSkill: 3, cruelty: 3, description: 'Твоё творение... шедевр. Архонт впечатлён.' } },
+        { letter: '3', text: 'Интриговать против соперника из другого кабала', effects: { cunning: 4, description: 'Ты плетёшь сети. Враг падёт, даже не узнав почему.' } },
+        { letter: '4', text: 'Искать запрещённые удовольствия', effects: { cruelty: 2, mutation: 2, description: 'Ты идёшь туда, где другие боятся. Но ГОЛОД... не утихает.' } },
       ]
     };
   }
@@ -66,10 +66,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Столетия в Комморхе. Ты — легенда. Но ГОЛОД никогда не уходит. Ты видишь, как другие Друкхаари угасают. Ты тоже чувствуешь... пустоту.',
       choices: [
-        { letter: 'А', text: 'Стать Архонтом', effects: { cruelty: 3, cunning: 2, newStatus: 'Архонт', description: 'Ты берёшь власть. Теперь ты правишь Кабалом.' } },
-        { letter: 'Б', text: 'Создать шедевр страданий', effects: { techSkill: 4, cruelty: 3, description: 'Твоё великое творение. Оно переживёт века.' } },
-        { letter: 'В', text: 'Исследовать запретное', effects: { psi: 3, mutation: 3, description: 'Ты идёшь в Варп. Там... что-то ждёт. Опасно, но манит.' } },
-        { letter: 'Г', text: 'Принять угасание', effects: { willpower: 4, description: 'Ты принимаешь конец. Это... странно peacefully для Друкхаари.' } },
+        { letter: '1', text: 'Стать Архонтом', effects: { cruelty: 3, cunning: 2, newStatus: 'Архонт', description: 'Ты берёшь власть. Теперь ты правишь Кабалом.' } },
+        { letter: '2', text: 'Создать шедевр страданий', effects: { techSkill: 4, cruelty: 3, description: 'Твоё великое творение. Оно переживёт века.' } },
+        { letter: '3', text: 'Исследовать запретное', effects: { psi: 3, mutation: 3, description: 'Ты идёшь в Варп. Там... что-то ждёт. Опасно, но манит.' } },
+        { letter: '4', text: 'Принять угасание', effects: { willpower: 4, description: 'Ты принимаешь конец. Это... странно peacefully для Друкхаари.' } },
       ]
     };
   }
@@ -79,10 +79,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
     return {
       text: 'Возраст ' + age + '. Ты — один из древнейших Друкхаари. Ты помнишь время до Падения. ГОЛОД стал... частью тебя. Ты больше не чувствуешь боли. Только пустоту.',
       choices: [
-        { letter: 'А', text: 'Создать новую форму страданий', effects: { techSkill: 5, cruelty: 4, description: 'Твоё творение... за гранью понимания. Даже другие Друкхаари боятся тебя.' } },
-        { letter: 'Б', text: 'Исследовать природу ГОЛОДа', effects: { psi: 4, cunning: 3, description: 'Ты понимаешь... ГОЛОД — это не проклятие. Это эволюция.' } },
-        { letter: 'В', text: 'Попытаться почувствовать что-то настоящее', effects: { willpower: 5, health: -15, description: 'Ты ищешь эмоцию, не рождённую болью. На мгновение... находишь. И теряешь.' } },
-        { letter: 'Г', text: 'Стать легендой', effects: { nobility: 4, cruelty: 3, description: 'Твоё имя шепчут с трепетом. Ты — воплощение Коммагота.' } },
+        { letter: '1', text: 'Создать новую форму страданий', effects: { techSkill: 5, cruelty: 4, description: 'Твоё творение... за гранью понимания. Даже другие Друкхаари боятся тебя.' } },
+        { letter: '2', text: 'Исследовать природу ГОЛОДа', effects: { psi: 4, cunning: 3, description: 'Ты понимаешь... ГОЛОД — это не проклятие. Это эволюция.' } },
+        { letter: '3', text: 'Попытаться почувствовать что-то настоящее', effects: { willpower: 5, health: -15, description: 'Ты ищешь эмоцию, не рождённую болью. На мгновение... находишь. И теряешь.' } },
+        { letter: '4', text: 'Стать легендой', effects: { nobility: 4, cruelty: 3, description: 'Твоё имя шепчут с трепетом. Ты — воплощение Коммагота.' } },
       ]
     };
   }
@@ -91,10 +91,10 @@ export function getDarkEldarEvent(age: number, c: CharacterStats): GameEvent {
   return {
     text: 'Возраст ' + age + '. Ты — бессмертный. Ты видел рождение и смерть цивилизаций. Ты помнишь время, когда эльдар были едины. Теперь ты — тень того, чем был. Но тень... может стать чем-то большим.',
     choices: [
-      { letter: 'А', text: 'Стать богом Коммагота', effects: { cruelty: 10, psi: 5, influence: 50, mutation: 5, description: 'Ты становишься воплощением боли. Тебя боятся. Тебя обожают. Ты — бог.' } },
-      { letter: 'Б', text: 'Попытаться искупить грехи', effects: { willpower: 10, cruelty: -10, health: -50, description: 'Ты пытаешься... измениться. ГОЛОД кричит. Но ты... находишь покой? Или это конец?' } },
-      { letter: 'В', text: 'Создать новое измерение боли', effects: { techSkill: 10, psi: 5, description: 'Ты открываешь новые измерения. Боль... бесконечна. Ты — архитектор страданий.' } },
-      { letter: 'Г', text: 'Исчезнуть в Варпе', effects: { psi: 8, willpower: 6, health: -30, description: 'Ты уходишь в Варп. Навсегда. Но ты... свободен? Или это ловушка?' } },
+      { letter: '1', text: 'Стать богом Коммагота', effects: { cruelty: 10, psi: 5, influence: 50, mutation: 5, description: 'Ты становишься воплощением боли. Тебя боятся. Тебя обожают. Ты — бог.' } },
+      { letter: '2', text: 'Попытаться искупить грехи', effects: { willpower: 10, cruelty: -10, health: -50, description: 'Ты пытаешься... измениться. ГОЛОД кричит. Но ты... находишь покой? Или это конец?' } },
+      { letter: '3', text: 'Создать новое измерение боли', effects: { techSkill: 10, psi: 5, description: 'Ты открываешь новые измерения. Боль... бесконечна. Ты — архитектор страданий.' } },
+      { letter: '4', text: 'Исчезнуть в Варпе', effects: { psi: 8, willpower: 6, health: -30, description: 'Ты уходишь в Варп. Навсегда. Но ты... свободен? Или это ловушка?' } },
     ]
   };
 }

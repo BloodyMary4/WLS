@@ -38,8 +38,8 @@ const game = {
   currentEvent: {
     text: 'Ты открыл глаза в мире стали.',
     choices: [
-      { text: 'Плакать', effects: {}, letter: 'A' },
-      { text: 'Молчать', effects: {}, letter: 'B' },
+      { text: 'Плакать', effects: {}, letter: '1' },
+      { text: 'Молчать', effects: {}, letter: '2' },
     ],
   },
   history: ['М41.000 — рождение'], gameOver: false, deathMessage: '',

@@ -295,22 +295,27 @@ export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
   // ===== ЛОГИСТИКА СНАБЖЕНИЯ (v0.3.82) =====
   // Продовольствие и боезапас раньше были «мёртвыми» статами: получить их было
   // негде, а списывались они каждый год. Теперь рынок работает: персонаж с
-  // кредитами может купить паёк (RATION_PRICE кр.) или пачку патронов.
+  // кредитами может купить паёк (RATION_PRICE кр.) или пачку патронов —
+  // но только ПОСЛЕ годового потребления (сначала съедаем то, что есть).
   let supplyNote: string | undefined;
   {
     const SUP = GAME_CONFIG.SUPPLY;
+    if (newChar.food > 0) {
+      newChar.food = Math.max(0, newChar.food - SUP.FOOD_CONSUMPTION_PER_YEAR);
+    }
+
     const buys: string[] = [];
     // Голод страшнее траты: пока еды нет, покупаем паёк до минимального запаса.
-    while (newChar.food < 2 && newChar.credits >= SUP.RATION_PRICE && buys.length < SUP.MAX_AUTO_BUY_PER_YEAR) {
+    while (newChar.food < SUP.AUTO_RATION_TARGET && newChar.credits >= SUP.RATION_PRICE && buys.length < SUP.MAX_AUTO_BUY_PER_YEAR) {
       newChar.credits -= SUP.RATION_PRICE;
       newChar.food += 1;
       buys.push('паёк');
     }
     // Боезапас пополняем только если он когда-либо был нужен (nonzero-контекст):
     // бедняга без оружия не кормит торговцев патронами.
-    if (newChar.ammo < SUP.AMMO_MIN_STOCK && newChar.credits >= SUP.AMMO_PACK_PRICE + 10) {
+    if (newChar.ammo < SUP.AMMO_MIN_STOCK && newChar.credits >= SUP.AMMO_PACK_PRICE + SUP.AMMO_RESERVE_MIN) {
       newChar.credits -= SUP.AMMO_PACK_PRICE;
-      newChar.ammo += 10;
+      newChar.ammo += SUP.AMMO_PACK_SIZE;
       buys.push('пачка патронов');
     }
     if (buys.length > 0) {
@@ -318,10 +323,8 @@ export function updateAgeStatus(character: CharacterStats): AgeUpdateResult {
     }
   }
 
-  if (newChar.food <= 0) {
+  if (newChar.food <= GAME_CONFIG.SUPPLY.STARVATION_THRESHOLD) {
     newChar.health = Math.max(0, newChar.health - 5);
-  } else {
-    newChar.food = Math.max(0, newChar.food - 1);
   }
 
   let newWorldEvent: string | undefined;

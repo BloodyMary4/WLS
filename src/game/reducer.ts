@@ -446,6 +446,10 @@ export function computeProceedToNextYear(state: GameUiState): GameOutcome {
   if (aged.newWorldEvent) {
     newHistory.push(`[МИР] ${aged.newWorldEvent}`);
   }
+  // Логистика v0.3.82: авторацион на военном рынке виден в хронике.
+  if (aged.supplyNote) {
+    newHistory.push(`[СНАБЖЕНИЕ] ${aged.supplyNote}`);
+  }
 
   // Микро-события
   const microEventResult = triggerMicroEvent(newChar);

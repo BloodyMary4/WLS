@@ -67,7 +67,7 @@ describe('validateEvent', () => {
   });
 
   it('пустой текст или без выборов — невалидно', () => {
-    expect(validateEvent({ text: '', choices: [{ letter: 'А', text: 'x', effects: { description: 'y' } }] })).toBe(false);
+    expect(validateEvent({ text: '', choices: [{ letter: '1', text: 'x', effects: { description: 'y' } }] })).toBe(false);
     expect(validateEvent({ text: 'есть', choices: [] })).toBe(false);
   });
 
@@ -75,7 +75,7 @@ describe('validateEvent', () => {
     expect(
       validateEvent({
         text: 'событие',
-        choices: [{ letter: 'А', text: 'действовать', effects: {} as never }],
+        choices: [{ letter: '1', text: 'действовать', effects: {} as never }],
       })
     ).toBe(false);
   });

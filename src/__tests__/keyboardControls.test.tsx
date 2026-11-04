@@ -8,7 +8,7 @@ import { useKeyboardControls } from '../hooks/useKeyboardControls';
 import type { Choice } from '../game/types';
 
 const mk = (letter: string): Choice => ({ letter, text: `Вариант ${letter}`, effects: { description: '' } });
-const CHOICES = [mk('А'), mk('Б'), mk('В'), mk('Г')];
+const CHOICES = [mk('1'), mk('2'), mk('3'), mk('4')];
 
 function press(init: KeyboardEventInit & { code?: string }) {
   window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Unidentified', ...init }));

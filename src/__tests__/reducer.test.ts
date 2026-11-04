@@ -27,19 +27,19 @@ import { setGlobalSeed } from '../game/rng';
 import { Choice } from '../game/types';
 
 const harmlessChoice: Choice = {
-  letter: 'А',
+  letter: '1',
   text: 'Ничего не делать',
   effects: { description: 'Ты просто стоял и смотрел на звёзды.' },
 };
 
 const fateChoice: Choice = {
-  letter: 'В',
+  letter: '3',
   text: 'Спрятать артефакт',
   effects: { keyChoice: 'found_artifact', description: 'По ночам он шепчет.' },
 };
 
 const lethalChoice: Choice = {
-  letter: 'Б',
+  letter: '2',
   text: 'Прыгнуть в жерло реактора',
   effects: { health: -200, description: 'Пламя поглотило тебя.' },
 };
@@ -107,8 +107,8 @@ describe('reducer: CHOOSE', () => {
   });
 
   it('лейтмотив года: ранящий выбор — удар раны + низкий набат, удачный — чудо + светлый звон', () => {
-    const woundChoice: Choice = { letter: 'А', text: 'Принять удар', effects: { health: -30, description: 'Больно.' } };
-    const fortuneChoice: Choice = { letter: 'Б', text: 'Найти клад', effects: { credits: 50, description: 'Повезло!' } };
+    const woundChoice: Choice = { letter: '1', text: 'Принять удар', effects: { health: -30, description: 'Больно.' } };
+    const fortuneChoice: Choice = { letter: '2', text: 'Найти клад', effects: { credits: 50, description: 'Повезло!' } };
 
     const woundFx = computeChoose(stateWithGame(), woundChoice).effects.filter((e) => e.kind === 'playSound');
     expect(woundFx.some((e) => e.sound === 'wound')).toBe(true);

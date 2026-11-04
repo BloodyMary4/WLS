@@ -95,7 +95,7 @@ export function createDefaultEvent(): GameEvent {
     text: 'Произошло нечто странное. Продолжай свой путь.',
     choices: [
       {
-        letter: 'А',
+        letter: '1',
         text: 'Идти дальше',
         effects: { description: 'Ты продолжаешь свой путь.' }
       }

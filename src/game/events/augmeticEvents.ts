@@ -25,7 +25,7 @@ export function getAugmeticEvent(age: number, character: CharacterStats): GameEv
   const affordable = character.credits >= aug.price;
   const choices: Choice[] = [
     {
-      letter: 'А',
+      letter: '1',
       text: `Установить: ${aug.name}`,
       effects: {
         ...aug.effects,
@@ -35,19 +35,19 @@ export function getAugmeticEvent(age: number, character: CharacterStats): GameEv
       },
     },
     {
-      letter: 'Б',
+      letter: '2',
       text: 'Отказаться — плоть дана богами/вождём/предками',
       effects: { willpower: 1, description: 'Ты отвергаешь металл. Тело — храм, а не машина. Жрец одобряет.' },
     },
     {
-      letter: 'В',
+      letter: '3',
       text: 'Спросить цену ещё раз и поторговаться',
       effects: { cunning: 1, sanity: -1, description: 'Ты торгуешься часами. В итоге тебе отказывают — время упущено.' },
     },
   ];
   if (affordable && aug.price > 0) {
     choices.splice(1, 0, {
-      letter: 'Г',
+      letter: '4',
       text: `Заплатить вдвое — лучшая модификация (${aug.price * 2} кр.)`,
       effects: {
         ...aug.effects,
