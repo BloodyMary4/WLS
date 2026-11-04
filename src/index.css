@@ -552,6 +552,29 @@ p {
   }
 }
 
+/* ===== v0.3.87 «Эпитафия по объёму» =====
+   Экран смерти растягивается строго на всю предоставленную ему область
+   центральной колонки мостика: шапка (череп + причина гибели) прижата к
+   верху, кнопка реинкарнации — к низу, средняя часть (Итоги жизни +
+   пергамент Летописи) делит остаток высоты пополам и скроллится внутри
+   себя — ничего не обрезается и не выходит за рамку окна. */
+.death-screen { height: 100%; box-sizing: border-box; }
+.death-hero { padding-top: 0.25rem; }
+.death-body { grid-template-rows: minmax(0, 1fr) minmax(0, 1.4fr); }
+.death-summary, .death-chronicle { scrollbar-width: thin; scrollbar-color: #8b6914 rgba(10,10,10,0.6); }
+.death-summary::-webkit-scrollbar, .death-chronicle::-webkit-scrollbar { width: 8px; }
+.death-summary::-webkit-scrollbar-track, .death-chronicle::-webkit-scrollbar-track { background: rgba(10,10,10,0.6); border-radius: 4px; }
+.death-summary::-webkit-scrollbar-thumb, .death-chronicle::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37 0%, #8b6914 100%); border-radius: 4px; }
+/* Узкие экраны (не fit): высота по содержимому, внутренний скролл не нужен. */
+@media (max-width: 1023px), (max-height: 639px) {
+  .death-screen { height: auto; }
+  .death-body { grid-template-rows: auto auto; }
+  .death-summary, .death-chronicle { overflow-y: visible; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .death-screen .animate-fade-in { animation: none; }
+}
+
 .game-header {
   background: #0f0f0f;
   border-bottom: 1px solid #333;

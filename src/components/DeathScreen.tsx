@@ -99,19 +99,27 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
     window.setTimeout(() => setCopied(false), 2500);
   };
   return (
-    <div className="text-center py-16 animate-fade-in">
-      <div className="relative inline-block mb-8">
-        <div className="text-8xl drop-shadow-[0_0_18px_rgba(163,0,0,0.5)]">☠️</div>
-        <div className="absolute inset-0 bg-wh-blood/15 rounded-full blur-3xl"></div>
+    /* v0.3.87 «Эпитафия по объёму»: экран смерти растягивается строго на
+       всю предоставленную ему область (fit-режим — колонка мостика на всю
+       высоту вьюпорта). Верх (чаша с черепом) и низ (кнопка реинкарнации)
+       прижаты к краям, середина — равномерный поток колонок-секций;
+       лишние отступы py-16/mb-10 убраны, чтобы контент не обрезался и не
+       «плыл» внутри рамки. */
+    <div className="death-screen flex flex-col text-center animate-fade-in">
+      <div className="death-hero shrink-0">
+        <div className="relative inline-block mb-4">
+          <div className="text-7xl md:text-8xl drop-shadow-[0_0_18px_rgba(163,0,0,0.5)]">☠️</div>
+          <div className="absolute inset-0 bg-wh-blood/15 rounded-full blur-3xl"></div>
+        </div>
+        <h2 className="font-gothic text-4xl md:text-5xl font-bold mb-3 uppercase tracking-[0.25em] bg-gradient-to-b from-[#e74c3c] via-[#a30000] to-[#5c0000] bg-clip-text text-transparent">
+          СМЕРТЬ
+        </h2>
+        <p className="text-base md:text-lg leading-relaxed max-w-2xl mx-auto text-gray-300">
+          {deathMessage}
+        </p>
       </div>
-      <h2 className="font-gothic text-5xl font-bold mb-6 uppercase tracking-[0.25em] bg-gradient-to-b from-[#e74c3c] via-[#a30000] to-[#5c0000] bg-clip-text text-transparent">
-        СМЕРТЬ
-      </h2>
-      <p className="text-lg leading-relaxed mb-10 max-w-2xl mx-auto text-gray-300">
-        {deathMessage}
-      </p>
       {miracles > 0 && (
-        <div className="wh-parchment wh-miracle rounded-sm p-5 mb-10 max-w-2xl mx-auto animate-gold-sheen">
+        <div className="wh-parchment wh-miracle rounded-sm p-5 mb-6 max-w-2xl mx-auto w-full animate-gold-sheen shrink-0">
           <p className="font-event text-lg italic text-[#e8d9b0]">
             🕊️ Смерть отводила взор {miracles} {miracles === 1 ? 'раз' : miracles < 5 ? 'раза' : 'раз'} — но в последний раз Трон молчал.
           </p>
@@ -120,12 +128,16 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
           </p>
         </div>
       )}
-      <div className="wh-panel wh-frame p-8 mb-10 text-left max-w-2xl mx-auto">
-        <h3 className="font-gothic text-2xl font-bold text-[#e8c85a] mb-6 uppercase tracking-[0.15em] flex items-center gap-3">
-          <span className="text-3xl">📜</span>
+      {/* v0.3.87: секции летописи уложены в один равномерный поток —
+          «Итоги жизни» и пергамент хроники делят среднюю область по объёму,
+          каждая со своим внутренним скроллом (летопись не обрезается). */}
+      <div className="death-body flex-1 min-h-0 w-full grid gap-4 my-4 place-content-stretch">
+      <div className="wh-panel wh-frame p-5 xl:p-6 text-left max-w-2xl mx-auto w-full death-summary min-h-0 overflow-y-auto">
+        <h3 className="font-gothic text-xl font-bold text-[#e8c85a] mb-4 uppercase tracking-[0.15em] flex items-center gap-3">
+          <span className="text-2xl" aria-hidden="true">📜</span>
           Итоги жизни
         </h3>
-        <div className="space-y-4 text-lg">
+        <div className="space-y-2 text-base">
           <div className="flex justify-between items-center py-3 border-b border-gray-700">
             <span className="text-gray-400">Раса:</span>
             <span className="flex items-center gap-2 font-bold text-wh-caution text-xl">
@@ -158,10 +170,10 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
         </div>
       </div>
       {chronicle.length > 0 && (
-        <div className="wh-parchment rounded-sm p-6 mb-10 max-w-2xl mx-auto text-left">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <h3 className="font-gothic text-xl font-bold text-[#c9a227] uppercase tracking-[0.15em] flex items-center gap-3">
-              <span className="text-2xl" aria-hidden="true">🕯️</span>
+        <div className="wh-parchment rounded-sm p-5 max-w-2xl mx-auto w-full text-left death-chronicle min-h-0 overflow-y-auto">
+          <div className="flex items-center justify-between gap-3 mb-3 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg, #1a1610 70%, rgba(26,22,16,0))', paddingTop: '2px' }}>
+            <h3 className="font-gothic text-lg font-bold text-[#c9a227] uppercase tracking-[0.15em] flex items-center gap-3">
+              <span className="text-xl" aria-hidden="true">🕯️</span>
               Летопись жизни
             </h3>
             <button
@@ -199,9 +211,10 @@ export function DeathScreen({ character, raceInfo, deathMessage, history, onNewL
           </ul>
         </div>
       )}
+      </div>{/* /death-body */}
       <button
         onClick={onNewLife}
-        className="btn-wh-primary btn-modern font-bold py-4 px-14 rounded-sm text-xl transition-all hover:scale-105"
+        className="btn-wh-primary btn-modern font-bold py-3 px-12 rounded-sm text-lg transition-all hover:scale-105 shrink-0 mx-auto"
       >
         ⚔️ Начать новую жизнь
       </button>
