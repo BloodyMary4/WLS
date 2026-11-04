@@ -26,6 +26,27 @@ export class GrimdarkAmbience {
   // поверх плотного амбиент-дроуна (раньше все слои шли напрямую в destination).
   private compressor: DynamicsCompressorNode | null = null;
 
+  /**
+   * v0.4.3 «Соборный реверб»: общий ConvolverNode с процедурно сгенерированным
+   * импульсом готического собора (экспоненциальный хвост ~2.6 c, предзадержка
+   * 45 мс, лёгкий стерео-разброс). Все мелодические слои и UI-звуки получают
+   * параллельную отправку в эту шину — звуки перестают быть сухими «писками»
+   * синтезатора и склеиваются в единое пространство трека.
+   */
+  private reverb: ConvolverNode | null = null;
+  private reverbReturn: GainNode | null = null;
+
+  /** Шина задержки для арпеджио-солиста (эхо синхронизировано с темпом). */
+  private trackEchoIn: GainNode | null = null;
+  private trackEchoDelay: DelayNode | null = null;
+
+  /**
+   * Пре-композированная барабанная дробь (буфер шума) — раньше генерировалась
+   * заново на каждый вызов playTimpaniRoll, что на слабых устройствах вызывало
+   * «щелчки» и рывки звука посреди фразы.
+   */
+  private rollBuffer: AudioBuffer | null = null;
+
   // Сохранённая настройка громкости (localStorage) — переживает перезагрузку страницы
   private static readonly VOLUME_KEY = 'wls-ambience-volume';
   private static loadSavedVolume(): number {
@@ -113,6 +134,10 @@ export class GrimdarkAmbience {
       this.compressor = comp;
       this.masterGain.connect(comp);
       comp.connect(this.audioContext.destination);
+      // v0.4.3 «Соборный реверб»: параллельная шина ConvolverNode поверх
+      // компрессора — все мелодические слои и UI-звуки получают общий
+      // «соборный» хвост, музыка склеивается в единое пространство.
+      this.buildReverbBus(this.audioContext, comp);
       return true;
     } catch (error) {
       console.error('Failed to initialize audio context:', error);
@@ -120,6 +145,99 @@ export class GrimdarkAmbience {
       this.masterGain = null;
       return false;
     }
+  }
+
+  /** Процедурный импульсный отклик готического собора (~2.6 с хвоста). */
+  private static createCathedralIR(ctx: AudioContext): AudioBuffer {
+    const sr = ctx.sampleRate;
+    const len = Math.floor(sr * 2.6);
+    const preDelay = Math.floor(sr * 0.045);
+    const ir = ctx.createBuffer(2, len, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = ir.getChannelData(ch);
+      // Ранние отражения — дискретные «столпы» свода
+      const early = [0.011, 0.019, 0.027, 0.038, 0.047];
+      early.forEach((tSec, i) => {
+        const idx = Math.floor(tSec * sr) + preDelay;
+        if (idx < len) data[idx] += (i % 2 === ch % 2 ? 0.5 : -0.5) / (i + 1);
+      });
+      // Диффузный хвост: шум с экспоненциальным затуханием + лёгкий lowpass
+      let lp = 0;
+      for (let i = preDelay; i < len; i++) {
+        const t = (i - preDelay) / (len - preDelay);
+        lp = lp * 0.62 + (Math.random() * 2 - 1) * 0.38; // грубая ФЧХ-фильтрация хвоста
+        data[i] += lp * Math.exp(-4.6 * t);
+      }
+    }
+    // Нормировка, чтобы реверб не раздувал мастер
+    let peak = 0;
+    for (let ch = 0; ch < 2; ch++) {
+      const d = ir.getChannelData(ch);
+      for (let i = 0; i < d.length; i++) peak = Math.max(peak, Math.abs(d[i]));
+    }
+    if (peak > 0) {
+      const k = 0.5 / peak;
+      for (let ch = 0; ch < 2; ch++) {
+        const d = ir.getChannelData(ch);
+        for (let i = 0; i < d.length; i++) d[i] *= k;
+      }
+    }
+    return ir;
+  }
+
+  /** Собирает реверб-шину и темпо-синхронную эхо-шину солиста. */
+  private buildReverbBus(ctx: AudioContext, dest: AudioNode): void {
+    try {
+      const conv = ctx.createConvolver();
+      conv.buffer = GrimdarkAmbience.createCathedralIR(ctx);
+      conv.normalize = true;
+      const ret = ctx.createGain();
+      ret.gain.value = 0.34;
+      // Хвост тоже мягко фильтруем — без «песка» на высоких
+      const damp = ctx.createBiquadFilter();
+      damp.type = 'lowpass';
+      damp.frequency.value = 3200;
+      conv.connect(damp);
+      damp.connect(ret);
+      ret.connect(dest);
+      this.reverb = conv;
+      this.reverbReturn = ret;
+
+      // Эхо-шина арпеджио: delay подстраивается под темп в playThemeArpeggio.
+      const echoIn = ctx.createGain();
+      const echo = ctx.createDelay(2.0);
+      echo.delayTime.value = 0.5;
+      const fb = ctx.createGain();
+      fb.gain.value = 0.28;
+      const eLp = ctx.createBiquadFilter();
+      eLp.type = 'lowpass';
+      eLp.frequency.value = 900;
+      echoIn.connect(echo);
+      echo.connect(eLp);
+      eLp.connect(fb);
+      fb.connect(echo);
+      eLp.connect(dest);
+      this.trackEchoIn = echoIn;
+      this.trackEchoDelay = echo;
+    } catch {
+      // WebAudio без Convolver (древние браузеры) — просто сухая работа
+      this.reverb = null;
+      this.reverbReturn = null;
+      this.trackEchoIn = null;
+      this.trackEchoDelay = null;
+    }
+  }
+
+  /**
+   * v0.4.3: универсальная отправка узла в соборный реверб. Вызывать из
+   * каждого генератора звуков: `this.sendToReverb(gainNode, 0.25)`.
+   */
+  private sendToReverb(node: AudioNode, amount = 0.22): void {
+    if (!this.reverb || !this.audioContext) return;
+    const send = this.audioContext.createGain();
+    send.gain.value = amount;
+    node.connect(send);
+    send.connect(this.reverb);
   }
 
   private armGestureAutostart() {
@@ -816,18 +934,18 @@ export class GrimdarkAmbience {
     const cutoff = mood === 'tense' ? 900 : mood === 'danger' ? 500 : 1200;
     const now = ctx.currentTime + 0.02;
 
-    // Мягкое эхо арпеджио — «соборная» связность фразы.
-    const echo = ctx.createDelay();
-    echo.delayTime.value = beatSec * 0.75;
-    const echoFb = ctx.createGain();
-    echoFb.gain.value = 0.25;
-    const echoLp = ctx.createBiquadFilter();
-    echoLp.type = 'lowpass';
-    echoLp.frequency.value = 800;
-    echo.connect(echoLp);
-    echoLp.connect(echoFb);
-    echoFb.connect(echo);
-    echoLp.connect(this.masterGain);
+    // v0.4.3 «Соборный реверб»: эхо солиста — общая темпо-синхронная шина
+    // (задержка ровно = 3/4 доли), перестроенная под текущий темп настроения.
+    // Раньше delay создавался заново на каждый бар и протекал в мастер без
+    // фильтра обратной связи — лишние узлы и «грязный» повтор.
+    let echoSend: GainNode | null = null;
+    if (this.trackEchoIn) {
+      const t = Math.min(2.0, beatSec * 0.75);
+      if (this.trackEchoDelay) {
+        this.trackEchoDelay.delayTime.setTargetAtTime(t, ctx.currentTime, 0.25);
+      }
+      echoSend = this.trackEchoIn;
+    }
 
     pattern.forEach(([beatIdx, accent], i) => {
       // Ход по аккорду вверх-вниз (root → 3rd → 5th → oct…), синкопа
@@ -857,7 +975,8 @@ export class GrimdarkAmbience {
       lp.connect(g);
       g.connect(panner);
       panner.connect(this.masterGain!);
-      g.connect(echo);
+      if (echoSend) g.connect(echoSend); // темпо-эхо вместо локального delay
+      this.sendToReverb(g, 0.18);        // соборный хвост солиста
       osc.start(t);
       osc.stop(t + dur + 0.05);
     });
@@ -915,6 +1034,7 @@ export class GrimdarkAmbience {
       gain.connect(panner);
       panner.connect(this.masterGain!);
       gain.connect(padDelay);
+      this.sendToReverb(gain, 0.25); // v0.4.3 соборный хвост пада
 
       osc.start(now);
       osc.stop(now + duration + 0.1);
@@ -1019,6 +1139,7 @@ export class GrimdarkAmbience {
       oscGain.connect(panner);
       panner.connect(this.masterGain!);
       panner.connect(organDelay);
+      this.sendToReverb(panner, 0.4); // v0.4.3 орган гудит в соборе
 
       osc.start(now);
       osc.stop(now + duration + 0.1);
@@ -1133,6 +1254,7 @@ export class GrimdarkAmbience {
         g.connect(panner);
         panner.connect(this.masterGain!);
         panner.connect(choirDelay);
+        this.sendToReverb(panner, 0.45); // v0.4.3 хор поёт в соборе
 
         osc.start(t);
         osc.stop(t + sylLen);
@@ -1152,6 +1274,20 @@ export class GrimdarkAmbience {
     const hits = 4 + Math.floor(Math.random() * 3);
     let gap = 0.5;
 
+    // v0.4.3: шум колотушки — ОДИН пре-композированный буфер на весь темп.
+    // Раньше новый буфер записывался в главном потоке на каждый удар —
+    // на слабых устройствах это давало «щелчки» и пропуски сетки посреди
+    // фразы (заметный дефект звучания, а не только CPU).
+    if (!this.rollBuffer) {
+      const dur = 0.12;
+      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let k = 0; k < data.length; k++) {
+        data[k] = (Math.random() * 2 - 1) * Math.exp(-k / (data.length * 0.2));
+      }
+      this.rollBuffer = buffer;
+    }
+
     for (let i = 0; i < hits; i++) {
       const osc = ctx.createOscillator();
       osc.type = 'sine';
@@ -1170,18 +1306,13 @@ export class GrimdarkAmbience {
 
       osc.connect(g);
       g.connect(this.masterGain);
+      this.sendToReverb(g, 0.3); // собор под литаврами
       osc.start(t);
       osc.stop(t + 1.2);
 
-      // Шумовой «щелчок» колотушки
-      const dur = 0.12;
-      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let k = 0; k < data.length; k++) {
-        data[k] = (Math.random() * 2 - 1) * Math.exp(-k / (data.length * 0.2));
-      }
+      // Шумовой «щелчок» колотушки — из общего буфера
       const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
+      noise.buffer = this.rollBuffer;
       const lp = ctx.createBiquadFilter();
       lp.type = 'lowpass';
       lp.frequency.value = 400;
@@ -1224,6 +1355,7 @@ export class GrimdarkAmbience {
 
     lp.connect(swellGain);
     swellGain.connect(this.masterGain);
+    this.sendToReverb(swellGain, 0.45); // v0.4.3 струнный накат — с соборным дыханием
 
     chord.forEach((semi, i) => {
       const osc = ctx.createOscillator();
@@ -1864,6 +1996,7 @@ export class GrimdarkAmbience {
     bellDelayFilter.type = 'lowpass';
     bellDelayFilter.frequency.value = 1000;
     
+    this.sendToReverb(gain, 0.5); // v0.4.3 набат — в соборный хвост
     gain.connect(bellDelay);
     bellDelay.connect(bellDelayFilter);
     bellDelayFilter.connect(bellFeedback);
@@ -1954,6 +2087,7 @@ export class GrimdarkAmbience {
       osc.connect(gain);
       gain.connect(panner);
       panner.connect(master);
+      this.sendToReverb(gain, tone === 'bright' ? 0.4 : 0.5); // v0.4.3 колокол в соборе
 
       osc.start(now);
       osc.stop(now + 1.4 * decayScale + 0.1);
@@ -2006,6 +2140,7 @@ export class GrimdarkAmbience {
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
     osc.connect(gain);
     gain.connect(master);
+    this.sendToReverb(gain, 0.12); // v0.4.3 лёгкий «зал», клик остаётся сухим и быстрым
     osc.start(now);
     osc.stop(now + 0.2);
 
@@ -2121,6 +2256,7 @@ export class GrimdarkAmbience {
       filter.connect(gain);
       gain.connect(panner);
       panner.connect(master);
+      this.sendToReverb(gain, 0.3); // v0.4.3 удар отзывается эхом в зале
       osc.start(now);
       osc.stop(now + l.dur + 0.05);
     });
@@ -2180,6 +2316,7 @@ export class GrimdarkAmbience {
       filter.connect(gain);
       gain.connect(panner);
       panner.connect(master);
+      this.sendToReverb(gain, 0.35); // v0.4.3 фанфара в соборных сводах
       
       osc.start(startTime);
       osc.stop(startTime + 0.5);
@@ -2212,6 +2349,7 @@ export class GrimdarkAmbience {
       chordFilter.connect(chordGain);
       chordGain.connect(chordPanner);
       chordPanner.connect(master);
+      this.sendToReverb(chordGain, 0.4); // v0.4.3 финальный аккорд — с хвостом собора
       
       chord.start(finalTime);
       chord.stop(finalTime + 1.5);
@@ -2280,6 +2418,7 @@ export class GrimdarkAmbience {
       osc.connect(g); g.connect(panner);
       shimmer.connect(shimmerGain); shimmerGain.connect(panner);
       panner.connect(master);
+      this.sendToReverb(g, 0.5); // v0.4.3 колокольчики чуда — на весь собор
 
       osc.start(t0); osc.stop(t0 + 2.3);
       shimmer.start(t0); shimmer.stop(t0 + 1.5);
