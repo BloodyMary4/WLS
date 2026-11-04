@@ -94,7 +94,7 @@ describe('updateAgeStatus', () => {
     const base = makeCharacter();
     const char = makeCharacter({
       health: 80,
-      food: 0, // исключаем регенерацию — проверяем именно урон от мутаций
+      food: 0, credits: 0, // исключаем регенерацию и авторацион — проверяем именно урон от мутаций
       hiddenParams: { ...base.hiddenParams, mutation: GAME_CONFIG.STAT_THRESHOLDS.MUTATION_DAMAGE },
     });
     const { character: r } = updateAgeStatus(char);
@@ -102,9 +102,9 @@ describe('updateAgeStatus', () => {
   });
 
   it('голод (food=0) вредит здоровью, иначе еда убывает и раны затягиваются', () => {
-    const starving = makeCharacter({ food: 0, health: 50 });
+    const starving = makeCharacter({ food: 0, health: 50, credits: 0 });
     expect(updateAgeStatus(starving).character.health).toBe(45);
-    const fed = makeCharacter({ food: 5, health: 50 });
+    const fed = makeCharacter({ food: 5, health: 50, credits: 0 });
     const { character: r } = updateAgeStatus(fed);
     // Естественная регенерация: здоровое тело восстанавливается, если есть пища
     expect(r.health).toBeGreaterThan(50);
