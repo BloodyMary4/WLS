@@ -7,7 +7,7 @@ import { LORE_POOL_WAVE5 } from './humanLoreEventsWave5';
 // персонажа (верa, порча, статус). Все тексты выдержаны в духеgrimdark 40K:
 // безысходность, пафос, религиозный фанатизм, цена каждого вздоха.
 
-type Pool = { minAge: number; planet?: string[]; cond?: (c: CharacterStats) => boolean; ev: GameEvent }[];
+type Pool = { minAge: number; maxAge?: number; planet?: string[]; cond?: (c: CharacterStats) => boolean; ev: GameEvent }[];
 
 const LORE_POOL: Pool = [
   {
@@ -787,6 +787,7 @@ function findAnchorEvent(age: number, c: CharacterStats): { e: Pool[number]; i: 
   const candidates = LORE_POOL.map((e, i) => ({ e, i })).filter(
     ({ e, i }) =>
       age >= e.minAge &&
+      (e.maxAge === undefined || age <= e.maxAge) &&
       (!e.planet || e.planet.includes(c.planetType)) &&
       (!e.cond || e.cond(c)) &&
       !seen.includes('lore' + i) &&
@@ -868,7 +869,7 @@ export function getHumanLoreEvent(age: number, c: CharacterStats): GameEvent | n
   }
 
   const all = LORE_POOL.map((e, i) => ({ e, i })).filter(
-    ({ e }) => age >= e.minAge && (!e.planet || e.planet.includes(c.planetType)) && (!e.cond || e.cond(c)),
+    ({ e }) => age >= e.minAge && (e.maxAge === undefined || age <= e.maxAge) && (!e.planet || e.planet.includes(c.planetType)) && (!e.cond || e.cond(c)),
   );
   if (all.length === 0) return null;
   const next = loreRand(charSeed(c) ^ (age * 0x45d9f3b));

@@ -135,7 +135,9 @@ export function applyChoiceEffects(character: CharacterStats, effects: ChoiceEff
   if (effects.newStatus) {
     newChar.status = effects.newStatus;
   }
-  if (effects.keyChoice) {
+  if (effects.keyChoice && !(newChar.keyChoices || []).includes(effects.keyChoice)) {
+    // Дедупликация: keyChoices — множество следов пути; повторная запись того же
+    // ключа раздувала хронику и ломала семантику «путь пройден один раз».
     newChar.keyChoices = [...(newChar.keyChoices || []), effects.keyChoice];
   }
 
