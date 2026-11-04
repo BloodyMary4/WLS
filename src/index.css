@@ -1653,6 +1653,159 @@ section[aria-label="Исход решения"] > .wh-window-head::after {
     linear-gradient(180deg, rgba(56, 47, 30, 0.92) 0%, rgba(28, 24, 15, 0.95) 100%);
 }
 
+/* ===== v0.3.80 «Магитарий»: графическая полировка без изменения компоновки =====
+   Только оформление поверх утверждённой сетки 25/50/25: каменная кладка под
+   мостиком, имперская полоса plumbata над окнами событий, кованые шляпки
+   заклёпок, латунные уголки-скобы, ржавая патина пергамента, чернильные
+   разрывы у кнопок выборов, красная восковая печать судьбоносного выбора,
+   единый отсвет свода над шапкой HUD. Бесконечных анимаций нет; reduced-motion
+   уважается (hover-блик перехватывается общим правилом ниже). */
+
+/* Каменная кладка под всей сеткой: тёплые плиты с золотыми швами и теневой
+   гранью каждого камня — готический пол собора-машины вместо плоской сетки */
+.game-layout-wrap {
+  background-image:
+    /* мягкий свет свода сверху */
+    radial-gradient(ellipse 120% 55% at 50% -8%, rgba(46, 39, 24, 0.55), transparent 62%),
+    /* тень нижней грани камней */
+    repeating-linear-gradient(0deg, transparent 0 45px, rgba(0, 0, 0, 0.22) 45px 47px),
+    /* золотой шов кладки */
+    repeating-linear-gradient(0deg, transparent 0 46px, rgba(201, 162, 39, 0.055) 46px 47px),
+    /* вертикальные швы со смещением рядов (ступенчатая перевязка кирпичей) */
+    repeating-linear-gradient(90deg, transparent 0 92px, rgba(201, 162, 39, 0.045) 92px 93px),
+    /* базовый тон камня */
+    linear-gradient(180deg, #131009 0%, #0b0a08 100%);
+}
+
+/* Имперская полоса plumbata — стилизованный орёл из чистого CSS
+   (крылья-трапеции + тело-ромб): печатный виньет над центральными окнами */
+section[aria-label="Событие года"] > .wh-window-head h3::after,
+section[aria-label="Исход решения"] > .wh-window-head h3::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px; height: 9px;
+  opacity: 0.55;
+  pointer-events: none;
+  background:
+    linear-gradient(105deg, transparent 40%, rgba(217, 182, 74, 0.9) 41%) left / 10px 9px no-repeat,
+    linear-gradient(-105deg, transparent 40%, rgba(217, 182, 74, 0.9) 41%) right / 10px 9px no-repeat,
+    radial-gradient(circle at 50% 30%, #e8c96a 0 1.6px, transparent 2px),
+    linear-gradient(180deg, rgba(217, 182, 74, 0.85), rgba(139, 105, 20, 0.4)) center bottom / 3px 6px no-repeat;
+}
+
+/* Заклёпки по нижним углам окон — кованые шляпки: блик сверху, тень снизу */
+.wh-window .wh-window-body::before {
+  background-image:
+    radial-gradient(circle at 7px 1px, rgba(232, 201, 106, 0.55) 0 1px, rgba(217, 182, 74, 0.4) 1px 1.8px, transparent 2.8px),
+    radial-gradient(circle at calc(100% - 7px) 1px, rgba(232, 201, 106, 0.55) 0 1px, rgba(217, 182, 74, 0.4) 1px 1.8px, transparent 2.8px);
+}
+
+/* Латунные уголки-скобы чуть плотнее к металлу — читаются как ковочные скобы */
+.wh-window::before {
+  background-image:
+    linear-gradient(135deg, transparent 5px, rgba(217, 182, 74, 0.62) 5px, rgba(217, 182, 74, 0.62) 6.5px, transparent 6.5px),
+    linear-gradient(-45deg, transparent 5px, rgba(217, 182, 74, 0.62) 5px, rgba(217, 182, 74, 0.62) 6.5px, transparent 6.5px),
+    linear-gradient(45deg, transparent 5px, rgba(217, 182, 74, 0.42) 5px, rgba(217, 182, 74, 0.42) 6.5px, transparent 6.5px),
+    linear-gradient(-135deg, transparent 5px, rgba(217, 182, 74, 0.42) 5px, rgba(217, 182, 74, 0.42) 6.5px, transparent 6.5px);
+}
+
+/* Пергамент события: ржавая патина по нижним углам — ветхая кожа кодекса */
+.wh-parchment-simple {
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(201, 162, 39, 0.07), transparent 60%),
+    radial-gradient(ellipse 70px 40px at 0% 100%, rgba(110, 54, 18, 0.12), transparent 70%),
+    radial-gradient(ellipse 70px 40px at 100% 100%, rgba(110, 54, 18, 0.10), transparent 70%),
+    linear-gradient(180deg, #1d1810 0%, #14110b 100%);
+}
+
+/* Кнопки выборов А–Г: тёмный металл с диагональной рисковой насечкой брони
+   и двумя «чернильными разрывами» по краям — как штампованные трафареты */
+.wh-event-card .choice-btn {
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.022) 0 2px, transparent 2px 7px),
+    linear-gradient(90deg, rgba(201, 162, 39, 0.16) 0 2px, transparent 2px 9px),
+    linear-gradient(-90deg, rgba(201, 162, 39, 0.16) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, rgba(34, 30, 21, 0.9) 0%, rgba(18, 16, 11, 0.95) 100%);
+}
+.wh-event-card .choice-btn:hover,
+.wh-event-card .choice-btn:focus-visible {
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 7px),
+    linear-gradient(90deg, rgba(217, 182, 74, 0.3) 0 2px, transparent 2px 9px),
+    linear-gradient(-90deg, rgba(217, 182, 74, 0.3) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, rgba(48, 42, 28, 0.95) 0%, rgba(24, 21, 14, 0.97) 100%);
+}
+
+/* Красная восковая печать на судьбоносном выборе (⚡) — danger- badge остаётся
+   багровой; селектор специфичнее hover-правила выше, поэтому не перекрывается */
+.wh-event-card .choice-btn .border-\[\#e8c85a\]\/60 {
+  border-color: rgba(176, 48, 48, 0.75) !important;
+  background: radial-gradient(circle at 35% 30%, #b03030 0%, #7c1d1d 60%, #4a1010 100%) !important;
+  color: #f2d6a0 !important;
+  box-shadow: 0 0 5px rgba(124, 29, 29, 0.55), inset 0 1px 1px rgba(255, 180, 180, 0.25);
+}
+
+/* Единый отсвет имперского золота над всей приборной панелью — та же атмосфера
+   собора-машины, что у каменного пола под сеткой */
+.wh-hud-panel, .wh-hud-strip {
+  background-image:
+    radial-gradient(ellipse 90% 130% at 50% -30%, rgba(201, 162, 39, 0.08), transparent 70%),
+    linear-gradient(180deg, rgba(26, 23, 16, 0.97) 0%, rgba(10, 9, 7, 0.97) 100%);
+}
+
+/* ===== v0.3.80 «Скрипторий»: типографика и глубина (без сдвигов сетки) ===== */
+
+/* Текст года — крупнее и «дышит»: печатная строка кодекса читается легче,
+   перенос по слогам + висячая пунктуатура как в печатных изданиях */
+.wh-event-card .event-scroll,
+.wh-event-card .result-text {
+  font-size: 15.5px;
+  line-height: 1.72;
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
+/* Разворот листа: мягкое появление нового события (однократная анимация —
+   правила о бесконечных pulse/glow не нарушены; reduced-motion гасит её
+   общим блоком prefers-reduced-motion выше по файлу) */
+@keyframes pageTurnIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.wh-event-card .event-head,
+.wh-event-card .result-block { animation: pageTurnIn 0.35s ease-out both; }
+
+/* Окна приподняты над каменной кладкой: глубокая тень лежит на «полу»,
+   внутренняя виньетка давит железо к рамке */
+.wh-window {
+  box-shadow:
+    inset 0 0 46px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(201, 162, 39, 0.10),
+    0 10px 26px rgba(0, 0, 0, 0.7),
+    0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* Гравировка заголовков окон: светлая фаска сверху + тиснёная тень снизу */
+.wh-window-head h3 {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.95), 0 -1px 0 rgba(232, 200, 90, 0.10);
+}
+
+/* Металлический шильдик буквы выбора: блик смещён вверх, тень прижата —
+   медальон выглядит выпуклым штампом, а не плоской плашкой */
+.wh-choice-letter {
+  box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Плашка «Итог» результата — тиснёная металлическая полоса над пергаментом */
+.wh-parchment-simple > .shrink-0 {
+  border-top: 1px solid rgba(201, 162, 39, 0.18);
+  padding-top: 6px;
+  margin-top: 2px;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
 /* Заклёпки по нижним углам окон — через ::marker-обёртку нельзя,
    поэтому вешаем пару точек на body-псевдоэлемент окна (не конфликтует
    с арочной скобкой события, которая занимает ::after самого окна) */
