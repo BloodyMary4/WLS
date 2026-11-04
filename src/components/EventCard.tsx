@@ -140,7 +140,7 @@ function EventParchment({ text, icon, extra, miracle }: {
   return (
     <div
       className={`event-parchment wh-parchment-simple rounded-sm px-4 py-3 ${miracle ? 'wh-miracle' : ''} ${extra ? '' : 'flex-1 min-h-0'}`}
-      style={{ borderColor: miracle || icon === '⚔️' || icon === '🕊️' ? 'rgba(201,162,39,0.7)' : undefined }}
+      style={{ borderColor: miracle || resolveIcon(icon ?? '') === 'swords' || resolveIcon(icon ?? '') === 'dove' ? 'rgba(201,162,39,0.7)' : undefined }}
     >
       {/* v0.3.47: строка «иконка + текст» растянута на всю высоту пергамента
           (items-stretch), а скролл живёт ВНУТРИ текстового блока — раньше
@@ -148,7 +148,11 @@ function EventParchment({ text, icon, extra, miracle }: {
           уезжала вверх и обрезалась, а текст уходил за нижнюю рамку прямо
           под кнопки («не читается, текст уходит за выборы»). */}
       <div className="flex items-stretch gap-3 flex-1 min-h-0">
-        {icon && <span className="text-xl leading-none pt-0.5 shrink-0">{icon}</span>}
+        {icon && (
+          <span className="w-5 h-5 text-[#c9a227] leading-none pt-0.5 shrink-0 flex items-start">
+            <GameIcon name={resolveIcon(icon)} className="w-5 h-5" />
+          </span>
+        )}
         <p className="result-text font-event leading-relaxed text-[#e8d9b0] event-scroll flex-1 min-w-0 min-h-0 pr-2 wh-scroll">
           {richText(text)}
         </p>
@@ -196,7 +200,7 @@ export function EventCard({ event, age, phase, resultText, lastChoice, lastDelta
             className="btn-wh-primary btn-modern w-full shrink-0 font-bold py-2.5 rounded-sm text-base transition-all hover:scale-[1.02] lg:hidden"
             style={{ background: 'linear-gradient(180deg, #c9a227 0%, #8a6d15 100%)', color: '#14110a' }}
           >
-            ⏭ Дальше → Год {age}
+            <span className="inline-flex items-center gap-1.5"><GameIcon name="skip" className="w-4 h-4" /> Дальше → Год {age}</span>
           </button>
           <button
             onClick={onProceed}

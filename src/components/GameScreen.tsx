@@ -1,3 +1,4 @@
+import { GameIcon } from './icons';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Choice } from '../game/types';
 import { GameUiState } from '../game/reducer';
@@ -199,8 +200,8 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
         {/* Футер-прибор: путь жизни + горячие клавиши одной строкой */}
         <footer className="shrink-0 border-t border-[#c9a227]/30 py-1" style={{ background: 'rgba(11,10,8,0.9)' }}>
           <div className="mx-auto w-full max-w-[1700px] px-3 flex items-center gap-3 text-xs text-[#b8a878]/80">
-            <span className="font-gothic uppercase tracking-widest text-[#c9a227]/70 hidden lg:inline whitespace-nowrap">⚜ Warhammer Life Simulator</span>
-            <span className="text-sm shrink-0" aria-hidden="true">⏳</span>
+            <span className="font-gothic uppercase tracking-widest text-[#c9a227]/70 hidden lg:inline whitespace-nowrap flex items-center gap-1.5"><GameIcon name="fleur" className="w-4 h-4 shrink-0" />Warhammer Life Simulator</span>
+            <span className="shrink-0 text-[#c9a227]/80 flex items-center" aria-hidden="true"><GameIcon name="hourglass" className="w-4 h-4" /></span>
             <span className="sr-only">Прогресс жизни</span>
             <div className="wh-bar flex-1 overflow-hidden" style={{ height: '6px' }} title={`Возраст ${character.age} из ожидаемых ~${maxExpectedAge} лет — за чертой начинается стариковская пора`}>
               <div
@@ -246,9 +247,9 @@ export function GameScreen({ uiState, onChoice, onProceed, onNewGame }: GameScre
       {/* Футер: путь жизни + горячие клавиши */}
       <footer className="wh-footer border-t border-[#c9a227]/30 py-1.5" style={{ background: 'rgba(11,10,8,0.9)' }}>
         <div className="mx-auto w-full max-w-[1700px] px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-[#b8a878]/80">
-          <span className="font-gothic uppercase tracking-widest text-[#c9a227]/70">⚜ Warhammer Life Simulator</span>
+          <span className="font-gothic uppercase tracking-widest text-[#c9a227]/70 flex items-center justify-center gap-1.5"><GameIcon name="fleur" className="w-4 h-4 shrink-0" />Warhammer Life Simulator</span>
           <span className="flex items-center gap-2 whitespace-nowrap tabular-nums">
-            ⏳ {character.age} / ~{maxExpectedAge} лет
+            {character.age} / ~{maxExpectedAge} лет
           </span>
           <span className="flex items-center gap-1.5 whitespace-nowrap tabular-nums cursor-help" title={`Достижения: открыто ${uiState.unlockedAchievements.length} из ${ACHIEVEMENTS.length}`}>
             🏆 {uiState.unlockedAchievements.length}/{ACHIEVEMENTS.length}

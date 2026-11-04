@@ -1,3 +1,4 @@
+import { GameIcon } from './icons';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -64,10 +65,10 @@ export function CollapsibleSection({ title, defaultOpen = true, persistId, badge
         <span className="flex items-center gap-2 shrink-0">
           {badge}
           <span
-            className={`text-xs text-[#c9a227]/60 group-hover:text-[#c9a227] transition-transform ${open ? 'rotate-180' : ''}`}
+            className={`w-3.5 h-3.5 text-[#c9a227]/60 group-hover:text-[#c9a227] transition-transform flex items-center ${open ? 'rotate-180' : ''}`}
             aria-hidden="true"
           >
-            ▾
+            <GameIcon name="chevron" className="w-3.5 h-3.5" />
           </span>
         </span>
       </button>

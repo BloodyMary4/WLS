@@ -1,3 +1,4 @@
+import { GameIcon } from './icons';
 import { useState, useEffect, useCallback } from 'react';
 import { getAmbience } from '../game/audio';
 
@@ -148,7 +149,7 @@ export function AudioController() {
           ? 'bg-red-900/80 text-red-300 border border-red-600' 
           : 'bg-gray-800/80 text-gray-400 border border-gray-600'
       }`}>
-        {isPlaying ? '🎵 Играет' : '🔇 Выкл'}
+        {isPlaying ? (<span className="inline-flex items-center gap-1.5"><GameIcon name="music" className="w-4 h-4" /> Играет</span>) : (<span className="inline-flex items-center gap-1.5"><GameIcon name="mute" className="w-4 h-4" /> Выкл</span>)}
       </div>
 
     </div>

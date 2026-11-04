@@ -159,7 +159,7 @@ export function WindowCard({ title, defaultOpen = false, badge, children }: Wind
       >
         <span className="font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] flex-1 min-w-0 truncate">{title}</span>
         {badge != null && <span className="shrink-0 text-[10px] text-gray-400 tabular-nums">{badge}</span>}
-        <span className="shrink-0 text-[#b8a878] text-[10px]" aria-hidden="true">{open ? '▾' : '▸'}</span>
+        <span className={`shrink-0 text-[#b8a878] flex items-center transition-transform ${open ? 'rotate-180' : '-rotate-90'}`} aria-hidden="true"><GameIcon name="chevron" className="w-3 h-3" /></span>
       </button>
       {open && <div className="p-2">{children}</div>}
     </section>
