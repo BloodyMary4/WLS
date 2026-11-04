@@ -17,13 +17,13 @@ export function SuppliesWindow({ character }: SuppliesWindowProps) {
     <WindowPane title="Снабжение" icon="📦">
       {/* v0.3.53: чистая таблица припасов — метки выровнены, эмодзи убраны */}
       <dl className="wh-readout">
-        <ReadoutRow label="Кредиты" value={`${character.credits} ₡`}
+        <ReadoutRow label="Кредиты" icon="💰" value={`${character.credits} ₡`}
           hint={character.credits === 0 ? 'Нет денег: торг и взятки недоступны' : 'Тронные кредиты — валюта Империума'}
           tone={character.credits === 0 ? 'bad' : 'default'} />
-        <ReadoutRow label={starving ? 'Пайки ⚠' : 'Пайки'} value={character.food}
+        <ReadoutRow label={starving ? 'Пайки ⚠' : 'Пайки'} icon="🍞" value={character.food}
           hint={`Провизия: ${character.food} — ${foodCaption(character.food)}. Каждый год съедается 1 порция; без еды начинается голод.`}
           tone={starving ? 'bad' : 'default'} />
-        <ReadoutRow label={character.ammo === 0 ? 'Боезапас ⚠' : 'Боезапас'} value={character.ammo === 0 ? 'оружие молчит' : character.ammo}
+        <ReadoutRow label={character.ammo === 0 ? 'Боезапас ⚠' : 'Боезапас'} icon="🔩" value={character.ammo === 0 ? 'оружие молчит' : character.ammo}
           hint={character.ammo === 0 ? 'Без патронов бой против вооружённого врага почти верная смерть' : 'Заряды для стрелкового оружия'}
           tone={character.ammo === 0 ? 'bad' : 'default'} />
       </dl>

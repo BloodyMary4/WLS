@@ -1956,3 +1956,52 @@ section[aria-label="Исход решения"] > .wh-window-head h3::after {
 @media (prefers-reduced-motion: reduce) {
   /* новые эффекты статичны — ничего дополнительно отключать не требуется */
 }
+
+/* ===== v0.3.89 «Реликварий»: иконки — реликтовые медальоны ===== */
+/* Иконка окна: круглый медальон во всю высоту шапки, утопленный в железо,
+   с золотым ободком и янтарной эмиссией из-под стекла. Глиф печатается
+   системным цветным шрифтом прямо из JSX (никакого CSS-контента — урок
+   багов v0.3.84/v0.3.85). Композиция 25/50/25 не тронута. */
+.wh-pane-icon {
+  width: 26px;
+  min-width: 26px;
+  height: 100%;
+  min-height: 22px;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(232, 201, 106, 0.16), rgba(232, 201, 106, 0) 60%),
+    radial-gradient(circle at 50% 115%, rgba(201, 162, 39, 0.22), rgba(201, 162, 39, 0) 70%),
+    linear-gradient(180deg, #241d10 0%, #14100a 100%);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 0 rgba(232, 201, 106, 0.12),
+    0 0 6px rgba(201, 162, 39, 0.18);
+}
+.wh-pane-icon-glyph {
+  font-size: 13px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+}
+/* Медальон шкалы/строки показаний — тот же язык, но малый кегль:
+   глиф центрирован в нише, метка читается ровной лесенкой. */
+.wh-bar-icon {
+  width: 17px;
+  min-width: 17px;
+  height: 17px;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(232, 201, 106, 0.12), rgba(232, 201, 106, 0) 62%),
+    linear-gradient(180deg, #221b0f 0%, #131009 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 4px rgba(201, 162, 39, 0.12);
+}
+.wh-bar-icon-glyph {
+  font-size: 10px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+}
+/* При наведении на строку — медальон чуть теплеет (без анимации-мигания) */
+[title]:hover > .wh-bar-icon,
+.py-1:hover > div > .wh-bar-icon {
+  border-color: rgba(232, 201, 106, 0.75);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 6px rgba(201, 162, 39, 0.3);
+}

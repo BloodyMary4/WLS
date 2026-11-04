@@ -40,13 +40,16 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
         {/* v0.3.86: иконка окна — плашка во всю высоту заголовка, глиф
             центрирован по объёму колонки (вертикаль и горизонталь), тонкая
             золотая грань отделяет его от названия. Композиция 25/50/25 не
-            затронута — меняется только оформление шапки окна. */}
+            затронута — меняется только оформление шапки окна.
+            v0.3.89 «Реликварий»: реликтовая ниша — утопленный медальон с
+            эмалевой интарсией, золотой ободок, янтарное свечение; глиф
+            печатается системным цветным шрифтом (только JSX, без CSS-контента). */}
         {icon && (
           <span
             aria-hidden="true"
-            className="shrink-0 grid place-items-center w-[22px] rounded-sm text-[13px] leading-none text-[#e8c85a] border-r border-[#c9a227]/25 bg-[#c9a227]/[0.07]"
+            className="wh-pane-icon shrink-0 grid place-items-center rounded-full"
           >
-            {icon}
+            <span className="wh-pane-icon-glyph">{icon}</span>
           </span>
         )}
         <h3 className="self-center font-gothic text-[11px] uppercase tracking-[0.14em] text-[#e8c85a] truncate">{title}</h3>
@@ -70,16 +73,25 @@ export function WindowPane({ title, icon, extra, children, className = '', stret
 /** Строка показателя «метка — число» для тесных окон-приборов.
  *  v0.3.43: значение больше не усекается посреди слова — перенос по словам,
  *  метка занимает минимум ширины, длинное значение читается целиком. */
-export function ReadoutRow({ label, value, hint, tone = 'default' }: {
+export function ReadoutRow({ label, value, icon, hint, tone = 'default' }: {
   label: ReactNode;
   value: ReactNode;
+  /** v0.3.89 «Реликварий»: глиф показателя в медальоне реликтовой ниши. */
+  icon?: string;
   hint?: string;
   tone?: 'good' | 'bad' | 'default';
 }) {
   const cls = tone === 'good' ? 'text-[#7fc97f]' : tone === 'bad' ? 'text-[#e07a7a]' : 'text-[#e8d9b0]';
   return (
     <div className="flex items-baseline justify-between gap-2 text-xs leading-snug py-0.5" title={hint}>
-      <span className="text-[#b8a878] shrink-0">{label}</span>
+      <span className="flex items-center gap-1.5 text-[#b8a878] shrink-0">
+        {icon && (
+          <span aria-hidden="true" className="wh-bar-icon shrink-0 grid place-items-center rounded-full">
+            <span className="wh-bar-icon-glyph">{icon}</span>
+          </span>
+        )}
+        {label}
+      </span>
       <span className={`font-bold tabular-nums text-right break-words ${cls}`}>{value}</span>
     </div>
   );
@@ -92,7 +104,8 @@ export function BarStat({ label, value, max = 10, icon, color, hint, danger }: {
   label: string;
   value: number;
   max?: number;
-  /** Принято для совместимости — в чистом HUD иконки в шкалах не печатаются. */
+  /** v0.3.89 «Реликварий»: тематический глиф шкалы — печатается в медальоне
+   *  реликтовой ниши перед меткой (эмодзи из JSX, без CSS-контента). */
   icon?: string;
   color: string; // tailwind bg-* класс заполнения
   hint?: string;
@@ -102,7 +115,12 @@ export function BarStat({ label, value, max = 10, icon, color, hint, danger }: {
   return (
     <div className="py-1" title={hint}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto_64px] items-center gap-2 text-[11px] leading-tight mb-1">
-        <span className={`font-gothic tracking-wide truncate ${danger ? 'text-[#e07a7a] font-bold' : 'text-[#b8a878]'}`}>
+        <span className={`flex items-center gap-1.5 min-w-0 font-gothic tracking-wide truncate ${danger ? 'text-[#e07a7a] font-bold' : 'text-[#b8a878]'}`}>
+          {icon && (
+            <span aria-hidden="true" className="wh-bar-icon shrink-0 grid place-items-center rounded-full">
+              <span className="wh-bar-icon-glyph">{icon}</span>
+            </span>
+          )}
           {label}
         </span>
         <span className={`font-bold tabular-nums text-right ${danger ? 'text-[#e07a7a]' : 'text-[#e8d9b0]'}`}>
