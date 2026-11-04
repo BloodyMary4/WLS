@@ -1,5 +1,78 @@
 import { CharacterStats, GameEvent } from '../types';
-import { rng } from '../rng';
+
+// v0.4.1 «Колода детства»: раньше базовые годовые события выбирались через
+// глобальный rng() — С ВОЗВРАТОМ и НЕДЕТЕРМИНИРОВАННО (каждый рендер давал
+// новый случайный индекс, а один и тот же шаблон мог выпасть дважды подряд:
+// игрок видел повторы уже в 2–5 лет). Теперь выбор детерминирован по
+// (имя+планета+возраст) — повторный рендер того же года возвращает ТО ЖЕ
+// событие (re-render безопасен), а маршрутизатор перед шаблоном сначала
+// пробует анти-повторную колоду лорного пула.
+function eventHash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+
+// v0.4.1 «Колода детства», второй слой анти-повтора: лорная колода маршрутизатора
+// покрывает годы, пока есть подходящие лоры; когда она исчерпана, просмотр
+// шаблонного события фиксируется в keyChoices ('base:<salt>:<n>'). Все выборы
+// шаблонов детерминированы хешем персонажа (без Math.random) — повторный рендер
+// того же года возвращает тот же текст (re-render-safe), а редьюсер отмечает
+// просмотр только после реального выбора игрока.
+function markBaseSeen(c: CharacterStats, salt: string, n: number): void {
+  if (!c.keyChoices) c.keyChoices = [];
+  const tag = `base:${salt}:${n}`;
+  if (!c.keyChoices.includes(tag)) c.keyChoices.push(tag);
+}
+
+
+
+// ==== Колода детства v0.4.1 (чистая, re-render-safe) ====
+// Маркер индекса шаблона в beginning of text: '\u200BB<n>\u200B' — вырезается UI,
+// reducer после выбора вызывает markChildhoodTemplate и просмотр фиксируется.
+const CHILDSALT = 'childhood';
+
+function childHash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  h ^= h << 13; h >>>= 0; h ^= h >>> 17; h ^= h << 5; h >>>= 0;
+  return h >>> 0;
+}
+
+function pickChildhoodDeck<T extends { text: string }>(arr: readonly T[], c: CharacterStats, age: number): T {
+  const seenTags = arr.map((_, i) => `base:${CHILDSALT}:${i}`);
+  const kc = c.keyChoices ?? [];
+  const fresh = arr.map((ev, i) => ({ ev, i })).filter(({ i }) => !kc.includes(seenTags[i]));
+  let chosen: { ev: T; i: number };
+  if (fresh.length > 0) {
+    const h = childHash(c.name + '|' + c.planet + '|' + age + '|deck');
+    chosen = fresh[h % fresh.length];
+  } else {
+    // Полный цикл: детерминированная тасовка Фишера–Йетса, берём первый —
+    // тот же год всегда даёт то же событие; подряд повторов нет по построению.
+    const a = arr.map((ev, i) => ({ ev, i }));
+    let s = childHash(c.name + '|' + c.planet + '|shuffle');
+    const rnd = () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 0x100000000; };
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    chosen = a[0];
+  }
+  return { ...chosen.ev, text: `\u200BB${chosen.i}\u200B` + chosen.ev.text };
+}
+
+/** Фиксирует просмотр шаблонного события детства (reducer, после выбора). */
+export function commitChildhoodSeen(c: CharacterStats, text: string): void {
+  const m = /^\u200BB(\d+)\u200B/.exec(text);
+  if (m) markBaseSeen(c, CHILDSALT, Number(m[1]));
+}
 
 export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
   const pt = c.planetType;
@@ -92,7 +165,16 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
         ]
       },
     ];
-    return events[Math.floor(rng().next() * events.length)];
+    // Ветка рождения всегда активна (её не перекрывает лорная колода).
+    // v0.4.1: выбор детерминирован по персонажу (без Math.random) и сразу
+    // помечается просмотренным — второй раз за жизнь вариант не появится,
+    // а повторный рендер года 0 возвращает ТОТ ЖЕ текст (re-render-safe).
+    {
+      const h = childHash(c.name + '|' + c.planet + '|birth');
+      const i = h % events.length;
+      markBaseSeen(c, 'birth', i);
+      return events[i];
+    }
   }
   
   if (age === 1) {
@@ -164,7 +246,11 @@ export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
         ]
       },
     ];
-    return events[Math.floor(rng().next() * events.length)];
+    // Колода шаблонов детства: выбор БЕЗ мутаций и без Math.random — индекс
+    // детерминирован по персонажу+возрасту среди ещё не показанных вариантов
+    // (просмотр фиксирует reducer через markChildhoodTemplate по маркеру в
+    // тексте). Когда все шесть исчерпаны — честный полный цикл-тасовка.
+    return pickChildhoodDeck(events, c, age);
   }
   
   // Лор Warhammer 40K: псайкеры рождаются с «искрой» — от неё не отвертеться.

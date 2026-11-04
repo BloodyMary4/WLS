@@ -15,6 +15,7 @@ import { GameState, Choice, CharacterStats, ChoiceEffects, Race } from './types'
 import { rng, setGlobalSeed, hashSeed } from './rng';
 import { generateCharacter, generateCharacterByRace, getEventForAge, getDeathMessage } from './data';
 import { markLoreSeen, loreMarkerIndex, stripLoreMarker } from './events/humanLoreEvents';
+import { commitChildhoodSeen } from './events/humanEvents';
 import { checkAchievements } from './achievements';
 import { triggerMicroEvent } from './microEvents';
 import { getLegacy, updateLegacyOnDeath, getLegacyBonuses } from './legacy';
@@ -366,6 +367,8 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
   {
     const idx = loreMarkerIndex(game.currentEvent.text);
     if (idx !== null) markLoreSeen(newChar, idx);
+    // v0.4.1 «Колода детства»: фиксация просмотра шаблонного события детства
+    commitChildhoodSeen(newChar, game.currentEvent.text);
   }
 
   // Визуальные дельты хода: бейджи +/− на плитках шапки в фазе исхода.

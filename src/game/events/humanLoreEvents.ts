@@ -819,6 +819,35 @@ export function markLoreSeen(c: CharacterStats, idx: number): void {
   if (!c.keyChoices.includes(tag)) c.keyChoices.push(tag);
 }
 
+/** Индекс лорного события по его тексту (v0.4.1: экспорт для базовых событий). */
+export function loreIndexFromText(text: string): number | null {
+  return loreMarkerIndex(text);
+}
+
+/**
+ * Публичная анти-повторная колода лорного пула (v0.4.1). Используется
+ * маршрутизатором для БАЗОВЫХ расовых событий человека (2–5 лет и т.п.),
+ * которые раньше крутились случайным индексом с возвратом и повторялись
+ * уже в первые годы жизни. Поведение чистое: не мутирует персонажа —
+ * «просмотр» фиксирует reducer через markLoreSeen по маркеру в тексте.
+ * Возвращает событие с маркером '\u200Bidx\u200B' или null (пул исчерпан).
+ */
+export function drawHumanLoreByFilter(
+  age: number,
+  c: CharacterStats,
+  filter: (entry: { minAge: number; maxAge?: number; planet?: string[]; cond?: (cc: CharacterStats) => boolean }, i: number) => boolean,
+): GameEvent | null {
+  const seen = peekSeen(c);
+  const all = LORE_POOL.map((e, i) => ({ e, i })).filter(
+    ({ e, i }) => filter(e, i) && !seen.includes('lore' + i),
+  );
+  if (all.length === 0) return null;
+  const next = loreRand(charSeed(c) ^ ((age + 31) * 0x45d9f3b));
+  const chosen = all[Math.floor(next() * all.length)];
+  const body = chosen.e.ev.text.split('%AGE%').join(String(age));
+  return { ...chosen.e.ev, text: `\u200B${chosen.i}\u200B` + body };
+}
+
 /** Фиксирует просмотр события ОДИН раз — вызывается редьюсером после выбора. */
 export function commitLoreSeen(c: CharacterStats, text: string): void {
   const m = /^\u200B(\d+)\u200B/.exec(text);
@@ -902,7 +931,7 @@ export function getHumanLoreEvent(age: number, c: CharacterStats): GameEvent | n
 
 /** Убирает служебный маркер «\u200Bidx\u200B» из текста лорного события. */
 export function stripLoreMarker(text: string): string {
-  return text.replace(/^\u200B\d+\u200B/, '');
+  return text.replace(/^\u200B(?:\d+|B\d+)\u200B/, '');
 }
 
 /** Индекс события лорного пула из маркера (или null). */

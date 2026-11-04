@@ -1,5 +1,5 @@
 export { getHumanEvent } from './humanEvents';
-export { getHumanLoreEvent } from './humanLoreEvents';
+export { getHumanLoreEvent, drawHumanLoreByFilter } from './humanLoreEvents';
 export { getOrkEvent } from './orkEvents';
 export { getEldarEvent } from './eldarEvents';
 export { getDarkEldarEvent } from './darkEldarEvents';

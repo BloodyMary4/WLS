@@ -10,7 +10,8 @@ import {
   getGretchinEvent, 
   getInquisitionBranchEvent,
   getGretchinBranchEvent,
-  getAugmeticEvent 
+  getAugmeticEvent,
+  drawHumanLoreByFilter
 } from './events';
 import { generateWorldEvent } from './utils';
 
@@ -169,6 +170,13 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
     const branch = getInquisitionBranchEvent(age, character);
     if (branch) return branch;
   }
+  // Эхо-линии («артефакт», «бунтарь») — сквозные сюжетные узлы: они должны
+  // перекрывать случайную лорную колоду, иначе цепочка обрывается (v0.4.1).
+  if (character.race === 'human') {
+    const echo = getHumanEvent(age, character);
+    if (echo.text.includes('начинает проявлять странные свойства') ||
+        echo.text.includes('Повстанцы, которым ты помог в детстве')) return echo;
+  }
   // Ордо Малипус: вызов к проявившемуся псайкеру-человеку важнее предложения
   // импланта — дар нельзя «заапгрейдить»: его скрывают, регистрируют или сжигают.
   if (character.race === 'human' && (character.hiddenParams.psi || 0) >= 5) {
@@ -195,6 +203,28 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
       // Лорное событие по типу планеты/контексту персонажа — живее шаблонных годовщин.
       const lore = getHumanLoreEvent(age, character);
       if (lore) return lore;
+      // v0.4.1 «Колода детства»: раньше базовые расовые события (2–5 лет и др.)
+      // выбирались случайным индексом С ВОЗВРАТОМ — уже в первые годы игрок видел
+      // повторы («еда у отчима» дважды в 3 года). Теперь перед шаблоном
+      // пробуется анти-повторная колода лорного пула с той же возрастной рамкой
+      // и тем же типом планеты: пока есть непросмотренные подходящие лоры —
+      // идёт они; когда исчерпаны — честный шаблон (он всегда уникален в своей
+      // возрастной ячейке).
+      // ВНИМАНИЕ: getHumanEvent может МУТИРОВАТЬ keyChoices (отметки колоды
+      // шаблонов 'base:*'), поэтому базовое событие запрашивается только после
+      // того, как колода лора исчерпана — иначе побочные метки ставились бы
+      // при каждом рендере года, даже когда шаблон не показан.
+      const inRange = (a: number, b: number) => age >= a && age <= b;
+      const bucket: [number, number] | null =
+        inRange(2, 5) ? [2, 5] : inRange(6, 12) ? [6, 12] : inRange(13, 49) ? [13, 49] :
+        inRange(50, 69) ? [50, 69] : inRange(70, 99) ? [70, 99] : age >= 100 ? [100, 120] : null;
+      if (bucket) {
+        const fresh = drawHumanLoreByFilter(age, character, (e) =>
+          e.minAge <= bucket[1] && (e.maxAge === undefined || e.maxAge >= bucket[0]) &&
+          (!e.planet || e.planet.includes(character.planetType)) &&
+          (!e.cond || e.cond(character)));
+        if (fresh) return fresh;
+      }
       return getHumanEvent(age, character);
     }
     case 'ork': return getOrkEvent(age, character);
