@@ -794,9 +794,15 @@ function findAnchorEvent(age: number, c: CharacterStats): { e: Pool[number]; i: 
       (!!e.cond || e.ev.choices.some((ch) => ch.effects.keyChoice)),
   );
   if (candidates.length === 0) return null;
+  // Среди подходящих узлов сначала пробуем «продолжение пути» — событие, чья
+  // cond уже истинна из-за сделанного ранее выбора (цепочка идёт дальше).
+  // Так сквозные ветки («Скиталец», следствия имплантов) проходятся целиком
+  // и по порядку, а не перескакивают между независимыми узлами.
+  const followups = candidates.filter(({ e }) => !!e.cond);
+  const poolToPick = followups.length > 0 ? followups : candidates;
   // Детерминированный выбор среди подходящих узлов (тот же год → то же событие)
   const pick = loreRand(charSeed(c) ^ ((age + 7) * 0x9e3779b1));
-  return candidates[Math.floor(pick() * candidates.length)];
+  return poolToPick[Math.floor(pick() * poolToPick.length)];
 }
 
 // Анти-повторная машина (v0.3.77): раньше лорные выборы повторялись, потому что
