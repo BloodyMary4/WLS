@@ -532,26 +532,393 @@ export class GrimdarkAmbience {
     return () => this.playDeepPulse();
   }
 
+  /**
+   * v0.3.83 «Полноценный трек»: темп трека (удара пульса) по настроениям.
+   * danger ≈ 100 BPM, tense ≈ 79, normal ≈ 62, epic ≈ 70 — музыка идёт
+   * ровным метром, а не разрозненными звуками.
+   */
+  private static readonly MOOD_TEMPO: Record<'normal' | 'tense' | 'danger' | 'epic', number> = {
+    normal: 960,
+    tense: 760,
+    danger: 600,
+    epic: 850,
+  };
+
+  /**
+   * Форма трека: гармонический оборот MOOD_THEMES (4accf6d1 «Тема») теперь
+   * привязан к барам, а не к числу сыгранных фраз: одна смена аккорда =
+   * один бар. Мелодические фразы вписываются в сетку баров и звучат
+   * синхронно с басом и пульсом — как связный трек, а не случайные звуки.
+   */
+  private trackBar = 0;
+  private phraseUntilBar = 0;
+  private nextPhraseAtBar = 1;
+  private lastPhraseBar = -1;
+  private bassBeat = 0;
+
   private startMelodicEvents() {
-    const scheduleNext = () => {
-      if (!this.isPlaying) return;
-      // Темп событий зависит от настроения: покой дышит медленно,
-      // опасность не даёт расслабиться.
-      const base = this.currentMood === 'danger' ? 1800
-        : this.currentMood === 'tense' ? 2600
-        : this.currentMood === 'epic' ? 3200
-        : 4200;
-      const spread = this.currentMood === 'normal' ? 5000 : 3200;
-      const delay = base + Math.random() * spread;
-      this.intervalId = setTimeout(() => {
-        if (!this.isPlaying || !this.audioContext || !this.masterGain) return;
+    this.trackBar = 0;
+    this.phraseUntilBar = 0;
+    this.nextPhraseAtBar = 1;
+    this.lastPhraseBar = -1;
+    this.bassBeat = 0;
+    // Первый бар — сразу, дальше сетка сама себя перезапускает.
+    this.playTrackBar();
+    this.scheduleBarTick();
+  }
 
-        this.pickMoodEvent(this.currentMood)();
+  /** Один бар трека: гармония + пульс (4 удара по сетке) + бас + фраза. */
+  private playTrackBar(): void {
+    if (!this.isPlaying || !this.audioContext || !this.masterGain) return;
+    const beatMs = GrimdarkAmbience.MOOD_TEMPO[this.currentMood];
+    const beatsPerBar = this.currentMood === 'normal' ? 8 : 4;
 
-        scheduleNext();
-      }, delay);
-    };
-    scheduleNext();
+    this.trackBar++;
+    // Смена гармонии строго раз в бар — ладовая тема дышит тактами.
+    if (this.trackBar > this.phraseUntilBar) {
+      this.playThemePad();
+      this.phraseUntilBar = this.trackBar;
+    }
+    // Ровный пульс конвейера (в danger — бочина Darktide, в epic — литавры).
+    // Удары планируются в будущее время AudioContext — точная сетка, не залп.
+    for (let b = 0; b < beatsPerBar; b++) {
+      this.playTrackPulse(b === 0, b, b * (beatMs / 1000));
+    }
+    // Непрерывное бас-остинато: держит трек «треком», даже когда фраз молчат
+    this.playBassOstinato(beatsPerBar * beatMs);
+    // Мелодическая фраза — поплотнее в напряжении, пореже в покое
+    if (this.trackBar >= this.nextPhraseAtBar && this.lastPhraseBar !== this.trackBar) {
+      // v0.3.83 «Полноценный трек»: перед характерным звуком настроения
+      // звучит арпеджио ТЕКУЩЕГО аккорда темы, ровно по долям бара. Это
+      // связующая мелодическая линия: набор эффектов превращается в трек,
+      // потому что солист играет ту же гармонию, что пад и бас.
+      this.playThemeArpeggio(beatMs / 1000);
+      this.pickMoodEvent(this.currentMood)();
+      this.lastPhraseBar = this.trackBar;
+      const density = this.currentMood === 'danger' ? [1, 2]
+        : this.currentMood === 'tense' ? [2, 3]
+        : this.currentMood === 'epic' ? [2, 4]
+        : [3, 6];
+      this.nextPhraseAtBar = this.trackBar + density[Math.floor(Math.random() * density.length)];
+    }
+  }
+
+  /** Тик сетки: ровно один бар за срабатывание таймера. */
+  private scheduleBarTick() {
+    if (!this.isPlaying) return;
+    const beatMs = GrimdarkAmbience.MOOD_TEMPO[this.currentMood];
+    const beatsPerBar = this.currentMood === 'normal' ? 8 : 4;
+    this.intervalId = setTimeout(() => {
+      this.playTrackBar();
+      this.scheduleBarTick();
+    }, beatMs * beatsPerBar);
+  }
+
+  /**
+   * Удар сетки трека: route по настроению — normal/epic мягче, danger —
+   * электронная бочина, tense — лязг конвейера на слабые доли.
+   * `offsetSec` — сдвиг удара внутри бара (сетка 4/4, а не залп).
+   */
+  private playTrackPulse(accent: boolean, beatInBar: number, offsetSec: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const mood = this.currentMood;
+    const weakElectronic = mood === 'danger';
+    const weakIndustrial = mood === 'tense' && !accent;
+    if (weakElectronic || weakIndustrial) {
+      this.playIndustrialKick(accent, offsetSec);
+      return;
+    }
+    if (mood === 'epic') {
+      // Литавровый бой: сильная доля — заметно, слабые — приглушённо
+      this.playTimpaniTick(accent ? 0.1 : 0.045, offsetSec);
+      return;
+    }
+    // normal: глубокий пульс только на сильную долю, лязг механизма — на «3».
+    // Оба звука планируются в будущее время AudioContext (offsetSec) — точная
+    // сетка трека без дребезга setTimeout.
+    if (accent) this.playDeepPulseAt(offsetSec);
+    else if (beatInBar % 4 === 2) this.playMechanismClankAt(offsetSec);
+  }
+
+  /** Пульс-метроном эмбиента: три низких «удара сердца» с сетки бара. */
+  private playDeepPulseAt(offsetSec: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    const base = ctx.currentTime + 0.02 + offsetSec;
+    for (let i = 0; i < 3; i++) {
+      const t = base + i * 0.45;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      const lp = ctx.createBiquadFilter();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(58 - i * 6, t);
+      lp.type = 'lowpass';
+      lp.frequency.value = 110;
+      lp.Q.value = 1.8;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.07 / (i * 0.5 + 1), t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.connect(lp);
+      lp.connect(g);
+      g.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.45);
+    }
+  }
+
+  /** Лязг механизма на слабой доле — ровно по сетке (будущее время ctx). */
+  private playMechanismClankAt(offsetSec: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime + 0.02 + offsetSec;
+    const freq = 180 + Math.random() * 240;
+
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.value = freq * 2.76;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.03, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    const bandpass = ctx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.value = freq * 3;
+    bandpass.Q.value = 6;
+
+    osc.connect(bandpass);
+    osc2.connect(bandpass);
+    bandpass.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.35);
+    osc2.start(now);
+    osc2.stop(now + 0.35);
+  }
+
+  /**
+   * Электронная бочина (Darktide): синус 150→48 Гц с быстрой атакой —
+   * четырёхчетвертный пульс опасности.
+   */
+  private playIndustrialKick(accent: boolean, offsetSec: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime + 0.01 + offsetSec;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(46, now + 0.11);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(accent ? 0.13 : 0.07, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+
+  /** Короткий литавровый удар сетки эпика (без длинного ролла). */
+  private playTimpaniTick(level: number, offsetSec: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime + 0.01 + offsetSec;
+    const themeRoot = GrimdarkAmbience.MOOD_THEMES[this.currentMood][0][0];
+    const f = 55 * Math.pow(2, themeRoot / 12);
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f * 1.5, now);
+    osc.frequency.exponentialRampToValueAtTime(f, now + 0.18);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(level, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.6);
+  }
+
+  /**
+   * Бас-остинато: два низких удара за бар от корня ТЕКУЩЕГО оборота темы —
+   * непрерывная пульсирующая линия, которая и делает набор звуков треком.
+   */
+  private playBassOstinato(barMs: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    // peekThemeChord возвращает частоты от 55 Гц; делим на 2 — бас на октаву
+    // ниже пада, чтобы остинато читалось как отдельный слой микса.
+    const chord = this.peekThemeChord();
+    const rootFreq = chord[0] / 2;
+    const fifthFreq = (chord[1] ?? chord[0] * 1.5) / 2;
+    const hits: Array<[number, number]> = [
+      [0, rootFreq],
+      [barMs * 0.5, this.bassBeat % 2 === 0 ? fifthFreq : rootFreq],
+    ];
+    this.bassBeat++;
+    const now = ctx.currentTime + 0.01;
+    hits.forEach(([offsetMs, freq]) => {
+      const t = now + offsetMs / 1000;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      const lp = ctx.createBiquadFilter();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      lp.type = 'lowpass';
+      lp.frequency.value = 160;
+      lp.Q.value = 1.5;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.075, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+      osc.connect(lp);
+      lp.connect(g);
+      g.connect(this.masterGain!);
+      osc.start(t);
+      osc.stop(t + 0.5);
+    });
+  }
+
+  /** Аккордовый пад текущего оборота темы (без продвижения сетки). */
+  private peekThemeChord(): number[] {
+    const theme = GrimdarkAmbience.MOOD_THEMES[this.currentMood];
+    const step = this.trackBar % theme.length;
+    const octaveShift = Math.floor(this.trackBar / theme.length) % 2 === 1 ? 12 : 0;
+    return theme[step].map((semi) => 55 * Math.pow(2, (semi + octaveShift) / 12));
+  }
+
+  /**
+   * v0.3.83 «Полноценный трек»: мелодическое арпеджио по аккорду текущей
+   * темы — ноты ровно по долям бара (каждая на всю долю), мягкая атака и
+   * длинное затухание, тёплый фильтр, лёгкое эхо. Солист играет ту же
+   * гармонию, что пад и бас-остинато: музыка слышится цельным треком, а
+   * не набором резких звуков. В danger — на октаву ниже и глуше (басовая
+   * линия электро), в epic — на октаву выше (струнная кантилена).
+   */
+  private playThemeArpeggio(beatSec: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    const mood = this.currentMood;
+    // Ритмический рисунок фразы: доли внутри бара, на которых звучит нота
+    // (4/4 — все четыре доли; normal с 8-долевым баром — зыбкие 1, 3, 6).
+    const pattern: Array<[number, boolean]> =
+      mood === 'normal' ? [[0, true], [2, false], [5, false]]
+      : mood === 'epic' ? [[0, true], [1, false], [2, true], [3, false]]
+      : [[0, true], [1, false], [2, false], [3, false]];
+    const chord = this.peekThemeChord();
+    // Октавный регистр солиста по настроению.
+    const regMul = mood === 'danger' ? 0.5 : mood === 'epic' ? 4 : 2;
+    const levelBase = mood === 'danger' ? 0.028 : mood === 'epic' ? 0.05 : 0.04;
+    const cutoff = mood === 'tense' ? 900 : mood === 'danger' ? 500 : 1200;
+    const now = ctx.currentTime + 0.02;
+
+    // Мягкое эхо арпеджио — «соборная» связность фразы.
+    const echo = ctx.createDelay();
+    echo.delayTime.value = beatSec * 0.75;
+    const echoFb = ctx.createGain();
+    echoFb.gain.value = 0.25;
+    const echoLp = ctx.createBiquadFilter();
+    echoLp.type = 'lowpass';
+    echoLp.frequency.value = 800;
+    echo.connect(echoLp);
+    echoLp.connect(echoFb);
+    echoFb.connect(echo);
+    echoLp.connect(this.masterGain);
+
+    pattern.forEach(([beatIdx, accent], i) => {
+      // Ход по аккорду вверх-вниз (root → 3rd → 5th → oct…), синкопа
+      // опускает ноту на ступень лада для певучести.
+      const deg = (i + (accent ? 0 : 1)) % chord.length;
+      let freq = chord[deg] * regMul;
+      if (!accent && Math.random() < 0.5) freq *= 0.89; // ♭2 ступень — певучий «вздох»
+      const t = now + beatIdx * beatSec;
+      const dur = beatSec * (accent ? 1.9 : 1.5);
+
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      const lp = ctx.createBiquadFilter();
+      const panner = ctx.createStereoPanner();
+      osc.type = mood === 'epic' ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.detune.value = (Math.random() - 0.5) * 5;
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(cutoff, t);
+      lp.Q.value = 0.8;
+      panner.pan.value = (i % 2 === 0 ? -1 : 1) * 0.35;
+      const lvl = (accent ? levelBase : levelBase * 0.65);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(lvl, t + beatSec * 0.35); // мягкая, «струнная» атака
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(lp);
+      lp.connect(g);
+      g.connect(panner);
+      panner.connect(this.masterGain!);
+      g.connect(echo);
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+    });
+  }
+
+  /**
+   * Гармония трека: аккорд текущего оборота темы на весь бар — медленная
+   * атака, длинное дыхание, тёплый эхолог собора. Это «подушка», поверх
+   * которой поют фразы; раньше гармония менялась с каждой фразой вразнобой
+   * с пульсом, теперь — синхронно с сеткой.
+   */
+  private playThemePad(): void {
+    if (!this.audioContext || !this.masterGain) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+    const beatMs = GrimdarkAmbience.MOOD_TEMPO[this.currentMood];
+    const duration = ((beatMs / 1000) * (this.currentMood === 'normal' ? 8 : 4)) + 0.8;
+    const chord = this.peekThemeChord();
+
+    const padDelay = ctx.createDelay();
+    padDelay.delayTime.value = 0.28;
+    const padFeedback = ctx.createGain();
+    padFeedback.gain.value = 0.3;
+    const padDelayFilter = ctx.createBiquadFilter();
+    padDelayFilter.type = 'lowpass';
+    padDelayFilter.frequency.value = 750;
+    padDelay.connect(padDelayFilter);
+    padDelayFilter.connect(padFeedback);
+    padFeedback.connect(padDelay);
+    padDelayFilter.connect(this.masterGain);
+
+    chord.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      const panner = ctx.createStereoPanner();
+
+      osc.type = i === 0 ? 'sine' : 'triangle';
+      osc.frequency.value = freq;
+      osc.detune.value = (Math.random() - 0.5) * 6;
+      panner.pan.value = (i - 1) * 0.5;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 420 + i * 90;
+      filter.Q.value = 1.2;
+
+      const level = 0.05 / (i * 0.7 + 1);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(level, now + duration * 0.3);
+      gain.gain.linearRampToValueAtTime(level * 0.75, now + duration * 0.7);
+      gain.gain.linearRampToValueAtTime(0.0001, now + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(panner);
+      panner.connect(this.masterGain!);
+      gain.connect(padDelay);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.1);
+    });
   }
 
   // ---------- v0.3.73: новые слои по четырём направлениям гримдарка ----------
@@ -2092,6 +2459,22 @@ export class GrimdarkAmbience {
     // с тоники своей ладовой темы (v0.3.75).
     this.themeIndex = 0;
 
+    // v0.3.83 «Полноценный трек»: сетка трека перестраивается под новый темп —
+    // гасим текущий бар-таймер и отложенные удары, перезапускаем с сильной доли.
+    if (this.isPlaying) {
+      if (this.intervalId) {
+        clearTimeout(this.intervalId);
+        this.intervalId = null;
+      }
+      this.trackBar = 0;
+      this.phraseUntilBar = 0;
+      this.nextPhraseAtBar = 1;
+      this.lastPhraseBar = -1;
+      this.bassBeat = 0;
+      this.playTrackBar();
+      this.scheduleBarTick();
+    }
+
     // Смена настроения перезапускает цикл далёких взрывов: он живёт
     // только в danger (см. scheduleArtillery / playDistantBlast).
     if (this.artilleryTimer) {
@@ -2222,6 +2605,9 @@ export class GrimdarkAmbience {
       clearTimeout(this.intervalId);
       this.intervalId = null;
     }
+
+    // v0.3.83: гасим сетку трека — бар-таймер не должен продолжать игру
+    // после выключения музыки или перезапуска.
 
     // Далёкие взрывы — тоже таймерный слой: гасим при остановке музыки
     if (this.artilleryTimer) {
