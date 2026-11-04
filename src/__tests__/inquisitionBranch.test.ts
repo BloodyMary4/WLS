@@ -47,11 +47,39 @@ describe('Лорная ветвка «Служба Инквизиции»', () =
     expect(getEventForAge(25, c).text).not.toContain('сером плаще');
   });
 
-  it('после контакта с Инквизицией эхо-линия артефакта освобождает слот', () => {
-    const handedOver = makeCharacter({ race: 'human', keyChoices: ['found_artifact', 'inquisition_contact'], inventory: [] });
-    expect(getEventForAge(7, handedOver).text).not.toContain('начинает проявлять странные свойства');
-    const kept = makeCharacter({ race: 'human', keyChoices: ['found_artifact'], inventory: ['Загадочный артефакт'] });
-    expect(getEventForAge(7, kept).text).toContain('начинает проявлять странные свойства');
+  it('эхо-линия артефакта показывается РОВНО ОДИН раз (v0.4.2 «Одно эхо»)', () => {
+    // После любого из вариантов эха (done-след или inquisition_contact) слот
+    // освобождается навсегда — раньше событие липло к каждому году с 6–7 лет.
+    for (const done of ['artifact_echo_done', 'inquisition_contact']) {
+      const c = makeCharacter({ race: 'human', keyChoices: ['found_artifact', done], inventory: ['Загадочный артефакт'] });
+      for (const age of [7, 9, 12, 20]) {
+        expect(getEventForAge(age, c).text).not.toContain('начинает проявлять странные свойства');
+      }
+    }
+    // До показа — доступно (и не требует предмета в инвентаре: проверка
+    // по inventory ломалась при загрузке старых сейвов).
+    const fresh = makeCharacter({ race: 'human', keyChoices: ['found_artifact'], inventory: [] });
+    expect(getEventForAge(7, fresh).text).toContain('начинает проявлять странные свойства');
+  });
+
+  it('каждый вариант эха артефакта пишет done-след (кроме 4 — он сам след)', () => {
+    const c = makeCharacter({ race: 'human', keyChoices: ['found_artifact'] });
+    const ev = getEventForAge(7, c);
+    expect(ev.choices[0].effects.keyChoice).toBe('artifact_echo_done');
+    expect(ev.choices[1].effects.keyChoice).toBe('artifact_echo_done');
+    expect(ev.choices[2].effects.keyChoice).toBe('artifact_echo_done');
+    expect(ev.choices[3].effects.keyChoice).toBe('inquisition_contact');
+    // варианты 2/3 убирают артефакт из инвентаря — предмет больше не висит вечно
+    expect(ev.choices[1].effects.removeItem).toBe('Загадочный артефакт');
+    expect(ev.choices[2].effects.removeItem).toBe('Загадочный артефакт');
+  });
+
+  it('эхо повстанцев тоже однократное', () => {
+    const open = makeCharacter({ race: 'human', keyChoices: ['helped_rebel'] });
+    expect(getEventForAge(11, open).text).toContain('Повстанцы, которым ты помог');
+    const done = makeCharacter({ race: 'human', keyChoices: ['helped_rebel', 'rebel_echo_done'] });
+    expect(getEventForAge(11, done).text).not.toContain('Повстанцы, которым ты помог');
+    expect(getEventForAge(15, done).text).not.toContain('Повстанцы, которым ты помог');
   });
 
   it('все выборы валидны: непустой текст и description', () => {

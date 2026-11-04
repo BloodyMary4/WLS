@@ -74,33 +74,48 @@ export function commitChildhoodSeen(c: CharacterStats, text: string): void {
   if (m) markBaseSeen(c, CHILDSALT, Number(m[1]));
 }
 
+/** v0.4.2 «Одно эхо»: страховочная фиксация эхо-узлов E1/E2 (см. getHumanEvent). */
+export function commitEchoSeen(c: CharacterStats, text: string): void {
+  if (!/^\u200BE(\d)\u200B/.test(text)) return;
+  const done = text.includes('начинает проявлять странные свойства')
+    ? 'artifact_echo_done' : 'rebel_echo_done';
+  if (!(c.keyChoices || []).includes(done)) {
+    c.keyChoices = [...(c.keyChoices || []), done];
+  }
+}
+
 export function getHumanEvent(age: number, c: CharacterStats): GameEvent {
   const pt = c.planetType;
   
-  const artifactEchoReady =
-    age >= 6 && c.keyChoices && c.keyChoices.includes('found_artifact')
-    && !c.keyChoices.includes('inquisition_contact')
-    && c.inventory.includes('Загадочный артефакт');
-  if (artifactEchoReady) {
+  // v0.4.2 «Одно эхо»: сквозные узлы показываются РОВНО ОДИН раз за жизнь.
+  // Прежняя логика держала их открытыми, пока предмет лежит в инвентаре или
+  // пока не выбран конкретный вариант, — из-за этого «Загадочный артефакт»
+  // выдавался каждый год начиная с 7 лет. Теперь факт показа фиксируется
+  // маркером keyChoice независимо от выбора; сам выбор по-прежнему важен —
+  // он пишет следы (inquisition_contact и т.п.) для будущих веток.
+  const echoSeen = (k: string) => !!c.keyChoices && c.keyChoices.includes(k);
+
+  if (age >= 6 && c.keyChoices?.includes('found_artifact')
+      && !echoSeen('artifact_echo_done') && !echoSeen('inquisition_contact')) {
     return {
-      text: 'Возраст ' + age + '. Загадочный артефакт, который ты нашёл в детстве, начинает проявлять странные свойства. Он светится ночью, шепчет... Ты чувствуешь его зов.',
+      text: '\u200BE1\u200BВозраст ' + age + '. Загадочный артефакт, который ты нашёл в детстве, начинает проявлять странные свойства. Он светится ночью, шепчет... Ты чувствуешь его зов.',
       choices: [
-        { letter: '1', text: 'Изучить артефакт глубже', effects: { psi: 2, mutation: 2, suspicion: 2, description: 'Ты изучаешь его. Артефакт открывает... знания. Запретные. Но мощные.' } },
-        { letter: '2', text: 'Уничтожить его — это слишком опасно', effects: { faith: 2, willpower: 1, description: 'Ты ломаешь артефакт. Он взрывается... но ты жив. Опасность миновала.' } },
-        { letter: '3', text: 'Продать его — избавиться от проблемы', effects: { credits: 30, cunning: 1, description: 'Ты продаёшь артефакт торговцу. Деньги... но что он сделает с ним?' } },
-        { letter: '4', text: 'Показать Инквизиции', effects: { faith: 3, suspicion: -2, keyChoice: 'inquisition_contact', description: 'Инквизиция забирает артефакт. "Правильно, дитя." Ты в безопасности... пока.' } },
+        { letter: '1', text: 'Изучить артефакт глубже', effects: { psi: 2, mutation: 2, suspicion: 2, keyChoice: 'artifact_echo_done', description: 'Ты изучаешь его. Артефакт открывает... знания. Запретные. Но мощные.' } },
+        { letter: '2', text: 'Уничтожить его — это слишком опасно', effects: { faith: 2, willpower: 1, removeItem: 'Загадочный артефакт', keyChoice: 'artifact_echo_done', description: 'Ты ломаешь артефакт. Он взрывается... но ты жив. Опасность миновала.' } },
+        { letter: '3', text: 'Продать его — избавиться от проблемы', effects: { credits: 30, cunning: 1, removeItem: 'Загадочный артефакт', keyChoice: 'artifact_echo_done', description: 'Ты продаёшь артефакт торговцу. Деньги... но что он сделает с ним?' } },
+        { letter: '4', text: 'Показать Инквизиции', effects: { faith: 3, suspicion: -2, removeItem: 'Загадочный артефакт', keyChoice: 'inquisition_contact', description: 'Инквизиция забирает артефакт. "Правильно, дитя." Ты в безопасности... пока.' } },
       ]
     };
   }
   
-  if (age >= 10 && c.keyChoices && c.keyChoices.includes('helped_rebel')) {
+  if (age >= 10 && c.keyChoices?.includes('helped_rebel') && !echoSeen('rebel_echo_done')) {
     return {
-      text: 'Возраст ' + age + '. Повстанцы, которым ты помог в детстве, помнят тебя. Они предлагают тебе присоединиться к ним. "Ты один из нас," — говорят они.',
+      text: '\u200BE2\u200BВозраст ' + age + '. Повстанцы, которым ты помог в детстве, помнят тебя. Они предлагают тебе присоединиться к ним. "Ты один из нас," — говорят они.',
       choices: [
-        { letter: '1', text: 'Присоединиться — бороться за свободу', effects: { strength: 2, willpower: 2, suspicion: 3, newStatus: 'Повстанец', description: 'Ты вступаешь в ряды повстанцев. Теперь ты враг Империума. Но ты свободен.' } },
-        { letter: '2', text: 'Отказаться — это слишком опасно', effects: { willpower: 1, description: 'Ты отказываешься. Они понимают. "Будь осторожен." Но ты жив.' } },
-        { letter: '3', text: 'Донести на них Инквизиции', effects: { faith: 2, suspicion: -2, description: 'Инквизиция арестовывает повстанцев. Ты праведник. Но... они доверяли тебе.' } },
-        { letter: '4', text: 'Помогать тайно — двойная игра', effects: { cunning: 3, suspicion: 2, description: 'Ты помогаешь повстанцам, но остаёшься "лояльным". Опасная игра.' } },
+        { letter: '1', text: 'Присоединиться — бороться за свободу', effects: { strength: 2, willpower: 2, suspicion: 3, newStatus: 'Повстанец', keyChoice: 'rebel_echo_done', description: 'Ты вступаешь в ряды повстанцев. Теперь ты враг Империума. Но ты свободен.' } },
+        { letter: '2', text: 'Отказаться — это слишком опасно', effects: { willpower: 1, keyChoice: 'rebel_echo_done', description: 'Ты отказываешься. Они понимают. "Будь осторожен." Но ты жив.' } },
+        { letter: '3', text: 'Донести на них Инквизиции', effects: { faith: 2, suspicion: -2, keyChoice: 'rebel_echo_done', description: 'Инквизиция арестовывает повстанцев. Ты праведник. Но... они доверяли тебе.' } },
+        { letter: '4', text: 'Помогать тайно — двойная игра', effects: { cunning: 3, suspicion: 2, keyChoice: 'rebel_echo_done', description: 'Ты помогаешь повстанцам, но остаёшься "лояльным". Опасная игра.' } },
       ]
     };
   }

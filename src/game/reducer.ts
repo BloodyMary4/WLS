@@ -15,7 +15,7 @@ import { GameState, Choice, CharacterStats, ChoiceEffects, Race } from './types'
 import { rng, setGlobalSeed, hashSeed } from './rng';
 import { generateCharacter, generateCharacterByRace, getEventForAge, getDeathMessage } from './data';
 import { markLoreSeen, loreMarkerIndex, stripLoreMarker } from './events/humanLoreEvents';
-import { commitChildhoodSeen } from './events/humanEvents';
+import { commitChildhoodSeen, commitEchoSeen } from './events/humanEvents';
 import { checkAchievements } from './achievements';
 import { triggerMicroEvent } from './microEvents';
 import { getLegacy, updateLegacyOnDeath, getLegacyBonuses } from './legacy';
@@ -369,6 +369,10 @@ export function computeChoose(state: GameUiState, choice: Choice): GameOutcome {
     if (idx !== null) markLoreSeen(newChar, idx);
     // v0.4.1 «Колода детства»: фиксация просмотра шаблонного события детства
     commitChildhoodSeen(newChar, game.currentEvent.text);
+    // v0.4.2 «Одно эхо»: страховка — если показанное событие было эхо-узлом
+    // (маркер \u200BE1\u200B/\u200BE2\u200B в тексте), а выбранный вариант почему-то
+    // не записал done-след, фиксируем его здесь. Эхо не может «застрять».
+    commitEchoSeen(newChar, game.currentEvent.text);
   }
 
   // Визуальные дельты хода: бейджи +/− на плитках шапки в фазе исхода.

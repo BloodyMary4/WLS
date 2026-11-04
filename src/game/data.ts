@@ -174,8 +174,11 @@ export function getEventForAge(age: number, character: CharacterStats): GameEven
   // перекрывать случайную лорную колоду, иначе цепочка обрывается (v0.4.1).
   if (character.race === 'human') {
     const echo = getHumanEvent(age, character);
-    if (echo.text.includes('начинает проявлять странные свойства') ||
-        echo.text.includes('Повстанцы, которым ты помог в детстве')) return echo;
+    // v0.4.2: эхо-узлы распознаются по служебному маркеру \u200BEn\u200B
+    // (надёжнее поиска по подстроке), сам маркер вырезается из показа.
+    if (/^\u200BE\d\u200B/.test(echo.text)) {
+      return { ...echo, text: echo.text.replace(/^\u200BE\d\u200B/, '') };
+    }
   }
   // Ордо Малипус: вызов к проявившемуся псайкеру-человеку важнее предложения
   // импланта — дар нельзя «заапгрейдить»: его скрывают, регистрируют или сжигают.
