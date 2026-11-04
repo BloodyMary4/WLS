@@ -204,17 +204,31 @@ button:not([class*="btn"]), [type="button"]:not([class*="btn"]) {
   .animate-candle { animation: none; }
 }
 
-/* Статус-бары — узкие, металлические */
+/* Статус-бары — узкие, металлические.
+   v0.3.88 «Индикаторы мостика»: глубина колодца (внутренняя тень + верхняя
+   бликующая кромка), янтарная шкала делений поверх заполнения (как лимбы
+   приборных датчиков) и мягкое свечение столбика. Только оформление —
+   высота, геометрия и компоновка не тронуты. */
 .wh-bar {
-  background: #1c1913;
+  position: relative;
+  background: linear-gradient(180deg, #100e0a 0%, #1c1913 55%, #241f16 100%);
   border: 1px solid rgba(201, 162, 39, 0.3);
   border-radius: 1px;
   height: 6px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.75), inset 0 -1px 0 rgba(201, 162, 39, 0.08);
+}
+.wh-bar::after {
+  /* лимбовая шкала: тёмные штрихи каждые ~10% ширины, поверх полосы */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(8, 7, 5, 0.55) 9px 10px);
+  pointer-events: none;
 }
 .wh-bar-fill {
   height: 100%;
   border-radius: 0;
-  box-shadow: 0 0 6px currentColor;
+  box-shadow: 0 0 6px currentColor, inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transition: width 0.4s ease;
 }
 
@@ -248,17 +262,32 @@ button:not([class*="btn"]), [type="button"]:not([class*="btn"]) {
     linear-gradient(180deg, rgba(24,21,14,0.97) 0%, rgba(9,8,6,0.97) 100%);
   box-shadow: inset 0 -1px 0 rgba(201,162,39,0.12), 0 4px 18px rgba(0,0,0,0.55);
 }
-/* Ячейка панели: скошенные углы (clip-path), тёмное железо, золотая нить рамки */
+/* Ячейка панели: скошенные углы (clip-path), тёмное железо, золотая нить рамки.
+   v0.3.88: нижняя кромка-«полка» с янтарным отсветом — плитки статов читаются
+   как приборы, утопленные в панель; лёгкая коррозия по углам. */
 .wh-hud-cell {
   position: relative;
   padding: 0.5rem 0.7rem;
   font-size: 0.75rem;
   line-height: 1.35;
   color: #e8d9b0;
-  background: linear-gradient(180deg, rgba(28,25,18,0.94) 0%, rgba(14,12,9,0.96) 100%);
+  background:
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(120, 90, 30, 0.10), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(120, 90, 30, 0.08), transparent 70%),
+    linear-gradient(180deg, rgba(28,25,18,0.94) 0%, rgba(14,12,9,0.96) 100%);
   border: 1px solid rgba(201, 162, 39, 0.22);
   border-radius: 2px;
-  box-shadow: inset 0 1px 0 rgba(201,162,39,0.08), inset 0 0 18px rgba(0,0,0,0.45);
+  box-shadow: inset 0 1px 0 rgba(201,162,39,0.08), inset 0 0 18px rgba(0,0,0,0.45),
+              inset 0 -2px 4px rgba(0,0,0,0.5);
+}
+.wh-hud-cell::after {
+  /* тёплая эмиссия из-под прибора по нижней кромке */
+  content: '';
+  position: absolute;
+  left: 10%; right: 10%; bottom: 1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,162,39,0.35), transparent);
+  pointer-events: none;
 }
 /* Угловая засечка-«прищепка» сверху слева — отсылка к HUD-рамкам */
 .wh-hud-cell::before {
@@ -269,7 +298,12 @@ button:not([class*="btn"]), [type="button"]:not([class*="btn"]) {
   background: linear-gradient(90deg, rgba(201,162,39,0.55), rgba(201,162,39,0));
   pointer-events: none;
 }
-/* Сегмент строки (fit): та же эстетика, минимальные отступы */
+/* Тонкая приборная строка (fit): та же эстетика, минимальные отступы.
+   v0.3.88: усилена золотая нить-«шина» по нижней кромке + блик верхней
+   кромки — тот же язык, что у полной панели. */
+.wh-hud-strip {
+  box-shadow: inset 0 -1px 0 rgba(201,162,39,0.2), inset 0 1px 0 rgba(201,162,39,0.06), 0 4px 18px rgba(0,0,0,0.55);
+}
 .wh-hud-seg {
   display: flex;
   align-items: center;
@@ -1864,6 +1898,13 @@ section[aria-label="Исход решения"] > .wh-window-head h3::after {
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 0, 0, 0.4);
 }
 
+/* v0.3.88 «Индикаторы мостика»: лимбовая шкала .wh-bar::after поверх
+   стеклянного блиска — тонирование штрихов делений светлее, чтобы шкала
+   читалась на тёмном дне колодца (только оформление, геометрия та же) */
+.wh-bar::after {
+  background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(232, 217, 176, 0.16) 9px 10px);
+}
+
 /* Футер-прибор и шапка HUD: та же насечка брони для единства металла */
 .wh-hud-panel, .wh-hud-strip {
   background-blend-mode: overlay, normal, normal;
@@ -1893,4 +1934,25 @@ section[aria-label="Исход решения"] > .wh-window-head h3::after {
 .wh-event-card .choice-btn:focus-visible .wh-choice-letter {
   outline: 2px solid rgba(232, 201, 106, 0.9);
   outline-offset: 2px;
+}
+
+/* ===== v0.3.88 «Индикаторы мостика»: приборная полировка HUD =====
+   Только оформление поверх утверждённой компоновки 25/50/25: шкалы статов
+   получили глубину колодца и лимбовые деления, плитки — нижнюю эмиссию,
+   значения критичных приборов — статичное свечение (без анимаций). */
+
+/* Значения в критических плитках: кровь-неон со статичным ореолом —
+   тревога читается мгновенно, без мигания (наследует язык v0.3.50) */
+.wh-stat-critical .wh-hud-value {
+  color: #ff8a7a;
+  text-shadow: 0 0 8px rgba(224, 90, 82, 0.45);
+}
+
+/* Сегменты fit-строки: внутренняя фаска как у полных ячеек — единый металл */
+.wh-hud-seg {
+  box-shadow: inset 0 1px 0 rgba(201, 162, 39, 0.07), inset 0 -1px 2px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* новые эффекты статичны — ничего дополнительно отключать не требуется */
 }
