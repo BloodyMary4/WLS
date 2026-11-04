@@ -2014,3 +2014,66 @@ section[aria-label="Исход решения"]::after { display: none; }
   border-color: rgba(232, 201, 106, 0.75);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 6px rgba(201, 162, 39, 0.3);
 }
+
+/* ===== v0.4.4 «Аквила в раме»: стартовый экран ===== */
+/* Чёткое, детерминированное расположение герба: латунная медаль-рамка
+   фиксированного размера над титулом; орёл центрирован по обеим осям
+   (SVG preserveAspectRatio), свечение — тёплое янтарное halo. Никаких
+   плавающих/наезжающих позиций: рамка занимает ровно свои 104×86 px. */
+.aquila-frame {
+  width: 104px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  padding: 9px;
+  box-sizing: border-box;
+  color: rgba(232, 200, 90, 0.92);
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  border-radius: 50% / 42%;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(201, 162, 39, 0.16), transparent 70%),
+    linear-gradient(180deg, #1c1710 0%, #120e09 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(240, 216, 120, 0.28),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.65),
+    0 0 22px rgba(201, 162, 39, 0.22),
+    0 4px 14px rgba(0, 0, 0, 0.55);
+  margin-bottom: 1.1rem;
+}
+/* тонкая внутренняя обводка медальона + заклёпки по бокам рамки */
+.aquila-frame::before {
+  content: '';
+  position: absolute;
+}
+.menu-header .aquila-frame { position: relative; }
+.aquila-frame i.rivet-l, .aquila-frame i.rivet-r { display: none; }
+
+/* Стартовый экран без внешнего скролла на десктопе: контейнер строго
+   на высоту вьюпорта; если контента больше — скроллится только лента
+   внутри (тонкий латунный скроллбар в стиле мостика). */
+@media (min-width: 1024px) and (min-height: 640px) {
+  .main-menu > main.menu-scroll {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #8b6914 rgba(10, 10, 10, 0.6);
+  }
+  .main-menu > main.menu-scroll::-webkit-scrollbar { width: 8px; }
+  .main-menu > main.menu-scroll::-webkit-scrollbar-track { background: rgba(10,10,10,0.6); border-radius: 4px; }
+  .main-menu > main.menu-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37 0%, #8b6914 100%); border-radius: 4px; }
+  /* шапка прижата к верху, лента плотнее */
+  .main-menu .menu-header { margin-bottom: 1.5rem; }
+  .main-menu .menu-inner { padding-bottom: 1rem; }
+}
+
+/* Сводка прошлых жизней: тиснёная золотая линия сверху и снизу панели */
+.main-menu .wh-panel { position: relative; }
+
+/* Декоративные угловые скобы у панели описания вселенной */
+.main-menu .wh-panel.wh-frame::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201, 162, 39, 0.14);
+  border-radius: 2px;
+  pointer-events: none;
+}

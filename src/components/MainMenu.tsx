@@ -20,7 +20,7 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
   // Сводка прошлых жизней из localStorage — только для отображения.
   const legacy = useMemo(() => buildLegacySummary(getLegacy()), []);
   return (
-    <div className="game-container game-fit wh-grain wh-vignette min-h-screen" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
+    <div className="game-container game-fit wh-grain wh-vignette h-dvh overflow-hidden main-menu" style={{ background: 'radial-gradient(ellipse at 50% -10%, #241d10 0%, #0b0a08 45%, #060504 100%)' }}>
       <AudioController />
 
       {/* Фоновые эффекты (v0.3.50: мерцание убрано — статичные мягкие пятна) */}
@@ -29,14 +29,16 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-red-900/10 rounded-full blur-3xl"></div>
       </div>
 
-      <main className="fit-scroll relative z-10 container mx-auto px-6 py-12">
-      <div className="flex-1">
+      <main className="menu-scroll relative z-10 container mx-auto px-6 py-8">
+      <div className="menu-inner">
         <div className="max-w-[1600px] mx-auto">
           {/* Заголовок */}
-          <div className="text-center mb-16 animate-fade-in">
-            {/* v0.3.91 «Aquila»: имперский двуглавый орёл над титулом —
-                гравированный герб Кодекса (SVG, без шрифтовых глифов) */}
-            <span aria-hidden="true" className="block w-24 h-20 mx-auto mb-4 text-[#c9a227]/85 drop-shadow-[0_0_14px_rgba(201,162,39,0.35)]">
+          <div className="text-center animate-fade-in menu-header">
+            {/* v0.4.4 «Аквила в раме»: имперский двуглавый орёл над титулом —
+                гравированный герб Кодекса (SVG) в чётко очерченной латунной
+                рамке фиксированного размера: позиция и габарит детерминированы,
+                орёл центрирован по обеим осям, ничего не наезжает на текст. */}
+            <span aria-hidden="true" className="aquila-frame block mx-auto">
               <GameIcon name="aquila" className="w-full h-full" />
             </span>
             <h1 className="font-gothic text-5xl xl:text-6xl font-bold mb-4 tracking-[0.15em] uppercase bg-gradient-to-b from-[#f0d878] via-[#c9a227] to-[#7a5c10] bg-clip-text text-transparent animate-gold-sheen">
@@ -52,12 +54,12 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
           </div>
 
           {/* Описание */}
-          <div className="wh-panel wh-frame p-8 mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="wh-panel wh-frame p-8 mb-10 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-start gap-4">
               <div className="w-9 h-9 shrink-0 mt-1 opacity-80">
                 <RaceEmblem race="human" className="w-9 h-9" />
               </div>
-              <div className="flex-1">
+              <div className="menu-inner">
                 <p className="text-lg leading-relaxed text-gray-200 mb-4">
                   В мрачном будущем тридцать первого тысячелетия нет мира. Есть лишь бесконечная бойня.
                 </p>
@@ -136,13 +138,13 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
               <h3 className="font-gothic text-xl font-bold text-[#e8c85a] uppercase tracking-[0.15em] mb-4">Как выжить (или хотя бы попытаться)</h3>
               <ul className="space-y-2 text-[#d8c9a3] font-event leading-relaxed list-disc list-inside">
                 <li>Каждый ход — один год жизни. Смерть почти гарантирована, но её можно отсрочить.</li>
-                <li>Выбирайте действие клавишами <kbd className="px-1.5 py-0.5 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] font-mono text-sm">A</kbd>–<kbd className="px-1.5 py-0.5 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] font-mono text-sm">D</kbd> или мышью.</li>
+                <li>Выбирайте действие клавишами <kbd className="px-1.5 py-0.5 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] font-mono text-sm">1</kbd>–<kbd className="px-1.5 py-0.5 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] font-mono text-sm">4</kbd> или мышью.</li>
                 <li>Здоровье и рассудок — ваши главные щиты. Ранения накапливаются, безумие искажает восприятие.</li>
                 <li>Псайкеры с высоким психическим даром привлекают внимание Имматериума — и Инквизиции.</li>
                 <li>Судьбоносные выборы помечаются золотом в хронике и попадают в летопись на экране смерти.</li>
               </ul>
               <p className="mt-4 text-sm text-gray-400 italic font-event">
-                Пример: «Человек в сером плаще предлагает вам жетон Ордо…» → выбор A может изменить всю жизнь.
+                Пример: «Человек в сером плаще предлагает вам жетон Ордо…» → первый выбор может изменить всю жизнь.
               </p>
             </div>
           )}
@@ -150,13 +152,12 @@ export function MainMenu({ hasSave, onStartNewGame, onLoadSavedGame }: MainMenuP
           {/* Подсказка */}
           <div className="text-center animate-fade-in" style={{ animationDelay: '1.2s' }}>
             <p className="text-base text-gray-400 mb-3">
-              Каждый ход = 1 год жизни • 6 рас • Клавиши A-D для выбора
+              Каждый ход = 1 год жизни • 6 рас • Клавиши 1–4 для выбора
             </p>
             <div className="flex justify-center gap-3 mt-4">
-              <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">A</kbd>
-              <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">B</kbd>
-              <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">C</kbd>
-              <kbd className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">D</kbd>
+              {[1, 2, 3, 4].map((n) => (
+                <kbd key={n} className="px-4 py-2 bg-gray-800 border border-[#c9a227]/50 rounded-sm text-[#e8c85a] text-base font-mono">{n}</kbd>
+              ))}
             </div>
           </div>
         </div>
